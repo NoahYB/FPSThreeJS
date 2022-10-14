@@ -3,6 +3,8 @@ const fbxLoader = new THREE.FBXLoader();
 const objLoader = new THREE.OBJLoader();
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+const webSocketHandler = new WebSocketHandler();
+
 const gravity = .008;
 let moveSpeed = .1;
 const near = 1;
@@ -59,24 +61,7 @@ let keys = {};//Define array
 
 document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
-document.addEventListener('mousedown',mousedown);
-//Attach listeners to functions
-let i = 0;
-function mousedown(e) {
-    player.shoot();
-    raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
-    // calculate objects intersecting the picking ray
-    const intersects = raycaster.intersectObjects( scene.children );
-    // HITHITHITHITHITHIT
-    for ( let i = 0; i < intersects.length; i ++ ) {
-        const object = intersects[ i ].object;
-        if (object === level.object) continue;
-        if (object.isEnemy) {
-            object.c.death(object);
-        }
-    }
-    controls.lock();
-}
+
 function keydown(e){
     keys[e.key] = true;
 }
@@ -85,6 +70,18 @@ function keyup(e){
 }
 
 const clock = new THREE.Clock();
+
+function sendModelData() {
+    webSocketHandler.sendMessage(
+        {
+            text: 'connected',
+            connectionDisplayName: 'test',
+            position: player.object.position,
+            quaternion: player.object.quaternion,
+            animState: player.currentAnimationName,
+        }
+    );
+}
 
 let enemyMoveSpeed = 1;
 let initiated = false;
@@ -98,6 +95,9 @@ function animate() {
         head.add(camera);
         camera.rotateY(180 * Math.PI / 180);
         camera.position.y -= 1;
+    }
+    if (player.object && webSocketHandler.ready) {
+        sendModelData();
     }
     requestAnimationFrame( animate );
     const delta = clock.getDelta();
@@ -121,6 +121,9 @@ function animate() {
     }
     enemies.map(e => e.update(delta));
     player.update(delta);
+    Object.keys(webSocketHandler.connectedPlayers).forEach(key => {
+        webSocketHandler.connectedPlayers[key].update(delta);
+    })
     renderer.render( scene, camera );
 }
 animate();
