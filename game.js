@@ -1,6 +1,7 @@
 const scene = new THREE.Scene();
 const fbxLoader = new THREE.FBXLoader();
 const objLoader = new THREE.OBJLoader();
+const gltfLoader = new THREE.GLTFLoader();
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const webSocketHandler = new WebSocketHandler();
@@ -14,7 +15,7 @@ const color = 'lightblue';
 
 scene.background = new THREE.Color(color);
 
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+const camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, .1, 10000 );
 scene.add(camera);
 camera.position.z = 5;
 camera.position.y += .7;
@@ -22,6 +23,8 @@ camera.fov = 120;
 camera.updateProjectionMatrix();
 
 const renderer = new THREE.WebGLRenderer();
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
@@ -30,22 +33,19 @@ const player = new Player();
 const level = new Level();
 let controls;
 
-// for (let i = 0; i < 10; i++) {
-//     const pos = new THREE.Vector3(3 * i,0,0);
-//     const enemy = new NPC(true, pos);
-//     enemies.push(enemy);
-// }
+const spotLight = new THREE.PointLight( 'white', .5 );
+spotLight.position.set( 34, 50, -20 );
+spotLight.rotateZ(3.14 / 4)
+spotLight.shadowMapWidth = 4096;
+spotLight.shadowMapHeight = 4096;
+spotLight.castShadow = true;
+scene.add(spotLight);
 
-// White directional light at half intensity shining from the top.
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-scene.add( directionalLight );
-let light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
-light.position.set(0, 1, 0);
-scene.add(light);
+const ambientLight = new THREE.AmbientLight("salmon", .3);
 
-let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
-light.position.set(0, 1, 0);
-scene.add(light);
+scene.add(ambientLight);
+
+
 // controls.addEventListener( 'lock', function () {
 // 	// menu.style.display = 'none';
 
@@ -101,24 +101,6 @@ function animate() {
     }
     requestAnimationFrame( animate );
     const delta = clock.getDelta();
-    moveSpeed = keys['Shift'] ? 20: 10;
-    player.walking = false;
-    if(keys['w']){
-        controls.moveForward(-moveSpeed);
-        player.walking = true;
-    }
-    if(keys['s']){
-        controls.moveForward(moveSpeed);
-        player.walking = true;
-    }
-    if(keys['a']){
-        controls.moveRight(moveSpeed);
-        player.walking = true;
-    }
-    if(keys['d']){
-        controls.moveRight(-moveSpeed);
-        player.walking = true;
-    }
     enemies.map(e => e.update(delta));
     player.update(delta);
     Object.keys(webSocketHandler.connectedPlayers).forEach(key => {

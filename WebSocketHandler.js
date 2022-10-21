@@ -26,6 +26,7 @@ class WebSocketHandler {
             position,
             quaternion,
             animState,
+            tag
 	    } = data;
 
         if (id === this.id) return;
@@ -37,6 +38,11 @@ class WebSocketHandler {
             this.connectedPlayers[this.id].setPos(position);
             this.connectedPlayers[this.id].setQuaternion(quaternion);
             this.connectedPlayers[this.id].setAnimState(animState);
+        }
+        if (tag) {
+            // console.log(tag);
+            // const v = new THREE.Vector3(tag.x,tag.y,tag.z);
+            player.push(v);
         }
     }
 
@@ -50,6 +56,7 @@ class WebSocketHandler {
         }
     
         this.webSocket.onmessage = (message) => {
+            // console.log(message);
             const data = JSON.parse(message.data);
             if (data.id === this.id) return;
             if (data.text) {

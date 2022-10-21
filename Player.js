@@ -1,12 +1,10 @@
 class Player {
     constructor() {
-        this.pos = camera.position.clone();
-        this.pos.y -= 1;
-        // this.pos.z -= 4;
-        // camera.position.y += 2;
-        // camera.position.z -= .1;
-        // camera.position.x += .1;
+        this.moveSpeed = 20;
+        this.sprinting = false;
+        this.killBoundary = -10;
         this.animations = {};
+        this.grounded = false;
         this.mixer;
         this.object;
         this.currentAnimation;
@@ -14,28 +12,56 @@ class Player {
         this.loadModel(); 
         this.addReticle();
         this.addMuzzleFlash();
-        this.loadGun();
         this.loadHUD();
         this.shooting = false;
         this.box;
         this.velocity = new THREE.Vector3(0,0,0);
         this.handPosition;
         this.spawnedEntities = [];
+        this.collisions = new Collisions(this);
         document.addEventListener('mousedown',this.mousedown);
     }
     loadHUD() {
         this.text2 = document.createElement('div');
         this.text2.style.position = 'absolute';
-        //this.text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
         this.text2.style.width = 100;
         this.text2.style.height = 100;
-        // this.text2.style.backgroundColor = "blue";
         this.text2.innerHTML = "0";
         this.text2.style.fontSize = 100;
         this.text2.style.top = 30 + 'px';
         this.text2.style.left = 30 + 'px';
         this.text2.id = 'scoreText';
         document.body.appendChild(this.text2);
+
+    }
+    onLoadFinish() {
+        // this.addBoundingVolume();
+    }
+
+    addBoundingVolume() {
+        let headPosition;
+        this.head = this.object.getObjectByName('mixamorigHead');
+        if (this.head) {
+            this.object.updateMatrixWorld(true);
+            headPosition = new THREE.Vector3();
+            this.head.getWorldPosition( headPosition );
+        }
+        console.log(headPosition.y, this.object.position.y);
+        this.objectLength = this.extremities.maxY - this.extremities.minY;
+        const geometry = new THREE.BoxGeometry(
+            100,
+            (this.extremities.maxY - this.extremities.minY), 
+            this.extremities.maxX - this.extremities.minX,
+        );
+        const material = new THREE.MeshBasicMaterial({
+          color: 0x00FF00,
+          wireframe: true,
+        });
+        this.debugMesh = new THREE.Mesh( geometry, material );
+        this.box = new THREE.Box3();
+        this.debugMesh.geometry.computeBoundingBox();
+        this.box.copy( this.debugMesh.geometry.boundingBox ).applyMatrix4( this.debugMesh.matrixWorld );
+        this.object.add(this.debugMesh);
 
     }
     addMuzzleFlash() {
@@ -48,6 +74,14 @@ class Player {
         this.flash.visible = false;
         scene.add(camera);
         camera.add(this.flash);
+    }
+    checkY() {
+        if(this.object.position.y < this.killBoundary) {
+            this.respawn();
+        }
+    }
+    respawn() {
+        this.object.position.set(0,40,0);
     }
     loadGun() {
         objLoader.load(
@@ -82,10 +116,7 @@ class Player {
                 object.isEnemy = this.isEnemy;
                 object.c = this;
                 object.scale.setScalar(.01);
-                if (this.pos) {
-                    object.position.set(this.pos.x, this.pos.y, this.pos.z);
-                }
-                console.log(object);
+                object.position.y = 40;
                 this.mixer = new THREE.AnimationMixer( object );
                 const action = this.mixer.clipAction( object.animations[0] );
                 action.clampWhenFinished = true;
@@ -111,22 +142,37 @@ class Player {
                             this.animations['shooting'] = shooting;
                             shooting.weight = 1;
                             this.rightHand = this.object.getObjectByName('mixamorigRightHand');
+                            // this.onLoadFinish();
                         });
                         this.animSetup();
                     });
                 }, e => 1 + 1, e => console.log(e));
+                let maxY, maxZ, maxX, minX, minY, minZ;
+                maxX = maxY = maxZ = -100000000;
+                minX = minY = minZ = 100000000;
                 object.traverse(( child ) => {
                     child.isEnemy = true;
                     child.c = this;
+                    if(child.position.x > maxX) maxX = child.position.x;
+                    if(child.position.y > maxY) maxY = child.position.y;
+                    if(child.position.x < minX) minX = child.position.x;
+                    if(child.position.y < minY) minY = child.position.y;
+                    if(child.position.z < minZ) minZ = child.position.z;
+                    if(child.position.z > maxZ) maxZ = child.position.z;
                     if ( child.isMesh ) {
                         child.castShadow = true;
-                        child.receiveShadow = true;
                     }
                 } );
+                this.extremities = {
+                    maxX, maxY, minX, minY, minZ, maxZ
+                }
+                this.onLoadFinish();
+                console.log(this.extremities);
                 scene.add( object );
             }, e => 1 + 1, e => console.log(e),
         )
     }
+
     animSetup() {
         this.mixer.addEventListener( 'finished', ( e ) => {
             if (this.currentAnimation == this.animations['shooting']) {
@@ -147,6 +193,12 @@ class Player {
             if (object === level.object) return;
             if (object.isEnemy) {
                 const t = document.getElementById('scoreText');
+                let v = new THREE.Vector3();
+                camera.getWorldDirection(v);
+                webSocketHandler.sendMessage({
+                    tag: v,
+                    text: 'connected'
+                })
                 t.innerHTML = parseInt(t.innerHTML) + 1;
                 return;
             }
@@ -154,6 +206,7 @@ class Player {
         controls.lock();
     }
     shoot() {
+        console.log('f');
         let handPosition;
         this.animations['shooting'].time = (0);
         if (this.rightHand) {
@@ -166,7 +219,6 @@ class Player {
         camera.getWorldDirection(dir);
         const bullet = new Bullet(handPosition, dir.multiplyScalar(10000), player);
         this.spawnedEntities.push(bullet);
-        // this.transitionAnimation(this.animations['shooting']);
         this.shooting = true;
     }
 
@@ -180,13 +232,16 @@ class Player {
 
     }
 
+    push(v) {
+        // this.object.position.y += v.y;
+        // this.object.position.z += v.z;
+        // this.object.position.x += v.x;
+    }
+
     move() {
-        // camera.position.y += this.velocity.y ;
         this.object.position.y += this.velocity.y;
-        // camera.position.x += this.velocity.x ;
-        this.object.position.x += this.velocity.x;
-        // camera.position.z += this.velocity.z ;
-        this.object.position.z += this.velocity.z;
+        controls.moveForward(this.velocity.z);
+        controls.moveRight(this.velocity.x);
     }
 
     transitionAnimation(anim) {
@@ -202,19 +257,78 @@ class Player {
 
     jump() {
         this.velocity.y = 30 * gravity;
+        this.jumping = true;
+        this.grounded = false;
     }
 
     input() {
+        if (!this.object) return;
         if (keys[' '] && !this.jumping) {
             this.jumping = true;
             this.jump();
         }
+        this.sprinting = keys['Shift'] ? true: false;
+        this.walking = false;
+        if(keys['w']){
+            this.velocity.z = -this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.walking = true;
+        }
+        if(keys['s']){
+            this.velocity.z = this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.walking = true;
+        }
+        if(keys['a']){
+            this.velocity.x = this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.walking = true;
+        }
+        if(keys['d']){
+            this.velocity.x = -this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.walking = true;
+        }
+        if (!keys['w'] && !keys['s']) this.velocity.z = 0;
+        if (!keys['a'] && !keys['d']) this.velocity.x = 0;
+    }
+    updateBBOX() {
+        this.box = new THREE.Box3();
+        this.debugMesh.geometry.computeBoundingBox();
+        this.box
+            .copy( this.debugMesh.geometry.boundingBox )
+            .applyMatrix4( this.debugMesh.matrixWorld );
+    }
+
+    handleCollisions() {
+        const vertCollisions = this.collisions.checkVerticalCollisions(
+            this.object, 
+            level.object, 
+            this.velocity
+        );
+        if (vertCollisions && !this.jumping) {            
+            this.velocity.y = 0;
+            this.object.position.y = vertCollisions.y;
+            this.grounded = true;
+        } else {
+            this.jumping = false;
+            this.velocity.y -= gravity;
+        }
+        const horzontalCollisions = this.collisions.checkHorizontalCollisions(
+            this.object, 
+            level.object, 
+            this.velocity
+        );
+        if (horzontalCollisions) {
+            console.log('collided');
+            this.velocity.x = 0;
+            this.velocity.z = 0;
+        }
     }
 
     update(deltaTime) {
+        if (!this.object) return;
+        if (this.box) this.debugMesh.position.y = this.object.position.y + this.objectLength / 2;
+        this.checkY();
         this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log(''));
         if (this.mixer) this.mixer.update( deltaTime );
-
+        // if (this.object) camera.position.z = this.object.position.z - 300;
         if (!player.walking) {
             this.currentAnimationName = 'idle';
             this.animations['walking'].paused = true;
@@ -223,23 +337,8 @@ class Player {
             this.animations['walking'].paused = false;
             this.animations['walking'].play();
         }
-
-        const raycaster = new THREE.Raycaster();
-        let rayPos = this.object.position.clone();
-        rayPos.y += 1;
-        // camera.position.z = this.object.position.z - 50;
-        raycaster.set(
-            rayPos, 
-            new THREE.Vector3(0,-1,0)
-        );
-        let intersect = (raycaster.intersectObject(level.object, true));
-        if (intersect.length > 0 && intersect[0].distance < 1) {
-            this.jumping = false;
-            this.object.position.y = intersect[0].point.y;
-        } else {
-            this.velocity.y -= gravity;
-        }
         this.input();
+        this.handleCollisions();
         this.move();
     }
 }
