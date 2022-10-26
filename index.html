@@ -1,10 +1,47 @@
 <head>
+    <html lang="en" xml:lang="en" xmlns= "http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="Content-Language" content="en">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <script src="Pallette.js"></script>
+    <div 
+        class="centered_div" id="startscreen">
+        <h1> press 2 to see scoreboard </h1>
+        <h1> available servers </h1>
+        <ul>
+            <li onclick="init('wss\://brintonliteraryagency.org/wss/')">
+                <span>brintonliteraryagency.org</span>
+            </li>
+        </ul>
+        <ul>
+            <li onclick="init('wss\://brintonliteraryagency.org/wss/')">
+                <span>brintonliteraryagency.org</span>
+            </li>
+        </ul>
+        <ul>
+            <li onclick="init('wss\://brintonliteraryagency.org/wss/')">
+                <span>brintonliteraryagency.org</span>
+            </li>
+        </ul>
+        <ul>
+            <li onclick="init('wss\://brintonliteraryagency.org/wss/')">
+                <span>brintonliteraryagency.org</span>
+            </li>
+        </ul>
+        <ul>
+            <li onclick="init('wss\://brintonliteraryagency.org/wss/')">
+                <span>brintonliteraryagency.org</span>
+            </li>
+        </ul>
+    </div>
     <script src="Variables.js"></script>
+    <script src="Utilities.js"></script>
+    <script src="AudioManager.js"></script>
+    <script src="Pallette.js"></script>
     <script src="libs/three.min.js"></script>
     <script src="libs/fflate.min.js"></script>
     <script src="Shaders/Toon.js"></script>
@@ -22,5 +59,6 @@
     <script src="Entities/Menu.js"></script>
     <script src="Entities/NPC.js"></script>
     <script src="Components/Collisions.js"></script>
+    <script src="SceneSetup.js"></script>
     <script src="Game.js"></script>
 </body>

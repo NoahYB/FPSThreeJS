@@ -2,12 +2,14 @@ class ConnectedPlayer {
     constructor(id) {
         this.id = id;
         this.loadModel();
-        console.log('spawning player');
         this.animations = {};
     }
 
     loadModel() {
         this.fbxLoader = new THREE.FBXLoader();
+        const materialToon = new THREE.MeshToonMaterial({
+            color: 'green',
+        });
         this.fbxLoader.load(
             'Models/Idle.fbx',
             (object) => {
@@ -20,11 +22,9 @@ class ConnectedPlayer {
                 action.play();
                 action.clampWhenFinished = true;
                 this.fbxLoader.load('Models/Walking.fbx', anim => {
-                    console.log('here');
                     const walk = this.mixer.clipAction( anim.animations[0] );
                     walk.clampWhenFinished = true;
                     this.animations['walking'] = walk;
-                    this.animations['old'] = action;
                 }, e => 1 + 1, e => console.log(e));
                 object.traverse(( child ) => {
                     child.isEnemy = true;
@@ -32,6 +32,7 @@ class ConnectedPlayer {
                     if ( child.isMesh ) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.material = materialToon;
                     }
                 } );
                 scene.add( object );

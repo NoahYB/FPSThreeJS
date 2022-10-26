@@ -68,17 +68,14 @@ class Level {
         }, (e => 1+1), (e=> 1+1));
     }
     loadLevelObj() {
-        // const toon = new THREE.ShaderMaterial({
-        //     lights: true,
-        //     uniforms: {
-        //       ...THREE.UniformsLib.lights,
-        //       uColor: { value: new THREE.Color('#6495ED') }
-        //     },
-        //     vertexShader: vertexShader(),
-        //     fragmentShader: fragmentShader(),
-        //   })
-        const loader = new THREE.TextureLoader();
-        const toon = new THREE.MeshPhongMaterial({color:'orange', map: undefined});
+        const geometry = new THREE.BoxGeometry( 5, 5, 5 );
+        const material = new THREE.MeshPhongMaterial( {color: '#904E55'} );
+        const cube = new THREE.Mesh( geometry, material );
+        cube.isEnemy = true;
+        cube.position.x = 20;
+        cube.position.z  = 20;
+        scene.add(cube);
+        const toon = new THREE.MeshPhongMaterial({color:'grey', map: undefined});
         gltfLoader.load(
             // resource URL
             'Models/Level.gltf',
@@ -95,7 +92,7 @@ class Level {
                             child.castShadow = false;
                             const green = new THREE.MeshPhongMaterial(
                                 {
-                                    color:'blue',
+                                    color:'brown',
                                 }
                             );
                             child.material = green;

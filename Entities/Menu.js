@@ -2,8 +2,12 @@ class Menu {
     constructor() {
         this.menuItems = TUNABLE_VARIABLES.variableNames;
         this.createParent();
+        this.createScoreBoard();
+        this.updateScores();
         document.body.append(this.parent);
+        document.body.append(this.scoreBoard);
         this.loadHUD();
+        this.parent.style.display = 'none';
     }
 
     createParent() {
@@ -13,11 +17,54 @@ class Menu {
         this.parent.style.height = window.innerHeight;
         this.parent.style.fontSize = 100;
         this.parent.style.top = 30 + 'px';
-        this.parent.style.left = window.innerWidth / 2 - 250 + 'px';
-        this.parent.style.background = 'rgba(122,122,122,.3)'
+        this.parent.style.left = '30px';
+        this.parent.style.background = 'rgba(122,122,122,.3)';
+        this.parent.style.display = 'none';
         this.parent.id = 'menuParent';
     }
 
+    createScoreBoard() {
+        this.scoreBoard = document.createElement('div');
+        this.scoreBoard.style.position = 'absolute';
+        this.scoreBoard.style.width = 500;
+        this.scoreBoard.style.height = window.innerHeight;
+        this.scoreBoard.style.fontSize = 100;
+        this.scoreBoard.style.top = 30 + 'px';
+        this.scoreBoard.style.left = '530px';
+        this.scoreBoard.style.background = 'rgba(122,122,122,.3)';
+        this.scoreBoard.style.display = 'none';
+        this.scoreBoard.id = 'scoreBoardParent';
+    }
+
+    updateScores() {
+        const connectedPlayers = webSocketHandler.connectedPlayers;
+        let scoresAndNames = [{
+            displayName: TUNABLE_VARIABLES.playerName,
+            score: player.score,
+            key: webSocketHandler.id,
+        }];
+        Object.keys(connectedPlayers).forEach(key => {
+            let connectedPlayerObject = connectedPlayers[key];
+            let displayName = connectedPlayerObject.connectionDisplayName;
+            let score = connectedPlayerObject.score;
+            scoresAndNames.push({
+                id: key,
+                displayName,
+                score,
+            })
+        })
+        scoresAndNames.map((obj => {
+            let display = document.getElementById(obj.id);
+            if (!display) {
+                display = document.createElement("div");
+                display.id = obj.id;
+                display.classList.add('scoreText');
+                this.scoreBoard.append(display);
+            }
+            display.innerHTML = obj.displayName + ': ' + obj.score;
+        }))
+    }
+    
     loadHUD() {
         this.elements = [];
         this.elements = this.menuItems.map((name, i) => {
@@ -51,11 +98,17 @@ class Menu {
         html.innerHTML = name;
         html.style.fontSize = 30;
         const input = document.createElement('input');
-        input.setAttribute("type", "text");
-        input.text = '';
         input.id = name;
-        input.placeholder = TUNABLE_VARIABLES[name];
         input.style.marginLeft = '20px';
+        if (name === 'volume') {
+            input.type = 'range';
+            input.value = TUNABLE_VARIABLES[name] * 100;
+            input.min = 0;
+            input.max = 100;
+        } else {
+            input.type = 'text';
+            input.placeholder = TUNABLE_VARIABLES[name];
+        }
         HTML_INPUT_FIELDS.push(name);
         html.append(input);
         html.addEventListener('mouseover',this.highlight);
@@ -64,18 +117,30 @@ class Menu {
     }
 
     loadNameChange() {
+
     }
 
     show() {
-        console.log('showing');
         menuOpened = true;
+        this.updateScores();
         this.parent.style.display = 'block';
+        this.scoreBoard.style.display = 'block';
     }
 
     hide() {
-        console.log('hiding');
         menuOpened = false;
         this.parent.style.display = 'none';
+        this.scoreBoard.style.display = 'none';
+    }
+
+
+    showScore() {
+        this.updateScores();
+        this.scoreBoard.style.display = 'block';
+    }
+
+    hideScore() {
+        this.scoreBoard.style.display = 'none';
     }
 
     highlight(e) {

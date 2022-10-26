@@ -1,0 +1,43 @@
+.centered_div {
+    text-align: center;
+    background-color:rgb(211, 211, 211);
+    margin: auto;
+    height: 100%;
+    width: 60%;
+    background-image: url("Textures/original.png");
+}
+.scoreText {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 4px;
+    font-size: 20px;
+    background-color: rgba(180, 220, 255, 0.311);
+    height: 5%;
+}
+ul {
+    margin: 3%;
+    padding: 0%;
+}
+li {
+    display: flex;
+    background-color: aliceblue;
+    width: 60%;
+    margin: auto;
+    height: 7%;
+    list-style: none;
+}
+span {
+    display: inline-flex;
+    align-items: center;
+    margin: auto;
+}
+li:hover {
+    background-color: rgb(204, 216, 238);
+    cursor: pointer;
+}
+h1 {
+    text-align: center;
+    margin: auto;
+    color: white;
+}
