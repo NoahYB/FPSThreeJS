@@ -1,6 +1,8 @@
 class Player {
     constructor() {
-        this.moveSpeed = 20;
+        console.log(TUNABLE_VARIABLES);
+        this.movementSpeed = TUNABLE_VARIABLES.movementSpeed;
+        this.jumpHeight = TUNABLE_VARIABLES.jumpHeight;
         this.sprinting = false;
         this.killBoundary = -10;
         this.animations = {};
@@ -20,20 +22,23 @@ class Player {
         this.spawnedEntities = [];
         this.collisions = new Collisions(this);
         document.addEventListener('mousedown',this.mousedown);
+        this.shootingTimer = 0;
     }
+    
     loadHUD() {
         this.text2 = document.createElement('div');
         this.text2.style.position = 'absolute';
         this.text2.style.width = 100;
         this.text2.style.height = 100;
+        this.text2.style.color = 'white';
         this.text2.innerHTML = "0";
         this.text2.style.fontSize = 100;
         this.text2.style.top = 30 + 'px';
-        this.text2.style.left = 30 + 'px';
+        this.text2.style.left = window.innerWidth - 100 + 'px';
         this.text2.id = 'scoreText';
         document.body.appendChild(this.text2);
-
     }
+
     onLoadFinish() {
         // this.addBoundingVolume();
     }
@@ -113,6 +118,7 @@ class Player {
             (object) => {
                 camera.add(object);
                 this.object = object;
+                this.object.position.set(20,20,20);//new THREE.Vector3(20,20,20);
                 object.isEnemy = this.isEnemy;
                 object.c = this;
                 object.scale.setScalar(.01);
@@ -134,7 +140,7 @@ class Player {
                         death.startAt(.2);
                         death.clampWhenFinished = true;
                         this.animations['death'] = death;
-                        this.fbxLoader.load('Models/Shooting.fbx', anim => {
+                        this.fbxLoader.load('Models/Shooting2.fbx', anim => {
                             const shooting = this.mixer.clipAction( anim.animations[0] );
                             shooting.loop = THREE.LoopOnce;
                             shooting.clampWhenFinished = true;
@@ -142,7 +148,6 @@ class Player {
                             this.animations['shooting'] = shooting;
                             shooting.weight = 1;
                             this.rightHand = this.object.getObjectByName('mixamorigRightHand');
-                            // this.onLoadFinish();
                         });
                         this.animSetup();
                     });
@@ -183,6 +188,7 @@ class Player {
     }
 
     mousedown(e) {
+        if (menuOpened) return;
         player.shoot();
         raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
         // calculate objects intersecting the picking ray
@@ -206,9 +212,10 @@ class Player {
         controls.lock();
     }
     shoot() {
-        console.log('f');
         let handPosition;
+        this.shooting = true;
         this.animations['shooting'].time = (0);
+        // this.animations['shooting'].play();
         if (this.rightHand) {
             this.object.updateMatrixWorld(true);
             handPosition = new THREE.Vector3();
@@ -256,7 +263,7 @@ class Player {
     }
 
     jump() {
-        this.velocity.y = 30 * gravity;
+        this.velocity.y = this.jumpHeight * gravity;
         this.jumping = true;
         this.grounded = false;
     }
@@ -270,19 +277,19 @@ class Player {
         this.sprinting = keys['Shift'] ? true: false;
         this.walking = false;
         if(keys['w']){
-            this.velocity.z = -this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.velocity.z = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if(keys['s']){
-            this.velocity.z = this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.velocity.z = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if(keys['a']){
-            this.velocity.x = this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.velocity.x = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if(keys['d']){
-            this.velocity.x = -this.moveSpeed * (this.sprinting ? 2 : 1);
+            this.velocity.x = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if (!keys['w'] && !keys['s']) this.velocity.z = 0;
@@ -323,12 +330,15 @@ class Player {
     }
 
     update(deltaTime) {
+        if (this.shooting) this.shootingTimer += deltaTime;
         if (!this.object) return;
         if (this.box) this.debugMesh.position.y = this.object.position.y + this.objectLength / 2;
         this.checkY();
         this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log(''));
         if (this.mixer) this.mixer.update( deltaTime );
-        // if (this.object) camera.position.z = this.object.position.z - 300;
+        if (this.object) {
+            // camera.position.y = this.object.position.y + 170;
+        }
         if (!player.walking) {
             this.currentAnimationName = 'idle';
             this.animations['walking'].paused = true;

@@ -2,9 +2,14 @@ class Level {
     constructor(scene) {
         this.levelObjects = [];
         this.loadLevelObj();
-        this.loadSkyBox();
+        this.loadCameraTexture();
     }
     
+    loadCameraTexture() {
+        const loader = new THREE.TextureLoader();
+        scene.background = loader.load( 'Textures/original.png' );
+    }
+
     loadSkyBox() {
         scene.background = new THREE.CubeTextureLoader()
         .setPath( 'Textures/SkyboxTextures/' )
@@ -72,7 +77,8 @@ class Level {
         //     vertexShader: vertexShader(),
         //     fragmentShader: fragmentShader(),
         //   })
-        const toon = new THREE.MeshPhongMaterial({color:'orange'});
+        const loader = new THREE.TextureLoader();
+        const toon = new THREE.MeshPhongMaterial({color:'orange', map: undefined});
         gltfLoader.load(
             // resource URL
             'Models/Level.gltf',
@@ -87,7 +93,11 @@ class Level {
                         if (child.name === 'Cube') {
                             child.receiveShadow = true;
                             child.castShadow = false;
-                            const green = new THREE.MeshPhongMaterial({color:'blue'});
+                            const green = new THREE.MeshPhongMaterial(
+                                {
+                                    color:'blue',
+                                }
+                            );
                             child.material = green;
                         }
                         this.levelObjects.push(child);

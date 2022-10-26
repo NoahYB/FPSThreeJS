@@ -3,9 +3,10 @@ const fbxLoader = new THREE.FBXLoader();
 const objLoader = new THREE.OBJLoader();
 const gltfLoader = new THREE.GLTFLoader();
 const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
 const webSocketHandler = new WebSocketHandler();
-
+const menu = new Menu();
+let menuOpened = false;
+let playerName = 'default-name';
 const gravity = .008;
 let moveSpeed = .1;
 const near = 1;
@@ -15,7 +16,13 @@ const color = 'lightblue';
 
 scene.background = new THREE.Color(color);
 
-const camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, .1, 10000 );
+const camera = new THREE.PerspectiveCamera(
+    TUNABLE_VARIABLES.FOV,
+    window.innerWidth / window.innerHeight,
+    .1,
+    10000
+);
+
 scene.add(camera);
 camera.position.z = 5;
 camera.position.y += .7;
@@ -46,15 +53,6 @@ const ambientLight = new THREE.AmbientLight("salmon", .3);
 scene.add(ambientLight);
 
 
-// controls.addEventListener( 'lock', function () {
-// 	// menu.style.display = 'none';
-
-// } );
-
-// controls.addEventListener( 'unlock', function () {
-// 	// menu.style.display = 'block';
-// } );
-
 let gun;
 let reticle;
 let keys = {};//Define array
@@ -63,6 +61,14 @@ document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
 
 function keydown(e){
+    if (e.key === 'Escape') {
+        console.log(menuOpened);
+        menuOpened = !menuOpened;
+        if (!menuOpened) {
+            menu.hide();
+        }
+        else menu.show();
+    }
     keys[e.key] = true;
 }
 function keyup(e){
@@ -89,9 +95,23 @@ function animate() {
     if (player.object && !initiated) {
         controls = new THREE.PointerLockControls( player.object, renderer.domElement );
         initiated = true;
+        controls.addEventListener( 'lock', function () {
+            if (menuOpened) {
+                controls.unlock();
+            }
+            menu.hide();
+        } );
+
+        controls.addEventListener( 'unlock', function () {
+            menu.show();
+            Object.keys(keys).forEach(key => {
+                console.log('keys');
+                keys[key] = false;
+            })
+        } );
         let head = player.object.getObjectByName('mixamorigHead');
         let headPosition = new THREE.Vector3();
-        head.getWorldPosition( headPosition );
+        head.getWorldPosition(headPosition);
         head.add(camera);
         camera.rotateY(180 * Math.PI / 180);
         camera.position.y -= 1;
@@ -108,4 +128,3 @@ function animate() {
     })
     renderer.render( scene, camera );
 }
-animate();
