@@ -29,10 +29,12 @@
 
 			this.maxPolarAngle = Math.PI; // radians
 
-			this.pointerSpeed = 1.0;
+			this.pointerSpeed = TUNABLE_VARIABLES.sensitivity;
 			const scope = this;
 
 			function onMouseMove( event ) {
+				
+				scope.pointerSpeed = TUNABLE_VARIABLES.sensitivity;
 
 				if ( scope.isLocked === false ) return;
 				const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;

@@ -5,7 +5,7 @@ const gltfLoader = new THREE.GLTFLoader();
 const audioManager = new AudioManager();
 
 let menuOpened = false;
-
+let spawnLocations = [];
 let menu;
 let webSocketHandler;
 
@@ -17,6 +17,7 @@ let controls;
 let player;
 let level;
 let keys = {};
+let dummy;
 
 document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
@@ -35,6 +36,7 @@ function onWebSocketConnected() {
     player = new Player();
     level = new Level();
     menu = new Menu();
+    dummy = new ConnectedPlayer(0);
     update();
 }
 
@@ -62,6 +64,7 @@ function sendModelData() {
             connectionDisplayName: 'test',
             position: player.object.position,
             quaternion: player.object.quaternion,
+            lookQuaternion: camera.quaternion,
             animState: player.currentAnimationName,
             score: player.score,
         }
@@ -76,6 +79,7 @@ function update() {
     if (player.object && webSocketHandler.ready) {
         sendModelData();
     }
+    dummy.update();
     requestAnimationFrame( update );
     const delta = clock.getDelta();
     player.update(delta);
@@ -84,5 +88,3 @@ function update() {
     })
     renderer.render( scene, camera );
 }
-
-// update();

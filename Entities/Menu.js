@@ -100,11 +100,13 @@ class Menu {
         const input = document.createElement('input');
         input.id = name;
         input.style.marginLeft = '20px';
-        if (name === 'volume') {
+        if (name === 'volume' || name === 'sensitivity') {
             input.type = 'range';
-            input.value = TUNABLE_VARIABLES[name] * 100;
+            input.value = name ==='volume' ? 
+                TUNABLE_VARIABLES[name] * 100:
+                TUNABLE_VARIABLES[name]
             input.min = 0;
-            input.max = 100;
+            input.max = name === 'volume' ? 100 : 25;
         } else {
             input.type = 'text';
             input.placeholder = TUNABLE_VARIABLES[name];

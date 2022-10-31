@@ -37,6 +37,7 @@ class WebSocketHandler {
 	    	id,
             position,
             quaternion,
+            lookQuaternion,
             animState,
             tag,
             score,
@@ -57,6 +58,7 @@ class WebSocketHandler {
         if (position) {
             this.connectedPlayers[id].setPos(position);
             this.connectedPlayers[id].setQuaternion(quaternion);
+            this.connectedPlayers[id].setLookQuaternion(lookQuaternion);
             this.connectedPlayers[id].setAnimState(animState);
         }
         if (score) {

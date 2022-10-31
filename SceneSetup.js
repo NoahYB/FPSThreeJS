@@ -24,7 +24,7 @@ function setUpRenderer() {
 
 function setUpLights() {
     const spotLight = new THREE.PointLight( 'white', .5 );
-    spotLight.position.set( 34, 50, -20 );
+    spotLight.position.set( 0, 100, 0 );
     spotLight.rotateZ(3.14 / 4)
     spotLight.shadowMapWidth = 4096;
     spotLight.shadowMapHeight = 4096;

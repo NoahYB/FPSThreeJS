@@ -6,7 +6,8 @@ class Variables {
                jumpHeight,
                FOV,
                gravity,
-               volume
+               volume,
+               sensitivity,
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -14,7 +15,8 @@ class Variables {
             'jumpHeight',
             'FOV',
             'gravity',
-            'volume'
+            'volume',
+            'sensitivity',
         ]
         this.set = {
             movementSpeed: this.setMovementSpeed,
@@ -23,6 +25,7 @@ class Variables {
             FOV: this.setFOV,
             gravity: this.setGravity,
             volume: this.setVolume,
+            sensitivity: this.setSensitivity,
         }
         this.movementSpeed = movementSpeed;
         this.playerName = playerName;
@@ -30,6 +33,13 @@ class Variables {
         this.FOV = FOV;
         this.gravity = gravity;
         this.volume = volume;
+        this.sensitivity = sensitivity;
+    }
+
+    setSensitivity(newSensitivity) {
+        if (newSensitivity === '') return false;
+        if (isNaN(newSensitivity)) return false;
+        TUNABLE_VARIABLES.sensitivity = newSensitivity / 4;
     }
 
     setFOV(newFOV) {
@@ -48,7 +58,9 @@ class Variables {
     }
 
     setJumpHeight(newJumpHeight) {
-
+        if (newJumpHeight === '') return false;
+        if (isNaN(newJumpHeight)) return false;
+        TUNABLE_VARIABLES.jumpHeight = newJumpHeight;
     }
 
     setGravity(newGravity) {
@@ -81,5 +93,6 @@ const TUNABLE_VARIABLES = new Variables(
         FOV: 50,
         gravity: .008,
         volume: .5,
+        sensitivity: 1.0,
     }
 )

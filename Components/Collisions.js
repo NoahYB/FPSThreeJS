@@ -22,7 +22,7 @@ class Collisions {
 
     checkHorizontalCollisions(object1, object2, velocity) {
         const rayPos = object1.position.clone();
-        rayPos.y += .1;
+        rayPos.y += 2;
         const _vectorLookMovement = new THREE.Vector3(0,0,0);
 
         _vectorLookMovement.setFromMatrixColumn( object1.matrix, 0 );
@@ -40,7 +40,8 @@ class Collisions {
 
         let intersect = raycaster.intersectObject(object2, true);
 
-        if (intersect.length >= 1 && intersect[0].distance < .3) {
+        if (intersect.length >= 1 && intersect[0].distance < 1) {
+            console.log('colliding');
             return intersect[0].point;
         }
 
@@ -57,7 +58,7 @@ class Collisions {
 
         intersect = raycaster.intersectObject(object2, true);
 
-        if (intersect.length >= 1 && intersect[0].distance < .3) {
+        if (intersect.length >= 1 && intersect[0].distance < 1) {
             return intersect[0].point;
         }
         return false;

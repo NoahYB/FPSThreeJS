@@ -1,8 +1,8 @@
 class Level {
     constructor(scene) {
         this.levelObjects = [];
-        this.loadLevelObj();
         this.loadCameraTexture();
+        this.loadLevelObj();
     }
     
     loadCameraTexture() {
@@ -11,6 +11,19 @@ class Level {
     }
 
     loadSkyBox() {
+        scene.background = new THREE.CubeTextureLoader()
+        .setPath( 'Textures/interstellar_skybox/' )
+        .load( [
+            'xpos.png',
+            'xneg.png',
+            'ypos.png',
+            'yneg.png',
+            'zpos.png',
+            'zneg.png'
+        ] );
+    }
+
+    loadSkyBox2() {
         scene.background = new THREE.CubeTextureLoader()
         .setPath( 'Textures/SkyboxTextures/' )
         .load( [
@@ -22,6 +35,7 @@ class Level {
             'bk.png'
         ] );
     }
+
     loadComplexLevel() {
         const groundGeometry = new THREE.PlaneGeometry( 30, 30 );
         const groundMaterial = new THREE.MeshPhongMaterial( {color: '#564E58', side: THREE.DoubleSide} );
@@ -68,40 +82,33 @@ class Level {
         }, (e => 1+1), (e=> 1+1));
     }
     loadLevelObj() {
-        const geometry = new THREE.BoxGeometry( 5, 5, 5 );
-        const material = new THREE.MeshPhongMaterial( {color: '#904E55'} );
-        const cube = new THREE.Mesh( geometry, material );
-        cube.isEnemy = true;
-        cube.position.x = 20;
-        cube.position.z  = 20;
-        scene.add(cube);
-        const toon = new THREE.MeshPhongMaterial({color:'grey', map: undefined});
+        // FOR TESTING HITBOXES
+        // const geometry = new THREE.BoxGeometry( 5, 5, 5 );
+        // const material = new THREE.MeshPhongMaterial( {color: '#904E55'} );
+        // const cube = new THREE.Mesh( geometry, material );
+        // cube.isEnemy = true;
+        // cube.position.x = 20;
+        // cube.position.z  = 20;
+        // scene.add(cube);
         gltfLoader.load(
             // resource URL
-            'Models/Level.gltf',
+            'Models/Level3.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
                         child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.material = toon;
-                        if (child.name === 'Cube') {
+                        if (child.name === 'Ground') {
                             child.receiveShadow = true;
                             child.castShadow = false;
-                            const green = new THREE.MeshPhongMaterial(
-                                {
-                                    color:'brown',
-                                }
-                            );
-                            child.material = green;
+                        }
+                        if (child.name.startsWith('Spawn')) {
+                            spawnLocations.push(child.position);
                         }
                         this.levelObjects.push(child);
-                        child.material.shininess = 0;
                     }
                 });
-                this.object.scale.multiplyScalar(10);
                 scene.add(this.object);
             },
             function ( xhr ) {

@@ -44,31 +44,6 @@ class Player {
         onPlayerLoad();
     }
 
-    addBoundingVolume() {
-        let headPosition;
-        this.head = this.object.getObjectByName('mixamorigHead');
-        if (this.head) {
-            this.object.updateMatrixWorld(true);
-            headPosition = new THREE.Vector3();
-            this.head.getWorldPosition( headPosition );
-        }
-        this.objectLength = this.extremities.maxY - this.extremities.minY;
-        const geometry = new THREE.BoxGeometry(
-            100,
-            (this.extremities.maxY - this.extremities.minY), 
-            this.extremities.maxX - this.extremities.minX,
-        );
-        const material = new THREE.MeshBasicMaterial({
-          color: 0x00FF00,
-          wireframe: true,
-        });
-        this.debugMesh = new THREE.Mesh( geometry, material );
-        this.box = new THREE.Box3();
-        this.debugMesh.geometry.computeBoundingBox();
-        this.box.copy( this.debugMesh.geometry.boundingBox ).applyMatrix4( this.debugMesh.matrixWorld );
-        this.object.add(this.debugMesh);
-
-    }
     addMuzzleFlash() {
         const geometry = new THREE.SphereGeometry( .4, 32, 16 );
         const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
@@ -86,7 +61,12 @@ class Player {
         }
     }
     respawn() {
-        this.object.position.set(0,40,0);
+        if (spawnLocations.length > 0) {
+            this.object.position.copy(spawnLocations[
+                Math.round(Math.random() * spawnLocations.length)
+            ]);
+        } else 
+            this.object.position.set(20,20,0);
     }
     loadGun() {
         objLoader.load(
@@ -130,9 +110,12 @@ class Player {
             (object) => {
                 camera.add(object);
                 this.object = object;
-                this.object.position.set(20,20,20);//new THREE.Vector3(20,20,20);
+                if (spawnLocations.length > 0) {
+                    this.object.position.set(spawnLocations[0]);
+                } else 
+                    this.object.position.set(20,20,0);//new THREE.Vector3(20,20,20);
                 object.c = this;
-                object.scale.setScalar(.01);
+                object.scale.setScalar(.03);
                 object.position.y = 40;
                 this.mixer = new THREE.AnimationMixer( object );
                 const action = this.mixer.clipAction( object.animations[0] );
@@ -221,10 +204,15 @@ class Player {
         player.shoot();
         raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
         const intersects = raycaster.intersectObjects( scene.children );
+        // LOL
         for ( let i = 0; i < intersects.length; i ++ ) {
             const object = intersects[ i ].object;
             if (object === level.object) return;
             if (object.isEnemy) {
+                if (object.name === 'headshot') {
+                    player.score += 4;
+                    player.headShot();
+                }
                 player.hitMarker();
                 const t = document.getElementById('scoreText');
                 let v = new THREE.Vector3();
@@ -234,12 +222,21 @@ class Player {
                     text: 'connected'
                 })
                 audioManager.hit();
-                t.innerHTML = parseInt(t.innerHTML) + 1;
                 player.score += 1;
-                return;
+                t.innerHTML = player.score;
+                // return;
             }
         }
     }
+
+    headShot() {
+        const headShot = document.getElementById('headshot');
+        headShot.style.display = 'block';
+        headShot.style.opacity = 1;
+        const clone = headShot.cloneNode(true);
+        headShot.parentNode.replaceChild(clone, headShot);
+    }
+
     shoot() {
         audioManager.shoot();
         let handPosition;
@@ -270,9 +267,9 @@ class Player {
     }
 
     push(v) {
-        // this.object.position.y += v.y;
-        // this.object.position.z += v.z;
-        // this.object.position.x += v.x;
+        this.velocity.y += v.y;
+        this.velocity.z += v.z;
+        this.velocity.x += v.x;
     }
 
     move() {
@@ -293,7 +290,7 @@ class Player {
     }
 
     jump() {
-        this.velocity.y = this.jumpHeight * TUNABLE_VARIABLES.gravity;
+        this.velocity.y = TUNABLE_VARIABLES.jumpHeight * TUNABLE_VARIABLES.gravity;
         this.jumping = true;
         this.grounded = false;
     }
@@ -326,11 +323,7 @@ class Player {
         if (!keys['a'] && !keys['d']) this.velocity.x = 0;
     }
     updateBBOX() {
-        this.box = new THREE.Box3();
-        this.debugMesh.geometry.computeBoundingBox();
-        this.box
-            .copy( this.debugMesh.geometry.boundingBox )
-            .applyMatrix4( this.debugMesh.matrixWorld );
+
     }
 
     handleCollisions() {
@@ -361,13 +354,12 @@ class Player {
     update(deltaTime) {
         if (this.shooting) this.shootingTimer += deltaTime;
         if (!this.object) return;
+        let worldDirection = new THREE.Vector3();
+        this.object.getWorldDirection(worldDirection);
         if (this.box) this.debugMesh.position.y = this.object.position.y + this.objectLength / 2;
         this.checkY();
         this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log(''));
         if (this.mixer) this.mixer.update( deltaTime );
-        if (this.object) {
-
-        }
         if (!player.walking) {
             audioManager.stopWalking();
             this.currentAnimationName = 'idle';
