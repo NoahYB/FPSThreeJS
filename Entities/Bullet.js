@@ -3,10 +3,6 @@ class Bullet {
         this.player = player;
         this.timer = 0;
         this.dir = dir;
-        const layer01 = new THREE.TextureLoader().load('Textures/laser.png');
-        layer01.wrap = layer01.wrapT = THREE.RepeatWrapping;
-        const layer02 = new THREE.TextureLoader().load('Textures/noise.png');
-        layer01.wrap = layer01.wrapT = THREE.RepeatWrapping;
         const material = new THREE.ShaderMaterial( {
             uniforms: {
                 time: { value: 0.01 },

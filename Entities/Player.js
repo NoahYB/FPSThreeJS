@@ -101,11 +101,10 @@ class Player {
         this.reticle.position.z -= .3;
     }
     loadModel() {
-        this.fbxLoader = new THREE.FBXLoader();
         const materialToon = new THREE.MeshToonMaterial({
             color: 'rgb(113, 172, 217)',
         });
-        this.fbxLoader.load(
+        fbxLoader.load(
             'Models/Idle.fbx',
             (object) => {
                 camera.add(object);
@@ -120,20 +119,20 @@ class Player {
                 this.mixer = new THREE.AnimationMixer( object );
                 const action = this.mixer.clipAction( object.animations[0] );
                 action.clampWhenFinished = true;
-                this.fbxLoader.load('Models/Walking.fbx', anim => {
+                fbxLoader.load('Models/Walking.fbx', anim => {
                     const walk = this.mixer.clipAction( anim.animations[0] );
                     walk.clampWhenFinished = true;
                     this.animations['walking'] = walk;
                     this.animations['old'] = action;
                     // action.play();
                     // this.currentAnimation = walk;
-                    this.fbxLoader.load('Models/Death.fbx', anim => {
+                    fbxLoader.load('Models/Death.fbx', anim => {
                         const death = this.mixer.clipAction( anim.animations[0] );
                         death.loop = THREE.LoopOnce;
                         death.startAt(.2);
                         death.clampWhenFinished = true;
                         this.animations['death'] = death;
-                        this.fbxLoader.load('Models/Shooting2.fbx', anim => {
+                        fbxLoader.load('Models/Shooting2.fbx', anim => {
                             const shooting = this.mixer.clipAction( anim.animations[0] );
                             shooting.loop = THREE.LoopOnce;
                             shooting.clampWhenFinished = true;

@@ -60,27 +60,7 @@ class Level {
         ground.rotateX(Math.PI / 2);
         scene.add(ground);
     }
-    loadLevelFBXs() {
-        const manager = new THREE.LoadingManager();
-        // add handler for TGA textures
-        manager.addHandler( /\.tga$/i, new THREE.TGALoader() );
-        this.fbxLoader = new THREE.FBXLoader(manager);
-        this.fbxLoader.load(
-            'Models/Island/source/Rocks.fbx',
-            (object) => {
-                this.object = object;
-                scene.add( object );
-                object.children[0].traverse( function ( child ) {
-                    child.material = new THREE.MeshPhongMaterial({
-                        color: 'salmon',
-                        flatShading: true,
-                      });
-					child.castShadow = true;
-					child.receiveShadow = true;
-                    child.geometry.computeVertexNormals();
-				});
-        }, (e => 1+1), (e=> 1+1));
-    }
+    
     loadLevelObj() {
         // FOR TESTING HITBOXES
         // const geometry = new THREE.BoxGeometry( 5, 5, 5 );

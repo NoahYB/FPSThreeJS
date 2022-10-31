@@ -10,7 +10,7 @@ class ConnectedPlayer {
         const materialHead = new THREE.MeshToonMaterial( {color: '#42F58C'} );
         this.cubeHead = new THREE.Mesh( geometryHead, materialHead );
         this.head = this.object.getObjectByName('mixamorigHead');
-        this.head.add(this.cubeHead);
+        this. head.add(this.cubeHead);
         this.cubeHead.name = 'headshot';
         //inverse of player scale
         let outlineMaterial2 = new THREE.MeshToonMaterial( 
@@ -42,11 +42,10 @@ class ConnectedPlayer {
     }
 
     loadModel() {
-        this.fbxLoader = new THREE.FBXLoader();
         const materialToon = new THREE.MeshToonMaterial({
             color: '#FF5D52',
         });
-        this.fbxLoader.load(
+        fbxLoader.load(
             'Models/Idle.fbx',
             (object) => {
                 this.object = object;
@@ -61,7 +60,7 @@ class ConnectedPlayer {
                 const action = this.mixer.clipAction( object.animations[0] );
                 action.play();
                 action.clampWhenFinished = true;
-                this.fbxLoader.load('Models/Walking.fbx', anim => {
+                fbxLoader.load('Models/Walking.fbx', anim => {
                     const walk = this.mixer.clipAction( anim.animations[0] );
                     walk.clampWhenFinished = true;
                     this.animations['walking'] = walk;
