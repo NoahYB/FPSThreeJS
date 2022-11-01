@@ -55,19 +55,29 @@ class Player {
         scene.add(camera);
         camera.add(this.flash);
     }
+
     checkY() {
-        if(this.object.position.y < this.killBoundary) {
+        if(
+            this.object.position.y < this.killBoundary && 
+            !this.respawning
+        ) {
             this.respawn();
         }
     }
+
     respawn() {
+        this.respawning = false;
+        this.respawnTimer = 0;
         if (spawnLocations.length > 0) {
+            this.animations['walking'].play();
             this.object.position.copy(spawnLocations[
                 Math.round(Math.random() * spawnLocations.length)
             ]);
+            this.object.position.y += 11;
         } else 
             this.object.position.set(20,20,0);
     }
+
     loadGun() {
         objLoader.load(
             // resource URL
@@ -88,6 +98,15 @@ class Player {
             },
         );
     }
+
+    addBBOX() {
+        // Player bounding box
+        console.log(this.object);
+        this.box = new THREE.Box3().setFromObject(this.object, true);
+        this.boxHelper = new THREE.BoxHelper(this.object);
+        // scene.add(this.boxHelper);
+    }
+
     addReticle() {
         this.reticle = new THREE.Mesh(
             new THREE.SphereGeometry( 0.85 * .006, .006, 32),
@@ -100,6 +119,7 @@ class Player {
         camera.add(this.reticle);
         this.reticle.position.z -= .3;
     }
+
     loadModel() {
         const materialToon = new THREE.MeshToonMaterial({
             color: 'rgb(113, 172, 217)',
@@ -115,6 +135,7 @@ class Player {
                     this.object.position.set(20,20,0);//new THREE.Vector3(20,20,20);
                 object.c = this;
                 object.scale.setScalar(.03);
+                this.addBBOX();
                 object.position.y = 40;
                 this.mixer = new THREE.AnimationMixer( object );
                 const action = this.mixer.clipAction( object.animations[0] );
@@ -149,12 +170,6 @@ class Player {
                 minX = minY = minZ = 100000000;
                 object.traverse(( child ) => {
                     child.c = this;
-                    if(child.position.x > maxX) maxX = child.position.x;
-                    if(child.position.y > maxY) maxY = child.position.y;
-                    if(child.position.x < minX) minX = child.position.x;
-                    if(child.position.y < minY) minY = child.position.y;
-                    if(child.position.z < minZ) minZ = child.position.z;
-                    if(child.position.z > maxZ) maxZ = child.position.z;
                     if ( child.isMesh ) {
                         child.material = materialToon;
                         child.castShadow = true;
@@ -218,7 +233,9 @@ class Player {
                 camera.getWorldDirection(v);
                 webSocketHandler.sendMessage({
                     tag: v,
-                    text: 'connected'
+                    text: 'connected',
+                    headshot: object.name === 'headshot' ? true : false,
+                    interactedId: object.c.id,
                 })
                 audioManager.hit();
                 player.score += 1;
@@ -262,7 +279,14 @@ class Player {
     }
 
     death() {
+        this.currentAnimationName = 'death';
+        this.object.position.copy(new THREE.Vector3(0,-1000,0));
+        this.startRespawn();
+    }
 
+    startRespawn() {
+        this.respawnTimer = 0;
+        this.respawning = true;
     }
 
     push(v) {
@@ -321,6 +345,7 @@ class Player {
         if (!keys['w'] && !keys['s']) this.velocity.z = 0;
         if (!keys['a'] && !keys['d']) this.velocity.x = 0;
     }
+
     updateBBOX() {
 
     }
@@ -333,7 +358,7 @@ class Player {
         );
         if (vertCollisions && !this.jumping) {            
             this.velocity.y = 0;
-            this.object.position.y = vertCollisions.y;
+            this.object.position.y = vertCollisions;
             this.grounded = true;
         } else {
             this.jumping = false;
@@ -353,9 +378,15 @@ class Player {
     update(deltaTime) {
         if (this.shooting) this.shootingTimer += deltaTime;
         if (!this.object) return;
+        if (this.respawning) {
+            this.respawnTimer += deltaTime;
+        }
+        if (this.respawnTimer > 2.0) {
+            this.respawn();
+        }
         let worldDirection = new THREE.Vector3();
         this.object.getWorldDirection(worldDirection);
-        if (this.box) this.debugMesh.position.y = this.object.position.y + this.objectLength / 2;
+        if (this.box) this.boxHelper.update();
         this.checkY();
         this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log(''));
         if (this.mixer) this.mixer.update( deltaTime );

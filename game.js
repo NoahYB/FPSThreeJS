@@ -89,6 +89,7 @@ function sendModelData() {
             quaternion: player.object.quaternion,
             lookQuaternion: camera.quaternion,
             animState: player.currentAnimationName,
+            velocity: player.velocity,
             score: player.score,
         }
     );

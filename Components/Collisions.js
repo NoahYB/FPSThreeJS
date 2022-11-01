@@ -15,7 +15,7 @@ class Collisions {
         let intersect = raycaster.intersectObject(object2, true);
         let d = object1.position.y - intersect[0]?.point.y;
         if (intersect.length >= 1 && d < .5) {
-            return intersect[0].point;
+            return intersect[0].point.y;
         }
         return false;
     }
@@ -40,7 +40,7 @@ class Collisions {
 
         let intersect = raycaster.intersectObject(object2, true);
 
-        if (intersect.length >= 1 && intersect[0].distance < 1) {
+        if (intersect.length >= 1 && intersect[0].distance < 2) {
             console.log('colliding');
             return intersect[0].point;
         }
@@ -58,7 +58,7 @@ class Collisions {
 
         intersect = raycaster.intersectObject(object2, true);
 
-        if (intersect.length >= 1 && intersect[0].distance < 1) {
+        if (intersect.length >= 1 && intersect[0].distance < 2) {
             return intersect[0].point;
         }
         return false;

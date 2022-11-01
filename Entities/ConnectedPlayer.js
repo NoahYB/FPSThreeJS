@@ -3,6 +3,7 @@ class ConnectedPlayer {
         this.id = id;
         this.loadModel();
         this.animations = {};
+        this.velocity = new THREE.Vector3(0,0,0);
     }
 
     addBoundingVolume() {
@@ -10,8 +11,9 @@ class ConnectedPlayer {
         const materialHead = new THREE.MeshToonMaterial( {color: '#42F58C'} );
         this.cubeHead = new THREE.Mesh( geometryHead, materialHead );
         this.head = this.object.getObjectByName('mixamorigHead');
-        this. head.add(this.cubeHead);
+        this.head.add(this.cubeHead);
         this.cubeHead.name = 'headshot';
+        this.cubeHead.c = this;
         //inverse of player scale
         let outlineMaterial2 = new THREE.MeshToonMaterial( 
             { 
@@ -33,12 +35,6 @@ class ConnectedPlayer {
         this.cubeHead.add(spotLight);
         spotLight.position.y += 8;
         spotLight.castShadow = true;
-
-
-        // head bounding box
-        // this.box = new THREE.Box3();
-        // this.box.setFromObject(this.cubeHead);
-        // scene.add( new THREE.Box3Helper(this.box,'red'));
     }
 
     loadModel() {
@@ -58,12 +54,19 @@ class ConnectedPlayer {
                 }
                 this.mixer = new THREE.AnimationMixer(object);
                 const action = this.mixer.clipAction( object.animations[0] );
-                action.play();
+                // action.play();
                 action.clampWhenFinished = true;
                 fbxLoader.load('Models/Walking.fbx', anim => {
                     const walk = this.mixer.clipAction( anim.animations[0] );
                     walk.clampWhenFinished = true;
                     this.animations['walking'] = walk;
+                    fbxLoader.load('Models/Death.fbx', anim => {
+                        const death = this.mixer.clipAction( anim.animations[0] );
+                        death.loop = THREE.LoopOnce;
+                        death.startAt(.2);
+                        death.clampWhenFinished = true;
+                        this.animations['death'] = death;
+                    })
                 }, e => 1 + 1, e => console.log(e));
                 object.traverse(( child ) => {
                     child.isEnemy = true;
@@ -92,9 +95,19 @@ class ConnectedPlayer {
 
     setPos(pos) {
         if (!this.object) return;
-        this.object.position.x = pos.x;
-        this.object.position.y = pos.y;
-        this.object.position.z = pos.z;
+        // this.object.position.x = pos.x;
+        // this.object.position.y = pos.y;
+        // this.object.position.z = pos.z;
+        if (this.object.position.distanceToSquared(pos) > 3) {
+            this.object.position.x = pos.x;
+            this.object.position.y = pos.y;
+            this.object.position.z = pos.z;
+        }
+    }
+
+    setVelocity(velocity) {
+        if (!this.object) return;
+        this.velocity.copy(velocity);
     }
 
     setQuaternion(quat) {
@@ -106,6 +119,27 @@ class ConnectedPlayer {
         this.object.rotation.setFromRotationMatrix(rotObjectMatrix);
     }
 
+    moveForward( distance ) {
+        let _vector = new THREE.Vector3();
+        // move forward parallel to the xz-plane
+        // assumes player.up is y-up
+        _vector.setFromMatrixColumn( this.object.matrix, 0 );
+
+        _vector.crossVectors( this.object.up, _vector );
+
+        this.object.position.addScaledVector( _vector, distance );
+
+    };
+
+    moveRight( distance ) {
+
+        let _vector = new THREE.Vector3();
+
+        _vector.setFromMatrixColumn( this.object.matrix, 0 );
+
+        this.object.position.addScaledVector( _vector, distance );
+
+    };
 
     setLookQuaternion(quat) {
         if (!this.head) return;
@@ -116,8 +150,15 @@ class ConnectedPlayer {
         this.head.rotation.setFromRotationMatrix(rotObjectMatrix);
     }
 
+    move() {
+        this.object.position.y += (this.velocity.y);
+        this.moveForward(this.velocity.z);
+        this.moveRight(this.velocity.x);
+    }
+
     update(delta) {
         if (!this.object) return;
+        this.move();
         const head = this.object.getObjectByName('mixamorigHead');
         let headPosition = new THREE.Vector3();
         head.getWorldPosition(headPosition);

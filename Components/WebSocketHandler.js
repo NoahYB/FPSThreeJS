@@ -36,13 +36,16 @@ class WebSocketHandler {
 	    	connectionDisplayName,
 	    	id,
             position,
+            velocity,
             quaternion,
             lookQuaternion,
             animState,
             tag,
+            headshot,
             score,
+            interactedId,
 	    } = data;
-        
+
         if (id === this.id) {
             if (tag) return;
             this.ping = getTimeStampMili() - this.timer;
@@ -53,23 +56,29 @@ class WebSocketHandler {
         }
 
         if(!this.connectedPlayers[id]) {
-            this.connectedPlayers[id] = new ConnectedPlayer();
+            this.connectedPlayers[id] = new ConnectedPlayer(id);
         }
+
         if (position) {
             this.connectedPlayers[id].setPos(position);
+            this.connectedPlayers[id].setVelocity(velocity);
             this.connectedPlayers[id].setQuaternion(quaternion);
             this.connectedPlayers[id].setLookQuaternion(lookQuaternion);
             this.connectedPlayers[id].setAnimState(animState);
         }
+
         if (score) {
             this.connectedPlayers[id].score = score;
             menu.updateScores();
         }
+
         if (connectionDisplayName) {
             this.connectedPlayers[id].connectionDisplayName = connectionDisplayName;
         }
+
         if (tag) {
-            player.push(v);
+            if (headshot && interactedId === this.id)
+                player.death();
         }
     }
 
@@ -112,6 +121,5 @@ class WebSocketHandler {
     displayPing() {
         this.pingHTML.innerHTML = 'ping: ' + Math.round(this.pingAverage / this.pings);
     }
-
 
 }
