@@ -1,4 +1,8 @@
-const baseURL = window.location.origin;
+let baseURL = window.location.origin;
+
+if(baseURL !== 'http://localhost:1234') {
+    baseURL = 'https://noahbrinton.com/FPS'
+}
 
 function goToGame() {
     window.location = (baseURL + '/game.html');
