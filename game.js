@@ -11,6 +11,7 @@ let webSocketHandler;
 
 let scene;
 let camera;
+let cameraController;
 let renderer;
 
 let controls;
@@ -18,6 +19,11 @@ let player;
 let level;
 let keys = {};
 let dummy;
+let teamNumber = 0;
+
+let teamSelected = false;
+
+let started = false;
 
 document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
@@ -27,13 +33,16 @@ loadingManager.onLoad = function ( ) {
     let bround = document.getElementById('blockout');
     progressElement.style.display = 'none';
     bround.style.display = 'none';
+    document.getElementById('teamselector')
+        .style
+        .display = 'block';
 };
 
 loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
     let progressElement = document.getElementById('progressbar');
-    let bround = document.getElementById('blockout');
+    let bound = document.getElementById('blockout');
     progressElement.style.display = 'block';
-    bround.style.display = 'block';
+    bound.style.display = 'block';
 };
 
 loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
@@ -42,25 +51,44 @@ loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 };
 
 function init(serverURL) {
+    if (!serverURL) {
+        serverURL = window.localStorage.getItem('serverURL');
+    }
     audioManager.music();
     webSocketHandler = new WebSocketHandler(serverURL);
 }
 
 function onWebSocketConnected() {
-    document.getElementById('startscreen').style.display = 'none';
     layer01 = new THREE.TextureLoader(loadingManager).load('Textures/laser.png');
     layer01.wrap = layer01.wrapT = THREE.RepeatWrapping;
     layer02 = new THREE.TextureLoader(loadingManager).load('Textures/noise.png');
     layer01.wrap = layer01.wrapT = THREE.RepeatWrapping;
     scene = new THREE.Scene();
     camera = setUpCamera();
+    cameraController = new CameraController(camera);
     renderer = setUpRenderer();
     setUpLights();
     level = new Level();
     player = new Player();
     menu = new Menu();
     dummy = new ConnectedPlayer(0);
-    update();
+}
+
+function selectTeam(teamNumberSelection) {
+    teamSelected = true;
+    teamNumber = teamNumberSelection;
+    player.team = teamNumber;
+    document.getElementById('teamselector').style.display = 'none';
+    webSocketHandler.sendMessage({
+        text: 'connected',
+        action: 'selectTeam',
+        teamSelection: teamNumber,
+    });
+    menuOpened = false;
+    player.respawn();
+    player.setTeam();
+    menu.updateScores(true);
+    if (!started) update();
 }
 
 function keydown(e){
@@ -90,12 +118,12 @@ function sendModelData() {
             lookQuaternion: camera.quaternion,
             animState: player.currentAnimationName,
             velocity: player.velocity,
-            score: player.score,
         }
     );
 }
 
 function update() {
+    started = true;
     if (keys['Tab']) menu.showScore();
     else menu.hideScore();
     if (keys['2']) menu.showScore();
@@ -107,8 +135,11 @@ function update() {
     requestAnimationFrame( update );
     const delta = clock.getDelta();
     player.update(delta);
+    cameraController.update(player);
     Object.keys(webSocketHandler.connectedPlayers).forEach(key => {
         webSocketHandler.connectedPlayers[key].update(delta);
     })
     renderer.render( scene, camera );
 }
+
+init();

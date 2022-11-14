@@ -1,0 +1,18 @@
+let baseURL = window.location.origin;
+
+if(baseURL !== 'http://localhost:1234') {
+    baseURL = 'https://noahbrinton.com/FPS'
+}
+
+function goToGame() {
+    window.location = (baseURL + '/game.html');
+}
+
+function goToServerSelection() {
+    window.location = (baseURL + '/Pages/serverselection.html');
+}
+
+function connectToServer(serverURL) {
+    window.localStorage.setItem('serverURL', serverURL);
+    window.location = (baseURL + '/game.html');
+}

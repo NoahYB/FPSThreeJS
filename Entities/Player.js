@@ -70,9 +70,11 @@ class Player {
         this.respawnTimer = 0;
         if (spawnLocations.length > 0) {
             this.animations['walking'].play();
-            this.object.position.copy(spawnLocations[
-                Math.round(Math.random() * spawnLocations.length)
-            ]);
+            if (teamNumber === 1) {
+                this.object.position.copy(spawnLocations[0]);
+            } else {
+                this.object.position.copy(spawnLocations[1]);
+            }
             this.object.position.y += 11;
         } else 
             this.object.position.set(20,20,0);
@@ -145,8 +147,6 @@ class Player {
                     walk.clampWhenFinished = true;
                     this.animations['walking'] = walk;
                     this.animations['old'] = action;
-                    // action.play();
-                    // this.currentAnimation = walk;
                     fbxLoader.load('Models/Death.fbx', anim => {
                         const death = this.mixer.clipAction( anim.animations[0] );
                         death.loop = THREE.LoopOnce;
@@ -212,7 +212,7 @@ class Player {
     }
 
     mousedown(e) {
-        if (menuOpened) return;
+        if (menuOpened || !teamSelected) return;
         controls.lock();
         const raycaster = new THREE.Raycaster();
         player.shoot();
@@ -224,7 +224,7 @@ class Player {
             if (object === level.object) return;
             if (object.isEnemy) {
                 if (object.name === 'headshot') {
-                    player.score += 4;
+                    player.score += 1;
                     player.headShot();
                 }
                 player.hitMarker();
@@ -236,11 +236,12 @@ class Player {
                     text: 'connected',
                     headshot: object.name === 'headshot' ? true : false,
                     interactedId: object.c.id,
+                    score: player.score,
+                    team: teamNumber,
                 })
                 audioManager.hit();
                 player.score += 1;
                 t.innerHTML = player.score;
-                // return;
             }
         }
     }
@@ -301,6 +302,10 @@ class Player {
         controls.moveRight(this.velocity.x);
     }
 
+    setTeam() {
+
+    }
+
     transitionAnimation(anim) {
         if (this.currentAnimation ===  anim)
             return;
@@ -324,8 +329,10 @@ class Player {
             this.jumping = true;
             this.jump();
         }
-        this.sprinting = keys['Shift'] ? true: false;
+        
+        this.sprinting = keys['Shift'] ? true : false;
         this.walking = false;
+
         if(keys['w']){
             this.velocity.z = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
@@ -342,6 +349,7 @@ class Player {
             this.velocity.x = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
+
         if (!keys['w'] && !keys['s']) this.velocity.z = 0;
         if (!keys['a'] && !keys['d']) this.velocity.x = 0;
     }

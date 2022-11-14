@@ -53,7 +53,7 @@ function onPlayerLoad() {
     let head = player.object.getObjectByName('mixamorigHead');
     let headPosition = new THREE.Vector3();
     head.getWorldPosition(headPosition);
-    head.add(camera);
+    // player.object.add(camera);
     camera.rotateY(180 * Math.PI / 180);
     camera.position.y -= 1;
 }

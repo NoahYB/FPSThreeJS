@@ -1,0 +1,27 @@
+<head>
+    <html lang="en" xml:lang="en" xmlns= "http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="Content-Language" content="en">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="../Styles/serverselection.css">
+</head>
+<body>
+    <script src="../Navigator/Navigator.js"></script>
+    <div class="header"> <span>available servers</span> </div>
+    <div class="serverselection-menu-list">
+        <div class="serverselection-menu-item" 
+            onclick="connectToServer('ws\://localhost:56112')"> 
+            <span>Local Host</span> 
+        </div>
+        <div class="serverselection-menu-item" 
+            onclick="connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
+            <span>brintonliteraryagency</span> 
+        </div>
+        <div class="serverselection-menu-item" 
+            onclick="connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
+            <span>brintonliteraryagency</span> 
+        </div>
+    </div>
+</body>

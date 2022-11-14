@@ -7,7 +7,9 @@ class ConnectedPlayer {
     }
 
     addBoundingVolume() {
-        const geometryHead = new THREE.BoxGeometry( 1, 1, 1 );
+        const geometryHead = this.id === 0 ?
+        new THREE.BoxGeometry( 2, 2, 2 ):
+         new THREE.BoxGeometry( 1, 1, 1 );
         const materialHead = new THREE.MeshToonMaterial( {color: '#42F58C'} );
         this.cubeHead = new THREE.Mesh( geometryHead, materialHead );
         this.head = this.object.getObjectByName('mixamorigHead');
@@ -110,6 +112,12 @@ class ConnectedPlayer {
         this.velocity.copy(velocity);
     }
 
+    setTeam(teamNumber) {
+        this.teamNumber = teamNumber;
+        let color = teamNumber === 1 ? 'blue' : 'red'
+        menu.updateScores(true);
+    }
+
     setQuaternion(quat) {
         if (!this.object) return;
         //First of all we create a matrix and put the rotation of the cube into it
@@ -162,7 +170,6 @@ class ConnectedPlayer {
         const head = this.object.getObjectByName('mixamorigHead');
         let headPosition = new THREE.Vector3();
         head.getWorldPosition(headPosition);
-        this.cubeHead.position.y = headPosition.y + 15;
         this.mixer.update(delta);
     }
 }

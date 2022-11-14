@@ -24,31 +24,33 @@ class Menu {
     }
 
     createScoreBoard() {
-        this.scoreBoard = document.createElement('div');
-        this.scoreBoard.style.position = 'absolute';
-        this.scoreBoard.style.width = 500;
-        this.scoreBoard.style.height = window.innerHeight;
-        this.scoreBoard.style.fontSize = 100;
-        this.scoreBoard.style.top = 30 + 'px';
-        this.scoreBoard.style.left = '530px';
-        this.scoreBoard.style.background = 'rgba(122,122,122,.3)';
-        this.scoreBoard.style.display = 'none';
-        this.scoreBoard.id = 'scoreBoardParent';
+        this.scoreboardParent = document.getElementById('scoreboardParent');
+        if (undefined === 'FFA') {
+
+        } else {
+            this.scoreBoardRed  = document.getElementById('scoreboardRed');
+            this.scoreBoardBlue = document.getElementById('scoreboardBlue');
+        }
     }
 
-    updateScores() {
+    updateScores(updateTeams) {
         const connectedPlayers = webSocketHandler.connectedPlayers;
+        console.log('connectedPlayers');
+        console.log(connectedPlayers);
         let scoresAndNames = [{
             displayName: TUNABLE_VARIABLES.playerName,
             score: player.score,
             key: webSocketHandler.id,
+            team: player.team,
         }];
         Object.keys(connectedPlayers).forEach(key => {
             let connectedPlayerObject = connectedPlayers[key];
             let displayName = connectedPlayerObject.connectionDisplayName;
             let score = connectedPlayerObject.score;
+            let team = connectedPlayerObject.teamNumber;
             scoresAndNames.push({
                 id: key,
+                team,
                 displayName,
                 score,
             })
@@ -59,7 +61,18 @@ class Menu {
                 display = document.createElement("div");
                 display.id = obj.id;
                 display.classList.add('scoreText');
-                this.scoreBoard.append(display);
+                if (obj.team === 1) {
+                    this.scoreBoardRed.append(display);
+                } else {
+                    this.scoreBoardBlue.append(display);
+                }
+            }
+            if (updateTeams) {
+                if (obj.team === 1) {
+                    this.scoreBoardRed.append(display);
+                } else {
+                    this.scoreBoardBlue.append(display);
+                }
             }
             display.innerHTML = obj.displayName + ': ' + obj.score;
         }))
@@ -70,13 +83,28 @@ class Menu {
         this.elements = this.menuItems.map((name, i) => {
             this.parent.append(this.loadElement(name, i));
         });
+        let changeTeam = document.createElement("button");
+        changeTeam.innerHTML = "Change Team";
+        changeTeam.onclick = this.openChangeTeam;
+        changeTeam.style.position = 'absolute';
+        changeTeam.style.top = (0 + ((this.menuItems.length) * 50)) + 'px';
+        this.parent.append(changeTeam);
+
         let btn = document.createElement("button");
         btn.innerHTML = "Set Variables";
         btn.style.position = 'absolute';
-        btn.style.top = (0 + (this.menuItems.length*50)) + 'px';
+        btn.style.top = (0 + ((this.menuItems.length + 1) * 50)) + 'px';
         btn.onclick = this.setTuningVariables;
         document.body.appendChild(btn);
-        this.parent.append (btn);
+        this.parent.append(btn);
+    }
+
+    openChangeTeam() {
+        menu.hide();
+        menuOpened = true;
+        document.getElementById('teamselector')
+            .style
+            .display = 'block';
     }
 
     setTuningVariables() {
@@ -126,23 +154,21 @@ class Menu {
         menuOpened = true;
         this.updateScores();
         this.parent.style.display = 'block';
-        this.scoreBoard.style.display = 'block';
     }
 
     hide() {
         menuOpened = false;
         this.parent.style.display = 'none';
-        this.scoreBoard.style.display = 'none';
     }
 
 
     showScore() {
         this.updateScores();
-        this.scoreBoard.style.display = 'block';
+        this.scoreboardParent.style.display = 'flex';
     }
 
     hideScore() {
-        this.scoreBoard.style.display = 'none';
+        this.scoreboardParent.style.display = 'none';
     }
 
     highlight(e) {

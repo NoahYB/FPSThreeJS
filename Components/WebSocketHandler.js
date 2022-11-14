@@ -4,7 +4,6 @@ class WebSocketHandler {
         if (id) this.id = parseInt(id);
         else this.id = getTimeStampMili();
         window.localStorage.setItem('playerId', this.id);
-
         this.webSocket = new WebSocket(
             url, 
             'protocolOne'
@@ -33,6 +32,7 @@ class WebSocketHandler {
 
 	receiveTextMessage(data) {
         const {
+            action,
 	    	connectionDisplayName,
 	    	id,
             position,
@@ -57,6 +57,11 @@ class WebSocketHandler {
 
         if(!this.connectedPlayers[id]) {
             this.connectedPlayers[id] = new ConnectedPlayer(id);
+        }
+
+        if (action === 'selectTeam') {
+            menu.updateScores(true);
+            this.connectedPlayers[id].setTeam(data.teamSelection);
         }
 
         if (position) {
@@ -92,7 +97,7 @@ class WebSocketHandler {
         }
     
         this.webSocket.onmessage = (message) => {
-            if (message.data === 'something') {
+            if (!this.connected) {
                 onWebSocketConnected();
                 this.connected = true;
                 return;
