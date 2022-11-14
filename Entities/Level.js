@@ -1,13 +1,18 @@
 class Level {
     constructor(scene) {
         this.levelObjects = [];
-        this.loadCameraTexture();
+        this.loadBackgroundColor();
         this.loadLevelObj();
     }
     
     loadCameraTexture() {
         const loader = new THREE.TextureLoader();
         scene.background = loader.load( 'Textures/original.png' );
+    }
+
+    loadBackgroundColor() {
+        const loader = new THREE.TextureLoader();
+        scene.background = new THREE.Color('skyblue');
     }
 
     loadSkyBox() {
@@ -72,7 +77,7 @@ class Level {
         // scene.add(cube);
         gltfLoader.load(
             // resource URL
-            'Models/Level3.gltf',
+            'Models/Level4.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;

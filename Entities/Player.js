@@ -110,14 +110,7 @@ class Player {
     }
 
     addReticle() {
-        this.reticle = new THREE.Mesh(
-            new THREE.SphereGeometry( 0.85 * .006, .006, 32),
-            new THREE.MeshBasicMaterial({
-                color: 0xffffff,
-                side: THREE.DoubleSide
-            })
-        );
-        this.reticle.flatShading = true;
+        this.reticle = new THREE.Group();
         camera.add(this.reticle);
         this.reticle.position.z -= .3;
     }
@@ -195,20 +188,10 @@ class Player {
     }
 
     hitMarker() {
-        this.reticle.material.color.set('red');
-        const texture = new THREE.TextureLoader().load( 'Textures/hitmarker.png' );     
-        const geometry = new THREE.PlaneGeometry(.06,.04);
-        const material = new THREE.MeshBasicMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            transparent: true,
-        });
-        const plane = new THREE.Mesh(geometry, material);
-        this.hitMarkersToDelete.push({
-            timer: 0,
-            object: plane,
-        });
-        this.reticle.add(plane);
+        const h = document.getElementById('hitmarker');
+        h.classList.remove('playhitmarker');
+        void h.offsetWidth;
+        h.classList.add('playhitmarker');
     }
 
     mousedown(e) {

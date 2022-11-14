@@ -29,6 +29,7 @@ document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
 
 loadingManager.onLoad = function ( ) {
+    if (started) return;
     let progressElement = document.getElementById('progressbar');
     let bround = document.getElementById('blockout');
     progressElement.style.display = 'none';
@@ -39,6 +40,7 @@ loadingManager.onLoad = function ( ) {
 };
 
 loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+    if (started) return;
     let progressElement = document.getElementById('progressbar');
     let bound = document.getElementById('blockout');
     progressElement.style.display = 'block';
@@ -46,6 +48,7 @@ loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
 };
 
 loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+    if (started) return;
     let progressElement = document.getElementById('progressbar');
     progressElement.style.width = (itemsLoaded / itemsTotal * 100) + '%';
 };
