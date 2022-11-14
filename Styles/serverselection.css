@@ -1,0 +1,31 @@
+html {
+    background-color: #252422;
+    font-family: courier;
+}
+.header {
+    color: #EB5E28;
+    display: flex;
+    margin: 10px;
+}
+.header span {
+    font-size: 50px;
+}
+
+.serverselection-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.serverselection-menu-item {
+    display: flex;
+    background-color: #FFFCF2;
+}
+.serverselection-menu-item span {
+    font-size: 25px;
+    margin: 20px;
+}
+.serverselection-menu-item:hover {
+    background-color: #CCC5B9;
+    cursor: pointer;
+}

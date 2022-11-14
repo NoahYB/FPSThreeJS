@@ -42,13 +42,16 @@ class Menu {
             displayName: TUNABLE_VARIABLES.playerName,
             score: player.score,
             key: webSocketHandler.id,
+            team: teamNumber,
         }];
         Object.keys(connectedPlayers).forEach(key => {
             let connectedPlayerObject = connectedPlayers[key];
             let displayName = connectedPlayerObject.connectionDisplayName;
             let score = connectedPlayerObject.score;
+            let team = connectedPlayerObject.teamNumber;
             scoresAndNames.push({
                 id: key,
+                team,
                 displayName,
                 score,
             })
@@ -61,6 +64,7 @@ class Menu {
                 display.classList.add('scoreText');
                 this.scoreBoard.append(display);
             }
+            display.style.backgroundColor = obj.team === 1 ? 'red' : 'blue';
             display.innerHTML = obj.displayName + ': ' + obj.score;
         }))
     }

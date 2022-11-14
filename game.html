@@ -1,0 +1,62 @@
+<head>
+    <html lang="en" xml:lang="en" xmlns= "http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="Content-Language" content="en">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="teamselector"  style="display:none"> 
+        <div> 
+            <span> 
+                Select Team
+            </span>
+        </div>
+        <div class="teamselection">
+            <div class="teamselectionOne" onclick="selectTeam(1)">
+                Team One
+            </div>
+            <div class="teamselectionTwo" onclick="selectTeam(2)">
+                Team Two
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="blockout">
+        Loading...
+        <div class="progressbar" id="progressbar">
+        </div>
+    </div>
+    <script src="Navigator/Navigator.js"></script>
+    <script src="Variables.js"></script>
+    <script src="Utilities.js"></script>
+    <script src="AudioManager.js"></script>
+    <script src="Pallette.js"></script>
+    <script src="libs/three.min.js"></script>
+    <script src="libs/fflate.min.js"></script>
+    <script src="Shaders/Toon.js"></script>
+    <script src="modules/MeshLine.js"></script>
+    <script src="Entities/Bullet.js"></script>
+    <script src="modules/OBJLoader.js"></script>
+    <script src="modules/FBXLoader.js"></script>
+    <script src="modules/TGALoader.js"></script>
+    <script src="modules/GLTFLoader.js"></script>
+    <script src="modules/PointerLockControls.js"></script>
+    <script src="Entities/ConnectedPlayer.js"></script>
+    <script src="Entities/CameraController.js"></script>
+    <script src="Components/WebSocketHandler.js"></script>
+    <script src="Entities/Player.js"></script>
+    <script src="Entities/Level.js"></script>
+    <script src="Entities/Menu.js"></script>
+    <script src="Entities/NPC.js"></script>
+    <script src="Components/Collisions.js"></script>
+    <script src="SceneSetup.js"></script>
+    <script src="Game.js"></script>
+    <div id="headshot" class="headshot">
+        <span>
+            HEADSHOT!
+        </span>
+    </div>
+</body>

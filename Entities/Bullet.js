@@ -19,7 +19,7 @@ class Bullet {
             },
             vertexShader: bulletVertexShader(),
             fragmentShader: bulletFragmentShader()
-        } );    
+        } ); 
         let rightHand = player.object.getObjectByName('mixamorigRightHand');
         let rightHandPosition = new THREE.Vector3();
         rightHand.getWorldPosition(rightHandPosition);
