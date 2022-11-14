@@ -350,8 +350,12 @@ class Player {
             this.walking = true;
         }
 
-        if (!keys['w'] && !keys['s']) this.velocity.z = 0;
-        if (!keys['a'] && !keys['d']) this.velocity.x = 0;
+        if (!keys['w'] && !keys['s']
+        ) this.velocity.z = 0;
+
+        if (!keys['a'] && !keys['d'] 
+        ) this.velocity.x = 0;
+        
     }
 
     updateBBOX() {
