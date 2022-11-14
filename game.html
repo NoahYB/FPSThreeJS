@@ -8,18 +8,18 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="teamselector"  style="display:none"> 
-        <div> 
+    <div id="teamselector" class="teamSelector"  style="display:none"> 
+        <div class="teamSelectionHeader"> 
             <span> 
                 Select Team
             </span>
         </div>
         <div class="teamselection">
-            <div class="teamselectionOne" onclick="selectTeam(1)">
-                Team One
+            <div class="teamSelectButton teamselectionOne" onclick="selectTeam(1)">
+                <span> Team One </span>
             </div>
-            <div class="teamselectionTwo" onclick="selectTeam(2)">
-                Team Two
+            <div class="teamSelectButton teamselectionTwo" onclick="selectTeam(2)">
+                <span> Team Two </span>
             </div>
         </div>
     </div>
@@ -58,5 +58,13 @@
         <span>
             HEADSHOT!
         </span>
+    </div>
+    <div id="scoreboardParent" class="scoreboardParent">
+        <div id="scoreboardFFA" class="scoreboard scoreboardFFA">
+        </div>
+        <div id="scoreboardRed" class="scoreboard scoreboardRed">
+        </div>
+        <div id="scoreboardBlue" class="scoreboard scoreboardBlue">
+        </div>
     </div>
 </body>

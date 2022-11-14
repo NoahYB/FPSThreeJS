@@ -114,12 +114,8 @@ class ConnectedPlayer {
 
     setTeam(teamNumber) {
         this.teamNumber = teamNumber;
-        let color = teamNumber === 1 ? 'red' : 'blue'
-        this.object.traverse(c => {
-            if (c.isMesh) {
-                c.material.color.set(color);
-            }
-        })
+        let color = teamNumber === 1 ? 'blue' : 'red'
+        menu.updateScores(true);
     }
 
     setQuaternion(quat) {

@@ -60,6 +60,7 @@ class WebSocketHandler {
         }
 
         if (action === 'selectTeam') {
+            menu.updateScores(true);
             this.connectedPlayers[id].setTeam(data.teamSelection);
         }
 

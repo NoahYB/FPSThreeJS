@@ -71,9 +71,9 @@ class Player {
         if (spawnLocations.length > 0) {
             this.animations['walking'].play();
             if (teamNumber === 1) {
-                this.object.position.copy(spawnLocations[teamNumber]);
-            } else {
                 this.object.position.copy(spawnLocations[0]);
+            } else {
+                this.object.position.copy(spawnLocations[1]);
             }
             this.object.position.y += 11;
         } else 
@@ -224,7 +224,7 @@ class Player {
             if (object === level.object) return;
             if (object.isEnemy) {
                 if (object.name === 'headshot') {
-                    player.score += 4;
+                    player.score += 1;
                     player.headShot();
                 }
                 player.hitMarker();
@@ -236,6 +236,8 @@ class Player {
                     text: 'connected',
                     headshot: object.name === 'headshot' ? true : false,
                     interactedId: object.c.id,
+                    score: player.score,
+                    team: teamNumber,
                 })
                 audioManager.hit();
                 player.score += 1;

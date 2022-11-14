@@ -23,6 +23,8 @@ let teamNumber = 0;
 
 let teamSelected = false;
 
+let started = false;
+
 document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
 
@@ -75,15 +77,18 @@ function onWebSocketConnected() {
 function selectTeam(teamNumberSelection) {
     teamSelected = true;
     teamNumber = teamNumberSelection;
+    player.team = teamNumber;
     document.getElementById('teamselector').style.display = 'none';
     webSocketHandler.sendMessage({
         text: 'connected',
         action: 'selectTeam',
         teamSelection: teamNumber,
     });
+    menuOpened = false;
     player.respawn();
     player.setTeam();
-    update();
+    menu.updateScores(true);
+    if (!started) update();
 }
 
 function keydown(e){
@@ -113,12 +118,12 @@ function sendModelData() {
             lookQuaternion: camera.quaternion,
             animState: player.currentAnimationName,
             velocity: player.velocity,
-            score: player.score,
         }
     );
 }
 
 function update() {
+    started = true;
     if (keys['Tab']) menu.showScore();
     else menu.hideScore();
     if (keys['2']) menu.showScore();
