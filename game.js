@@ -100,10 +100,11 @@ function keydown(e){
         }
         else menu.show();
     }
-    keys[e.key] = true;
+    keys[e.key.toLowerCase()] = true;
 }
+
 function keyup(e){
-    keys[e.key] = false;
+    keys[e.key.toLowerCase()] = false;
 }
 
 const clock = new THREE.Clock();
