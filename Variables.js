@@ -8,6 +8,7 @@ class Variables {
                gravity,
                volume,
                sensitivity,
+               teamKillEnabled
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -34,6 +35,7 @@ class Variables {
         this.gravity = gravity;
         this.volume = volume;
         this.sensitivity = sensitivity;
+        this.teamKillEnabled = this.teamKillEnabled;
     }
 
     setSensitivity(newSensitivity) {
@@ -94,5 +96,6 @@ const TUNABLE_VARIABLES = new Variables(
         gravity: .008,
         volume: .5,
         sensitivity: 1.0,
+        teamKillEnabled: false,
     }
 )

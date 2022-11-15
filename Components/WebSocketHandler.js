@@ -61,7 +61,9 @@ class WebSocketHandler {
 
         if (action === 'selectTeam') {
             menu.updateScores(true);
+            console.log('new team selected');
             this.connectedPlayers[id].setTeam(data.teamSelection);
+            this.connectedPlayers[id].team;
         }
 
         if (position) {

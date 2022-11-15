@@ -205,7 +205,7 @@ class Player {
         for ( let i = 0; i < intersects.length; i ++ ) {
             const object = intersects[ i ].object;
             if (object === level.object) return;
-            if (object.isEnemy) {
+            if (object.isEnemy && object.c.team !== player.team) {
                 if (object.name === 'headshot') {
                     player.score += 1;
                     player.headShot();
