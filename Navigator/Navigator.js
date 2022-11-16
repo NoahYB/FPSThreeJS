@@ -1,10 +1,10 @@
-let baseURL = window.location.href;
+let baseURL = window.location.origin;
 
 if(baseURL === 'https://noahbrinton.com') {
     baseURL = 'https://noahbrinton.com/FPS'
 }
-if(baseURL === 'https://noahbrinton.com') {
-    baseURL = 'https://noahbrinton.com/FPS'
+if(baseURL === 'https://noahyb.github.io') {
+    baseURL = 'https://noahyb.github.io/FPSThreeJS'
 }
 
 function goToGame() {
