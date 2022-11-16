@@ -1,6 +1,6 @@
 let baseURL = window.location.origin;
 
-if(baseURL !== 'http://localhost:1234') {
+if(baseURL !== 'https://noahbrinton.com') {
     baseURL = 'https://noahbrinton.com/FPS'
 }
 
