@@ -1,6 +1,6 @@
 let baseURL = window.location.origin;
 
-if(baseURL !== 'https://noahbrinton.com') {
+if(baseURL === 'https://noahbrinton.com') {
     baseURL = 'https://noahbrinton.com/FPS'
 }
 
