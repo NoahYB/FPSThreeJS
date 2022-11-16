@@ -23,7 +23,10 @@ class Player {
         this.spawnedEntities = [];
         this.collisions = new Collisions(this);
         document.addEventListener('mousedown',this.mousedown);
+        document.addEventListener('mouseup',this.mouseup);
         this.shootingTimer = 0;
+        this.equippedGun = new Gun(bullet, 1, 0, true);
+        this.mouseDown = false;
     }
     
     loadHUD() {
@@ -194,14 +197,19 @@ class Player {
         h.classList.add('playhitmarker');
     }
 
+    mouseup(e) {
+        player.mouseDown = false;
+    }
+
     mousedown(e) {
         if (menuOpened || !teamSelected) return;
+        player.mouseDown = true;
         controls.lock();
         const raycaster = new THREE.Raycaster();
         player.shoot();
         raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
         const intersects = raycaster.intersectObjects( scene.children );
-        // LOL
+
         for ( let i = 0; i < intersects.length; i ++ ) {
             const object = intersects[ i ].object;
             if (object === level.object) return;
@@ -251,8 +259,15 @@ class Player {
         this.reticle.updateMatrixWorld();
         let dir = new THREE.Vector3(0,0,0);
         camera.getWorldDirection(dir);
-        const bullet = new Bullet(this.gun.position, dir.multiplyScalar(10000), player);
-        this.spawnedEntities.push(bullet);
+        let rightHand = player.object.getObjectByName('mixamorigRightHand');
+        let rightHandPosition = new THREE.Vector3();
+        rightHand.getWorldPosition(rightHandPosition);
+        if (projectilesOff) {
+            const bullet = new Bullet(this.gun.position, dir.multiplyScalar(10000), player);
+            this.spawnedEntities.push(bullet);
+        } else {
+            this.equippedGun.fire(rightHandPosition, dir);
+        }
         this.shooting = true;
     }
 
@@ -383,7 +398,7 @@ class Player {
         this.object.getWorldDirection(worldDirection);
         if (this.box) this.boxHelper.update();
         this.checkY();
-        this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log(''));
+        this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime):1+1);
         if (this.mixer) this.mixer.update( deltaTime );
         if (!player.walking) {
             audioManager.stopWalking();
@@ -402,6 +417,10 @@ class Player {
                 return false;
             } else return true;
         }))
+        if (this.mouseDown && this.equippedGun.automatic && !projectilesOff) {
+            player.shoot();
+        }
+        this.equippedGun.update(deltaTime);
         this.input();
         this.handleCollisions();
         this.move();

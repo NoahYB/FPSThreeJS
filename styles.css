@@ -26,6 +26,26 @@ body {
     background-color: rgba(180, 220, 255, 0.311);
 }
 
+.guntweaker {
+    z-index: 100000;
+    background-color: #52525227;
+    position: fixed;
+    top: 20%;
+    left: 40%;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+}
+
+.guntweakerInput {
+    width: 100%;
+}
+
+.guntweakerLabel {
+    width: 100%;
+}
+
+
 .headshot {
     display: flex;
     position: absolute;

@@ -31,14 +31,17 @@
     </div>
     <script src="Navigator/Navigator.js"></script>
     <script src="Variables.js"></script>
+    <script src="libs/three.min.js"></script>
     <script src="Utilities.js"></script>
+    <script src="WeaponSettings/Guns.js"></script>
+    <script src="Entities/Guntweaker.js"></script>
     <script src="AudioManager.js"></script>
     <script src="Pallette.js"></script>
-    <script src="libs/three.min.js"></script>
     <script src="libs/fflate.min.js"></script>
     <script src="Shaders/Toon.js"></script>
     <script src="modules/MeshLine.js"></script>
     <script src="Entities/Bullet.js"></script>
+    <script src="Entities/Projectile.js"></script>
     <script src="modules/OBJLoader.js"></script>
     <script src="modules/FBXLoader.js"></script>
     <script src="modules/TGALoader.js"></script>
@@ -50,6 +53,7 @@
     <script src="Entities/Player.js"></script>
     <script src="Entities/Level.js"></script>
     <script src="Entities/Menu.js"></script>
+    <script src="Entities/Gun.js"></script>
     <script src="Entities/NPC.js"></script>
     <script src="Components/Collisions.js"></script>
     <script src="SceneSetup.js"></script>
@@ -59,6 +63,31 @@
             HEADSHOT!
         </span>
     </div>
+    <div id="guntweaker" class="guntweaker" style="display:none">
+
+        <span class="guntweakerLabel"> Turn off projectiles demo </span>
+        <input class="guntweakerInput" id="KILL" type="checkbox">  </input>
+        <span class="guntweakerLabel"> Number of projectiles </span>
+        <input class="guntweakerInput" id="NUMBER_OF_PROJECTILES" value="10">  </input>
+        <span class="guntweakerLabel"> Velocity constant </span>
+        <input class="guntweakerInput" id="VELOCITY_CONSTANT" value="700">  </input>
+        <span class="guntweakerLabel"> Gravity constant </span>
+        <input class="guntweakerInput" id="GRAVITY_CONSTANT" value="1">  </input>
+        <span class="guntweakerLabel"> Spread (Radians) </span>
+        <input class="guntweakerInput" id="SPREAD" value=".12">  </input>
+        <span class="guntweakerLabel"> Deacceleration constant (should be close to one) </span>
+        <input class="guntweakerInput" id="DEACCELERATION_CONSTANT"  value=".999999">  </input>
+        <span class="guntweakerLabel"> Shot delay constant </span>
+        <input class="guntweakerInput" id="DELAY" value="0">  </input>
+        <span class="guntweakerLabel"> Lifespan </span>
+        <input class="guntweakerInput" id="LIFESPAN" value="1">  </input>
+        <span class="guntweakerLabel"> Bullet mass </span>
+        <input class="guntweakerInput" id="MASS"  value="10">  </input>
+        <span class="guntweakerLabel"> Automatic (0 or 1) </span>
+        <input class="guntweakerInput" id="AUTOMATIC"  value="0">  </input>
+        <button onclick="guntweaker.set()"> SET </button>
+    </div>
+
     <div id="scoreboardParent" class="scoreboardParent">
         <div id="scoreboardFFA" class="scoreboard scoreboardFFA">
         </div>

@@ -4,6 +4,7 @@ const fbxLoader = new THREE.FBXLoader(loadingManager);
 const objLoader = new THREE.OBJLoader(loadingManager);
 const gltfLoader = new THREE.GLTFLoader(loadingManager);
 const audioManager = new AudioManager();
+
 let menuOpened = false;
 let spawnLocations = [];
 let menu;
@@ -24,6 +25,8 @@ let teamNumber = 0;
 let teamSelected = false;
 
 let started = false;
+
+let projectilesOff = false;
 
 document.addEventListener('keydown',keydown);
 document.addEventListener('keyup',keyup);
@@ -103,6 +106,11 @@ function keydown(e){
         }
         else menu.show();
     }
+    if (e.key === 'g') {
+        controls.unlock();
+        menuOpened = !menuOpened;
+        guntweaker.openMenu();
+    }
     keys[e.key.toLowerCase()] = true;
 }
 
@@ -149,12 +157,7 @@ function update() {
 window.addEventListener( 'resize', onWindowResize, false );
 
 function onWindowResize(){
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
     renderer.setSize( window.innerWidth, window.innerHeight );
-
 }
 
 init();
