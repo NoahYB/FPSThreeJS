@@ -1,5 +1,8 @@
-let baseURL = window.location.origin;
+let baseURL = window.location.href;
 
+if(baseURL === 'https://noahbrinton.com') {
+    baseURL = 'https://noahbrinton.com/FPS'
+}
 if(baseURL === 'https://noahbrinton.com') {
     baseURL = 'https://noahbrinton.com/FPS'
 }
