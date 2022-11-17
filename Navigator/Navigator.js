@@ -1,7 +1,10 @@
 let baseURL = window.location.origin;
 
-if(baseURL !== 'http://localhost:1234') {
+if(baseURL === 'https://noahbrinton.com') {
     baseURL = 'https://noahbrinton.com/FPS'
+}
+if(baseURL === 'https://noahyb.github.io') {
+    baseURL = 'https://noahyb.github.io/FPSThreeJS'
 }
 
 function goToGame() {
