@@ -91,7 +91,7 @@ function selectTeam(teamNumberSelection) {
     player.respawn();
     player.setTeam();
     menu.updateScores(true);
-    if (!started) update();
+    if (!started) startUpdate(60);
 }
 
 function keydown(e){
@@ -126,6 +126,39 @@ function sendModelData() {
     );
 }
 
+let frameCount = 0;
+let fps, fpsInterval, startTime, now, then, elapsed;
+
+function startUpdate(fps) {
+    fpsInterval = 1000 / fps;
+    then = Date.now();
+    startTime = then;
+    lockedUpdate();
+}
+
+function lockedUpdate() {
+    // request another frame
+
+    requestAnimationFrame(lockedUpdate);
+
+    // calc elapsed time since last loop
+
+    now = Date.now();
+    elapsed = now - then;
+
+    // if enough time has elapsed, draw the next frame
+
+    if (elapsed > fpsInterval) {
+
+        // Get ready for next frame by setting then=now, but also adjust for your
+        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+        then = now - (elapsed % fpsInterval);
+
+        // Put your drawing code here
+        update();
+    }
+}
+
 function update() {
     started = true;
     if (keys['Tab']) menu.showScore();
@@ -136,7 +169,6 @@ function update() {
         sendModelData();
     }
     dummy.update();
-    requestAnimationFrame( update );
     const delta = clock.getDelta();
     player.update(delta);
     cameraController.update(player);
