@@ -89,13 +89,13 @@ class Variables {
 const HTML_INPUT_FIELDS = [];
 const TUNABLE_VARIABLES = new Variables(
     {
-        movementSpeed: 20,
-        playerName: 'default-name',
-        jumpHeight: 30,
-        FOV: 50,
-        gravity: .008,
+        movementSpeed: 15,
+        playerName: 'Donut',
+        jumpHeight: 15,
+        FOV: 120,
+        gravity: .02,
         volume: .5,
-        sensitivity: 1.0,
+        sensitivity: 1.5,
         teamKillEnabled: false,
     }
 )
