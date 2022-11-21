@@ -114,7 +114,7 @@ class WebSocketHandler {
     createPingDisplay() {
         this.pingHTML = document.createElement('div');
         this.pingHTML.style.position = 'absolute';
-        this.pingHTML.style.width = 1000;
+        this.pingHTML.style.width = 10;
         this.pingHTML.style.height = 100;
         this.pingHTML.style.color = 'white';
         this.pingHTML.innerHTML = 'ping';

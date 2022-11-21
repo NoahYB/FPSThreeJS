@@ -10,7 +10,7 @@ class Collisions {
         rayPos.y += velocity.y;
         raycaster.set(
             rayPos, 
-            new THREE.Vector3(0,-1,0)
+            new THREE.Vector3(0,-3,0)
         );
         let intersect = raycaster.intersectObject(object2, true);
         let d = object1.position.y - intersect[0]?.point.y;
