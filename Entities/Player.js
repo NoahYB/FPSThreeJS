@@ -302,7 +302,6 @@ class Player {
 
     jump() {
         this.velocity.y = TUNABLE_VARIABLES.jumpHeight * TUNABLE_VARIABLES.gravity;
-        this.jumping = true;
         this.grounded = false;
     }
 
@@ -351,12 +350,15 @@ class Player {
             level.object, 
             this.velocity
         );
-        if (vertCollisions && !this.jumping) {            
+        if (vertCollisions 
+            && this.velocity.y < 0 
+            && !this.grounded
+        ) {            
             this.velocity.y = 0;
             this.object.position.y = vertCollisions;
             this.grounded = true;
-        } else {
             this.jumping = false;
+        } else if (!this.grounded){
             this.velocity.y -= TUNABLE_VARIABLES.gravity;
         }
         const horzontalCollisions = this.collisions.checkHorizontalCollisions(
