@@ -10,15 +10,26 @@
 <body>
     <script src="Navigator/Navigator.js"></script>
     <div class="header">
-        <span> sparrow falling </span>
+        <span class="startscreen-menu-header-text"> 
+            Browser Shooter
+        </span>
     </div>
     <div class="startscreen-menu-list">
         <div class="startscreen-menu-item" 
-            onclick="goToServerSelection()"> 
+             onclick="goToServerSelection()"> 
             <span>Server List</span> 
         </div>
-        <div class="startscreen-menu-item"> 
+        <div class="startscreen-menu-item"
+             onclick="window.location.href='https://github.com/NoahYB/FPSThreeJS'"> 
             <span>About</span> 
+        </div>
+        <div class="startscreen-menu-item"
+            onclick="goToDonationInformation()"> 
+            <span>Donate</span> 
+        </div>
+        <div class="startscreen-menu-item"
+            onclick="goToContact()"> 
+            <span>Contact</span> 
         </div>
     </div>
 </body>

@@ -1,25 +1,37 @@
 html {
-    background-color: #252422;
+    background-color: #000000;
     font-family: courier;
 }
 .header {
-    color: #EB5E28;
+    color: #28ebdb;
     display: flex;
     margin: 10px;
 }
 .header span {
     font-size: 50px;
+    margin: auto;
+}
+
+.startscreen-contact-text {
+    color: white;
+}
+
+.startscreen-menu-header-text {
+    font-weight: bold;
 }
 
 .startscreen-menu-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin: auto;
 }
 
 .startscreen-menu-item {
     display: flex;
     background-color: #FFFCF2;
+    margin: auto;
+    width: 40%;
 }
 .startscreen-menu-item span {
     font-size: 25px;

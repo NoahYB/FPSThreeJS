@@ -1,15 +1,21 @@
 html {
-    background-color: #252422;
+    background-color: #000000;
     font-family: courier;
 }
 .header {
-    color: #EB5E28;
+    color: #28ebdb;
     display: flex;
     margin: 10px;
 }
 .header span {
     font-size: 50px;
+    margin: auto;
 }
+
+.serverselection-menu-header-text {
+    font-weight: bold;
+}
+
 
 .serverselection-menu-list {
     display: flex;
@@ -18,6 +24,8 @@ html {
 }
 
 .serverselection-menu-item {
+    margin: auto;
+    width: 40%;
     display: flex;
     background-color: #FFFCF2;
 }
