@@ -1,6 +1,7 @@
 class Level {
     constructor(scene) {
         this.levelObjects = [];
+        this.levelBBOX = [];
         this.loadBackgroundColor();
         this.loadLevelObj();
     }
@@ -12,7 +13,7 @@ class Level {
 
     loadBackgroundColor() {
         const loader = new THREE.TextureLoader();
-        scene.background = new THREE.Color('skyblue');
+        scene.background = new THREE.Color('black');
     }
 
     loadSkyBox() {
@@ -83,6 +84,10 @@ class Level {
                 this.object = level.scene;
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
+                        const box = new THREE.Box3().setFromObject(child);
+                        // const boxHelper = new THREE.BoxHelper( child );
+                        this.levelBBOX.push(box);
+                        // scene.add(boxHelper);
                         child.castShadow = true;
                         if (child.name === 'Ground') {
                             child.receiveShadow = true;

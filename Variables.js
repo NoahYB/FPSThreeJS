@@ -8,7 +8,8 @@ class Variables {
                gravity,
                volume,
                sensitivity,
-               teamKillEnabled
+               teamKillEnabled,
+               thirdPerson,
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -18,6 +19,7 @@ class Variables {
             'gravity',
             'volume',
             'sensitivity',
+            'thirdPerson',
         ]
         this.set = {
             movementSpeed: this.setMovementSpeed,
@@ -27,6 +29,7 @@ class Variables {
             gravity: this.setGravity,
             volume: this.setVolume,
             sensitivity: this.setSensitivity,
+            thirdPerson: this.thirdPerson,
         }
         this.movementSpeed = movementSpeed;
         this.playerName = playerName;
@@ -35,7 +38,8 @@ class Variables {
         this.gravity = gravity;
         this.volume = volume;
         this.sensitivity = sensitivity;
-        this.teamKillEnabled = this.teamKillEnabled;
+        this.teamKillEnabled = teamKillEnabled;
+        this.thirdPerson = thirdPerson;
     }
 
     setSensitivity(newSensitivity) {
@@ -91,11 +95,12 @@ const TUNABLE_VARIABLES = new Variables(
     {
         movementSpeed: 10,
         playerName: 'Donut',
-        jumpHeight: 13,
+        jumpHeight: 20,
         FOV: 120,
         gravity: .025,
         volume: .5,
         sensitivity: 1.75,
         teamKillEnabled: false,
+        thirdPerson: false,
     }
 )

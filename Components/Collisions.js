@@ -41,7 +41,6 @@ class Collisions {
         let intersect = raycaster.intersectObject(object2, true);
 
         if (intersect.length >= 1 && intersect[0].distance < 2) {
-            console.log('colliding');
             return intersect[0].point;
         }
 
@@ -61,6 +60,32 @@ class Collisions {
         if (intersect.length >= 1 && intersect[0].distance < 2) {
             return intersect[0].point;
         }
+        return false;
+    }
+
+    checkBBOX(bbox1, bbox2) {
+
+    }
+
+    checkBBOXvArray(bbox1, boxArray) {
+        bbox1.min.y -= .1;
+        let vertical;
+        let horizontal;
+        for (let i = 0; i < boxArray.length; i ++) {
+            const currentBox = boxArray[i];
+            const intersect = bbox1.intersectsBox(currentBox);
+            if(intersect) {
+                if (currentBox.max.y - bbox1.min.y < 1) {
+                    vertical = {
+                        type: 'vertical',
+                        point: currentBox.max,
+                    }
+                } else {
+                    horizontal = currentBox;
+                }
+            }
+        }
+        return {horizontal, vertical};
         return false;
     }
 
