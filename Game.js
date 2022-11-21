@@ -43,14 +43,14 @@ loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
     if (started) return;
     let progressElement = document.getElementById('progressbar');
     let bound = document.getElementById('blockout');
-    progressElement.style.display = 'block';
-    bound.style.display = 'block';
+    progressElement.style.display = 'flex';
+    bound.style.display = 'flex';
 };
 
 loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
     if (started) return;
     let progressElement = document.getElementById('progressbar');
-    progressElement.style.width = (itemsLoaded / itemsTotal * 100) + '%';
+    progressElement.style.width = (itemsLoaded / itemsTotal * 40) + '%';
 };
 
 function init(serverURL) {
