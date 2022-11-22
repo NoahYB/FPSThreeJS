@@ -45,7 +45,7 @@ class Variables {
     setSensitivity(newSensitivity) {
         if (newSensitivity === '') return false;
         if (isNaN(newSensitivity)) return false;
-        TUNABLE_VARIABLES.sensitivity = newSensitivity / 4;
+        TUNABLE_VARIABLES.sensitivity = newSensitivity;
     }
 
     setFOV(newFOV) {
