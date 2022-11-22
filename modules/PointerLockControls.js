@@ -40,7 +40,7 @@
 				const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 				const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-				let head = player.getObjectByName('mixamorigHead');
+				let head = player.getObjectByName('Cube001');
 
 				_euler.setFromQuaternion( camera.quaternion );
 
