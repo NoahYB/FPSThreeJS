@@ -114,10 +114,6 @@ class Level {
                 this.object = level.scene;
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
-                        const box = new THREE.Box3().setFromObject(child);
-                        // const boxHelper = new THREE.BoxHelper( child );
-                        this.levelBBOX.push(box);
-                        // scene.add(boxHelper);
                         child.castShadow = true;
                         if (child.name === 'Ground') {
                             child.receiveShadow = true;
@@ -125,8 +121,18 @@ class Level {
                         }
                         if (child.name.startsWith('Spawn')) {
                             spawnLocations.push(child.position);
+                        } else {
+                            const box = new THREE.Box3().setFromObject(child);
+                            const boxHelper = new THREE.BoxHelper( child );
+                            this.levelBBOX.push( {
+                                object: child,
+                                box
+                            });
+                            scene.add(boxHelper);
+                            this.levelObjects.push(child);
+                            const helper = new THREE.VertexNormalsHelper( child, 1, 0xff0000 );
+                            scene.add(helper);
                         }
-                        this.levelObjects.push(child);
                     }
                 });
                 scene.add(this.object);

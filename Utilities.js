@@ -15,6 +15,16 @@ function sanitize(string) {
     const reg = /[&<>"'/]/ig;
     return string.replace(reg, (match)=>(map[match]));
 }
+function showVector(v, o, c) {
+    const dir = v;
+    //normalize the direction vector (convert to vector of length 1)
+    dir.normalize();
+    const origin = o;
+    const length = 100;
+    const hex = c ? c: 0xffff00;
+    const arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+    scene.add( arrowHelper );
+}
 function randomSpherePoint(x0,y0,z0,radius){
     let u = Math.random();
     let v = Math.random();

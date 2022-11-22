@@ -20,21 +20,16 @@ class Bullet {
             vertexShader: bulletVertexShader(),
             fragmentShader: bulletFragmentShader()
         } ); 
-        let rightHand = player.object.getObjectByName('mixamorigRightHand');
-        let rightHandPosition = new THREE.Vector3();
-        rightHand.getWorldPosition(rightHandPosition);
 
         material.transparent = true;
         material.side = THREE.DoubleSide;
         const geometry = new THREE.BoxGeometry( .1, .1, 400);
-
         const cube = new THREE.Mesh( geometry, material );
-
         cube.lookAt(dir);
         const look = dir.normalize();
 
         this.object = cube;
-        cube.position.copy(rightHandPosition);
+        cube.position.copy(start);
         cube.position.x += look.x * 201;
         cube.position.y += look.y * 201;
         cube.position.z += look.z * 201;
