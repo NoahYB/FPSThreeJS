@@ -2,7 +2,8 @@ class Level {
     constructor(scene) {
         this.levelObjects = [];
         this.levelBBOX = [];
-        this.loadBackgroundColor();
+        this.center = new THREE.Group();
+        this.loadStars(100);
         this.loadLevelObj();
     }
     
@@ -14,6 +15,35 @@ class Level {
     loadBackgroundColor() {
         const loader = new THREE.TextureLoader();
         scene.background = new THREE.Color('black');
+    }
+
+    loadStars(n) {
+        for (let i = 0; i < n; i++) {
+            const d = Math.max(100, 1000 * Math.random());
+            const randomPoint = randomSpherePoint(0,0,0,d);
+            const geometry = new THREE.SphereGeometry(1, 10, 10); 
+            const material = new THREE.MeshToonMaterial({ 
+                color: '#28ebdb'
+            });
+            const sphere = new THREE.Mesh( geometry, material );
+            sphere.position.copy(randomPoint);
+            sphere.scale.setScalar(Math.random());
+            this.center.add(sphere);
+        }
+        scene.add(this.center);
+    }
+
+    loadSkySphere() {
+        const geometry = new THREE.SphereGeometry(1000, 25, 25); 
+        const loader  = new THREE.TextureLoader();
+        const texture = loader.load( "Textures/sky.jpeg" );
+        const material = new THREE.MeshPhongMaterial({ 
+            map: texture,
+            side: THREE.BackSide,
+        });
+        const sphere = new THREE.Mesh( geometry, material );
+        sphere.rotateZ(Math.PI / 2)
+        scene.add(sphere);
     }
 
     loadSkyBox() {
@@ -114,13 +144,8 @@ class Level {
             }
         );
     }
-    animate()
+    update(deltaTime)
     {
-        // angle += 0.01;
-        // pointLight.position.set (50*Math.cos(angle), 75, 50*Math.sin(angle));
-        // // update the uniform variable
-        // teapotMaterial.uniforms.lightpos.value.copy (pointLight.position);
-        // lightmodel.position.copy (pointLight.position);
-        // requestAnimationFrame ( animate );  
+        this.center.rotateY(.01 * deltaTime);
     }
 }

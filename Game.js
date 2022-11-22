@@ -171,6 +171,7 @@ function update() {
     dummy.update();
     const delta = clock.getDelta();
     player.update(delta);
+    level.update(delta);
     cameraController.update(player);
     Object.keys(webSocketHandler.connectedPlayers).forEach(key => {
         webSocketHandler.connectedPlayers[key].update(delta);
