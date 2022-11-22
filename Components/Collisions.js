@@ -67,25 +67,39 @@ class Collisions {
 
     }
 
-    checkBBOXvArray(bbox1, boxArray) {
-        bbox1.min.y -= .1;
-        let vertical;
-        let horizontal;
+    checkBBOXvArray(bbox1, boxArray, vertical) {
+        // bbox1.min.y -= .1;
         for (let i = 0; i < boxArray.length; i ++) {
-            const currentBox = boxArray[i];
-            const intersect = bbox1.intersectsBox(currentBox);
-            if(intersect) {
-                if (currentBox.max.y - bbox1.min.y < 1) {
-                    vertical = {
-                        type: 'vertical',
+            const currentBox = boxArray[i].box;
+            const intersect = bbox1.intersectsBox3(currentBox);
+            if(intersect && vertical &&
+                currentBox.max.y - (bbox1.center.y - bbox1.halfSize.y) < 1) {
+                    return {
                         point: currentBox.max,
                     }
-                } else {
-                    horizontal = currentBox;
+            } else if (!vertical && intersect) {
+                return boxArray[i];
+            }
+        }
+        return false;
+    }
+
+    checkBBOXvArrayFaces(bbox1, boxArray, vertical) {
+        // bbox1.min.y -= .1;
+        for (let i = 0; i < boxArray.length; i ++) {
+            const currentBox = boxArray[i].box;
+            const intersect = bbox1.intersectsBox3(currentBox);
+            if(intersect && vertical &&
+                currentBox.max.y - (bbox1.center.y - bbox1.halfSize.y) < 1) {
+                    return {
+                        point: currentBox.max,
+                    }
+            } else if (!vertical && intersect) {
+                return {
+                    point: boxArray[i],
                 }
             }
         }
-        return {horizontal, vertical};
         return false;
     }
 
@@ -98,4 +112,21 @@ class Collisions {
         scene.add(cube);
         
     }
+
+    getFace(dir, origin, object, d) {
+        const raycaster = new THREE.Raycaster();
+        const rayPos = origin;
+        const distance = d;
+        raycaster.set(
+            rayPos, 
+            dir
+        );
+        const intersect = raycaster.intersectObject(object, true);
+        if (intersect.length) {
+            // console.log(intersect[0].face)
+            return intersect[0].face;
+        }
+        return false;
+    }
+
 }
