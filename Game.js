@@ -20,7 +20,7 @@ let level;
 let keys = {};
 let dummy;
 let teamNumber = 0;
-
+let i = 0;
 let teamSelected = false;
 
 let started = false;
@@ -175,6 +175,11 @@ function update() {
     Object.keys(webSocketHandler.connectedPlayers).forEach(key => {
         webSocketHandler.connectedPlayers[key].update(delta);
     })
+    if (i === 2) {
+        player.updateBBOX();
+        player.addBBOX();
+    }
+    i++;
     renderer.render( scene, camera );
 }
 
