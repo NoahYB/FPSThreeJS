@@ -28,4 +28,29 @@ To make maps
 - Names of spawn points should with 'Spawn'
 - The ground should be labeled 'Ground' in order to receive shadow
 
+## Testing
+To tweak variables
+- Change some variables in menu by pressing escape
+- Open JS console
+- Modify tunable variables using
+```js
+TUNABLE_VARIABLES.nameOfVariable = newValue
+```
+Current modifiable variables 
+```js
+const TUNABLE_VARIABLES = new Variables(
+    {
+        movementSpeed: 30,
+        playerName: 'Donut',
+        jumpHeight: 20,
+        FOV: 120,
+        gravity: .025,
+        volume: .5,
+        sensitivity: 1.75,
+        teamKillEnabled: false,
+        thirdPerson: false,
+        health: 100,
+    }
+)
+```
 
