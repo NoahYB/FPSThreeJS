@@ -10,6 +10,7 @@ class Variables {
                sensitivity,
                teamKillEnabled,
                thirdPerson,
+               health,
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -20,6 +21,7 @@ class Variables {
             'volume',
             'sensitivity',
             'thirdPerson',
+            'health',
         ]
         this.set = {
             movementSpeed: this.setMovementSpeed,
@@ -29,7 +31,8 @@ class Variables {
             gravity: this.setGravity,
             volume: this.setVolume,
             sensitivity: this.setSensitivity,
-            thirdPerson: this.thirdPerson,
+            thirdPerson: this.setThirdPerson,
+            health: this.setHealth,
         }
         this.movementSpeed = movementSpeed;
         this.playerName = playerName;
@@ -40,7 +43,20 @@ class Variables {
         this.sensitivity = sensitivity;
         this.teamKillEnabled = teamKillEnabled;
         this.thirdPerson = thirdPerson;
+        this.health = health;
     }
+
+    setThirdPerson(thirdPerson) {
+        const isTrueSet = (thirdPerson === 'true');
+        TUNABLE_VARIABLES.thirdPerson = isTrueSet;
+    }
+
+    setHealth(newHealth) {
+        if (newHealth === '') return false;
+        if (isNaN(newHealth)) return false;
+        TUNABLE_VARIABLES.health = newHealth;
+    }
+
 
     setSensitivity(newSensitivity) {
         if (newSensitivity === '') return false;
@@ -102,5 +118,8 @@ const TUNABLE_VARIABLES = new Variables(
         sensitivity: 1.75,
         teamKillEnabled: false,
         thirdPerson: false,
+        health: 100,
+        headShotDamage: 40,
+        shotDamage: 30,
     }
 )

@@ -4,6 +4,7 @@ const fbxLoader = new THREE.FBXLoader(loadingManager);
 const objLoader = new THREE.OBJLoader(loadingManager);
 const gltfLoader = new THREE.GLTFLoader(loadingManager);
 const audioManager = new AudioManager();
+
 let menuOpened = false;
 let spawnLocations = [];
 let menu;
@@ -16,6 +17,7 @@ let renderer;
 
 let controls;
 let player;
+let hud;
 let level;
 let keys = {};
 let dummy;
@@ -73,6 +75,7 @@ function onWebSocketConnected() {
     setUpLights();
     level = new Level();
     player = new Player();
+    hud = new HUD(player);
     menu = new Menu();
     dummy = new ConnectedPlayer(0);
 }

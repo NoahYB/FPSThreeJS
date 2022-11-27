@@ -12,7 +12,7 @@ class WebSocketHandler {
         this.connectedPlayers = {};
         this.connected = false;
         this.initialized = false;
-        this.createPingDisplay();
+        // this.createPingDisplay();
         this.ping = 0;
         this.pingAverage = 0;
         this.pings = 0;
@@ -51,7 +51,7 @@ class WebSocketHandler {
             this.ping = getTimeStampMili() - this.timer;
             this.pings += 1;
             this.pingAverage += this.ping;
-            this.displayPing();
+            // this.displayPing();
             return;
         }
 
