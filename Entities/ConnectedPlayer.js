@@ -4,106 +4,54 @@ class ConnectedPlayer {
         this.loadModel();
         this.animations = {};
         this.velocity = new THREE.Vector3(0,0,0);
-    }
-
-    addBoundingVolume() {
-        const geometryHead = this.id === 0 ?
-        new THREE.BoxGeometry( 2, 2, 2 ):
-         new THREE.BoxGeometry( 1, 1, 1 );
-        const materialHead = new THREE.MeshToonMaterial( {color: '#42F58C'} );
-        this.cubeHead = new THREE.Mesh( geometryHead, materialHead );
-        this.head = this.object.getObjectByName('mixamorigHead');
-        this.head.add(this.cubeHead);
-        this.cubeHead.name = 'headshot';
-        this.cubeHead.c = this;
-        //inverse of player scale
-        let outlineMaterial2 = new THREE.MeshToonMaterial( 
-            { 
-                color: '#FF5D52', 
-                side: THREE.BackSide 
-            }
-        );
-        let outlineMesh2 = new THREE.Mesh( geometryHead, outlineMaterial2 );
-        outlineMesh2.scale.multiplyScalar(1.15);
-        this.cubeHead.add( outlineMesh2 );
-        this.cubeHead.scale.setScalar(1/.03);
-        this.cubeHead.isEnemy = true;
-        this.cubeHead.castShadow = true;
-
-        const spotLight = new THREE.SpotLight( 0xffffff, .3 );
-        spotLight.castShadow = false;
-        spotLight.target = this.cubeHead;
-        spotLight.angle = Math.PI/6;
-        this.cubeHead.add(spotLight);
-        spotLight.position.y += 8;
-        spotLight.castShadow = true;
+        this.health = TUNABLE_VARIABLES.health;
     }
 
     loadModel() {
-        const materialToon = new THREE.MeshToonMaterial({
-            color: '#FF5D52',
+        const materialToon = new THREE.MeshLambertMaterial({
+            color: 'purple',
+        });
+        const materialToonGun = new THREE.MeshToonMaterial({
+            color: 'rgb(55, 40, 217)',
         });
         fbxLoader.load(
-            'Models/Idle.fbx',
+            'Models/PossibleCharacter.fbx',
             (object) => {
                 this.object = object;
-                object.isEnemy = true;
+
+                object.scale.setScalar(.007);
                 object.c = this;
-                object.scale.setScalar(.03);
-                this.head = object.getObjectByName('mixamorigHead');
-                if (this.id === 0) {
-                    this.setPos(new THREE.Vector3(0,-5.5,40));
-                }
-                this.mixer = new THREE.AnimationMixer(object);
-                const action = this.mixer.clipAction( object.animations[0] );
-                // action.play();
-                action.clampWhenFinished = true;
-                fbxLoader.load('Models/Walking.fbx', anim => {
-                    const walk = this.mixer.clipAction( anim.animations[0] );
-                    walk.clampWhenFinished = true;
-                    this.animations['walking'] = walk;
-                    fbxLoader.load('Models/Death.fbx', anim => {
-                        const death = this.mixer.clipAction( anim.animations[0] );
-                        death.loop = THREE.LoopOnce;
-                        death.startAt(.2);
-                        death.clampWhenFinished = true;
-                        this.animations['death'] = death;
-                    })
-                }, e => 1 + 1, e => console.log(e));
+                object.isEnemy = true;
                 object.traverse(( child ) => {
-                    child.isEnemy = true;
                     child.c = this;
-                    if ( child.isMesh ) {
+                    child.isEnemy = true;
+                    if (child.name.includes('Gun')) {
+                        if (child.name === 'Gun') {
+                            this.gunBarrel = child;
+                        }
+                        child.material = materialToonGun;
                         child.castShadow = true;
-                        child.receiveShadow = true;
-                        child.material = materialToon;
                     }
-                } );
-                this.addBoundingVolume();
+                    else if ( child.isMesh ) {
+                        child.material = materialToon;
+                        child.castShadow = true;
+                    }
+                    if (child.name === 'RightShoulder') {
+                        this.rightArm = child;
+                    }
+                    if (child.isMesh) child.castShadow = true;
+                }
+                );
                 scene.add( object );
+                this.setPos(new THREE.Vector3(10,10,10))
             }, e => 1 + 1, e => console.log(e),
         )
     }
 
-    setAnimState(stateName) {
-        if (!this.animations) return;
-        if (stateName !== 'walking') {
-            this.animations['walking'].paused = true;
-        } else {
-            this.animations['walking'].paused = false;
-            this.animations['walking'].play();
-        }
-    }
-
     setPos(pos) {
         if (!this.object) return;
-        // this.object.position.x = pos.x;
-        // this.object.position.y = pos.y;
-        // this.object.position.z = pos.z;
         if (this.object.position.distanceToSquared(pos) > 3) {
-            this.object.position.x = pos.x;
-            this.object.position.y = pos.y;
-            this.object.position.z = pos.z;
+            this.object.position.copy(pos);
         }
     }
 
@@ -159,6 +107,10 @@ class ConnectedPlayer {
         this.head.rotation.setFromRotationMatrix(rotObjectMatrix);
     }
 
+    setHealth(newHealth) {
+        this.health = newHealth;
+    }
+
     move() {
         this.object.position.y += (this.velocity.y);
         this.moveForward(this.velocity.z);
@@ -168,9 +120,5 @@ class ConnectedPlayer {
     update(delta) {
         if (!this.object) return;
         this.move();
-        const head = this.object.getObjectByName('mixamorigHead');
-        let headPosition = new THREE.Vector3();
-        head.getWorldPosition(headPosition);
-        this.mixer.update(delta);
     }
 }

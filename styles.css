@@ -137,6 +137,32 @@ h1 {
     opacity: 0;
 }
 
+.HUD {
+    position: fixed;
+}
+
+.healthBar {
+    position: fixed;
+    background-size: 20px;
+    height: 3%;
+    width: 30%;
+    background-color: #0099ff;
+    left: calc(52.5% - 17.5%);
+    top:  calc(11.5%);
+    margin: 3px;
+}
+
+.healthBarContainer {
+    position: fixed;
+    background-size: 20px;
+    height: 3%;
+    width: 30%;
+    background-color: #fdfdfd;
+    left: calc(52.5% - 17.5%);
+    top:  calc(11.5%);
+    padding: 3px;
+}
+
 .playhitmarker {
     animation: zitmarker 1s;
 }

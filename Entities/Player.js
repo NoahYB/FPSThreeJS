@@ -1,63 +1,45 @@
 class Player {
     constructor() {
         this.totalTime = 0;
+
         this.score = 0;
+
         this.movementSpeed = TUNABLE_VARIABLES.movementSpeed;
         this.jumpHeight = TUNABLE_VARIABLES.jumpHeight;
+        this.health = TUNABLE_VARIABLES.health;
+
         this.sprinting = false;
-        this.killBoundary = -10;
+        this.killBoundary = -30;
         this.animations = {};
         this.hitMarkersToDelete = [];
         this.grounded = false;
-        this.mixer;
+
+        // THREE.JS object
         this.object;
-        this.currentAnimation;
-        this.currentAnimationName;
+
         this.loadModel(); 
-        this.addReticle();
-        this.addMuzzleFlash();
-        this.loadHUD();
+
         this.shooting = false;
+
         this.box;
+
         this.velocity = new THREE.Vector3(0,0,0);
-        this.handPosition;
+        
         this.spawnedEntities = [];
+
         this.collisions = new Collisions(this);
+
         document.addEventListener('mousedown',this.mousedown);
+
         this.shootingTimer = 0;
+
         this.horizontalCollision = false;
-    }
-    
-    loadHUD() {
-        this.text2 = document.createElement('div');
-        this.text2.style.position = 'absolute';
-        this.text2.style.width = 100;
-        this.text2.style.height = 100;
-        this.text2.style.color = 'white';
-        this.text2.innerHTML = "0";
-        this.text2.style.fontSize = 100;
-        this.text2.style.top = 30 + 'px';
-        this.text2.style.left = window.innerWidth - 100 + 'px';
-        this.text2.id = 'scoreText';
-        document.body.appendChild(this.text2);
     }
 
     onLoadFinish() {
         // this.updateBBOX();
         this.addBBOX();
         onPlayerLoad();
-    }
-
-    addMuzzleFlash() {
-        const geometry = new THREE.SphereGeometry( .4, 32, 16 );
-        const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-        this.flash = new THREE.Mesh( geometry, material );
-        this.flash.position.z -= .7;
-        this.flash.position.y -= .38;
-        this.flash.position.x += .3;
-        this.flash.visible = false;
-        scene.add(camera);
-        camera.add(this.flash);
     }
 
     checkY() {
@@ -81,23 +63,6 @@ class Player {
             this.object.position.y += 11;
         } else 
             this.object.position.set(20,20,0);
-    }
-
-    loadGun() {
-        objLoader.load(
-            // resource URL
-            'Models/gun.obj',
-            // called when resource is loaded
-            ( gun )  => {
-                console.log(gun);
-                gun.scale.setScalar(10);
-                gun.rotateY((Math.PI / 180) * 90);
-                gun.rotateZ((Math.PI / 180) * -90);
-                gun.rotateX((Math.PI / 180) * 35);
-                this.gun = gun;
-
-            },
-        );
     }
 
     addBBOX() {
@@ -124,12 +89,6 @@ class Player {
         this.boxLegL.applyMatrix4(this.legL.matrixWorld);
         this.boxLegR.applyMatrix4(this.legR.matrixWorld);
         this.boxBody.applyMatrix4(this.body.matrixWorld);
-    }
-    
-    addReticle() {
-        this.reticle = new THREE.Group();
-        camera.add(this.reticle);
-        this.reticle.position.z -= .3;
     }
 
     loadModel() {
@@ -167,7 +126,6 @@ class Player {
                 }
                 );
                 this.onLoadFinish();
-                this.loadGun();
                 scene.add( object );
             }, e => 1 + 1, e => console.log(e),
         )
@@ -231,8 +189,6 @@ class Player {
 
         this.gunBarrel.updateMatrixWorld(true);
 
-        this.reticle.updateMatrixWorld();
-
         let dir = new THREE.Vector3(0,0,0);
 
         camera.getWorldDirection(dir);
@@ -254,7 +210,6 @@ class Player {
     }
 
     death() {
-        this.currentAnimationName = 'death';
         this.object.position.copy(new THREE.Vector3(0,-1000,0));
         this.startRespawn();
     }
@@ -286,6 +241,7 @@ class Player {
 
     input() {
         if (!this.object) return;
+        
         if (keys[' '] && !this.jumping) {
             this.jumping = true;
             this.jump();
@@ -350,33 +306,18 @@ class Player {
         if (horizontalCollision) {
             const playerPos = this.object.position.clone();
             playerPos.y = horizontalCollision.object.position.y;
-            // this.legL.material.color.set('red');
             const dir = playerPos.clone()
                 .sub(horizontalCollision.object.position)
-
-            // showVector(
-            //     dir,
-            //     horizontalCollision.object.position
-            // )
             const face = this.collisions.getFace(
                 dir, 
                 horizontalCollision.object.position,
                 horizontalCollision.object
             )
-
-            showVector(
-                face.normal,
-                horizontalCollision.object.position,
-                0xff3569
-            )
-            // const collisionDepth = 0.3;
             const collisionDepth = oldPosition.distanceTo(this.object.position);
-
-            // console.log(collisionDepth);
             this.push(face.normal.multiplyScalar(collisionDepth));
             
         } else {
-            // this.legL.material.color.set('green');
+
         }
         
         if (!this.grounded){
