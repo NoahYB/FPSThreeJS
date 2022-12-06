@@ -34,6 +34,12 @@ class Menu {
     }
 
     updateScores(updateTeams) {
+        const teamOneScore = document.getElementById('teamScoreRed');
+        const teamTwoScore = document.getElementById('teamScoreBlue');
+
+        teamOneScore.innerHTML = GAMESTATE_VARIABLES.teamScores.one;
+        teamTwoScore.innerHTML = GAMESTATE_VARIABLES.teamScores.two;
+
         const connectedPlayers = webSocketHandler.connectedPlayers;
         let scoresAndNames = [{
             displayName: TUNABLE_VARIABLES.playerName,

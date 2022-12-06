@@ -14,6 +14,7 @@ let scene;
 let camera;
 let cameraController;
 let renderer;
+let postProcessing;
 
 let controls;
 let player;
@@ -72,6 +73,7 @@ function onWebSocketConnected() {
     camera = setUpCamera();
     cameraController = new CameraController(camera);
     renderer = setUpRenderer();
+    postProcessing = new PostProcessingSetup(renderer, scene);
     setUpLights();
     level = new Level();
     player = new Player();
@@ -187,7 +189,8 @@ function update() {
         player.addBBOX();
     }
     i++;
-    renderer.render( scene, camera );
+    postProcessing.update();
+    // renderer.render( scene, camera );
 }
 
 window.addEventListener( 'resize', onWindowResize, false );

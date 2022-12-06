@@ -48,9 +48,21 @@ class WebSocketHandler {
 	    } = data;
 
         if (action === 'confirmKill') {
-            if (id === this.id)
+            if (id === this.id) {
                 player.score += 1;
-            else this.connectedPlayers[id].score += 1;
+
+                const teamString = player.team === 1 ? 'one' : 'two'
+            
+                GAMESTATE_VARIABLES.point(teamString);
+            } else {
+                this.connectedPlayers[id].score += 1;
+
+                const teamString = this.connectedPlayers[id].team === 1 ? 'one' : 'two'
+            
+                GAMESTATE_VARIABLES.point(teamString);
+            }
+
+
             menu.updateScores();
         }
 
@@ -59,17 +71,11 @@ class WebSocketHandler {
             this.ping = getTimeStampMili() - this.timer;
             this.pings += 1;
             this.pingAverage += this.ping;
-            // this.displayPing();
             return;
         }
 
         if(!this.connectedPlayers[id]) {
             this.connectedPlayers[id] = new ConnectedPlayer(id);
-        }
-
-        if (action === 'confirmKill') {
-            this.connectedPlayers[id].score += 1;
-            menu.updateScores();
         }
 
         if (action === 'selectTeam') {
