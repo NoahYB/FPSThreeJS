@@ -11,6 +11,9 @@ class Variables {
                teamKillEnabled,
                thirdPerson,
                health,
+               respawnTime,
+               headShotDamage,
+               shotDamage,
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -22,6 +25,9 @@ class Variables {
             'sensitivity',
             'thirdPerson',
             'health',
+            'respawnTime',
+            'headShotDamage',
+            'shotDamage',
         ]
         this.set = {
             movementSpeed: this.setMovementSpeed,
@@ -33,6 +39,9 @@ class Variables {
             sensitivity: this.setSensitivity,
             thirdPerson: this.setThirdPerson,
             health: this.setHealth,
+            respawnTime: this.setRespawnTime,
+            headShotDamage: this.setHeadShotDamage,
+            shotDamage: this.setShotDamage,
         }
         this.movementSpeed = movementSpeed;
         this.playerName = playerName;
@@ -44,11 +53,32 @@ class Variables {
         this.teamKillEnabled = teamKillEnabled;
         this.thirdPerson = thirdPerson;
         this.health = health;
+        this.respawnTime = respawnTime;
+        this.headShotDamage = headShotDamage;
+        this.shotDamage = shotDamage;
     }
 
     setThirdPerson(thirdPerson) {
         const isTrueSet = (thirdPerson === 'true');
         TUNABLE_VARIABLES.thirdPerson = isTrueSet;
+    }
+
+    setRespawnTime(newRespawnTime) {
+        if (newRespawnTime === '') return false;
+        if (isNaN(newRespawnTime)) return false;
+        TUNABLE_VARIABLES.respawnTime = newRespawnTime;
+    }
+
+    setHeadShotDamage(newHeadShotDamage) {
+        if (newHeadShotDamage === '') return false;
+        if (isNaN(newHeadShotDamage)) return false;
+        TUNABLE_VARIABLES.headShotDamage = newHeadShotDamage;
+    }
+
+    setShotDamage(newShotDamage) {
+        if (newShotDamage === '') return false;
+        if (isNaN(newShotDamage)) return false;
+        TUNABLE_VARIABLES.shotDamage = newShotDamage;
     }
 
     setHealth(newHealth) {
@@ -121,5 +151,6 @@ const TUNABLE_VARIABLES = new Variables(
         health: 100,
         headShotDamage: 40,
         shotDamage: 30,
+        respawnTime: 3,
     }
 )

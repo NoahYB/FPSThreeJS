@@ -123,15 +123,15 @@ class Level {
                             spawnLocations.push(child.position);
                         } else {
                             const box = new THREE.Box3().setFromObject(child);
-                            const boxHelper = new THREE.BoxHelper( child );
+                            // const boxHelper = new THREE.BoxHelper( child );
                             this.levelBBOX.push( {
                                 object: child,
                                 box
                             });
-                            scene.add(boxHelper);
+                            // scene.add(boxHelper);
                             this.levelObjects.push(child);
-                            const helper = new THREE.VertexNormalsHelper( child, 1, 0xff0000 );
-                            scene.add(helper);
+                            // const helper = new THREE.VertexNormalsHelper( child, 1, 0xff0000 );
+                            // scene.add(helper);
                         }
                     }
                 });
