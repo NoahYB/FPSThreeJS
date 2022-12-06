@@ -244,8 +244,8 @@ class Player {
     }
 
     onHit(headshot, enemy) {
-        if (headshot) this.health -= 40;
-        else this.health -= 20;
+        if (headshot) this.health -= TUNABLE_VARIABLES.headShotDamage;
+        else this.health -= TUNABLE_VARIABLES.shotDamage;
         hud.updateHealthBar(this.health);
         this.timeSinceLastHit = 0.00;
         if (this.health <= 0) this.death(enemy);

@@ -12,6 +12,8 @@ class Variables {
                thirdPerson,
                health,
                respawnTime,
+               headShotDamage,
+               shotDamage,
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -24,6 +26,8 @@ class Variables {
             'thirdPerson',
             'health',
             'respawnTime',
+            'headShotDamage',
+            'shotDamage',
         ]
         this.set = {
             movementSpeed: this.setMovementSpeed,
@@ -36,6 +40,8 @@ class Variables {
             thirdPerson: this.setThirdPerson,
             health: this.setHealth,
             respawnTime: this.setRespawnTime,
+            headShotDamage: this.setHeadShotDamage,
+            shotDamage: this.setShotDamage,
         }
         this.movementSpeed = movementSpeed;
         this.playerName = playerName;
@@ -48,6 +54,8 @@ class Variables {
         this.thirdPerson = thirdPerson;
         this.health = health;
         this.respawnTime = respawnTime;
+        this.headShotDamage = headShotDamage;
+        this.shotDamage = shotDamage;
     }
 
     setThirdPerson(thirdPerson) {
@@ -59,6 +67,18 @@ class Variables {
         if (newRespawnTime === '') return false;
         if (isNaN(newRespawnTime)) return false;
         TUNABLE_VARIABLES.respawnTime = newRespawnTime;
+    }
+
+    setHeadShotDamage(newHeadShotDamage) {
+        if (newHeadShotDamage === '') return false;
+        if (isNaN(newHeadShotDamage)) return false;
+        TUNABLE_VARIABLES.headShotDamage = newHeadShotDamage;
+    }
+
+    setShotDamage(newShotDamage) {
+        if (newShotDamage === '') return false;
+        if (isNaN(newShotDamage)) return false;
+        TUNABLE_VARIABLES.shotDamage = newShotDamage;
     }
 
     setHealth(newHealth) {
