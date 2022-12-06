@@ -138,6 +138,7 @@ h1 {
 }
 
 .HUD {
+    display: none;
     position: fixed;
 }
 
@@ -162,6 +163,20 @@ h1 {
     top:  calc(11.5%);
     padding: 3px;
 }
+
+.respawnScreen {
+    display: none;
+    position: fixed;
+    background-size: 20px;
+    height: 3%;
+    width: 30%;
+    background-color: black;
+    color: #28ebdb;
+    left: calc(52.5% - 17.5%);
+    top:  calc(11.5%);
+    margin: 3px;
+}
+
 
 .playhitmarker {
     animation: zitmarker 1s;

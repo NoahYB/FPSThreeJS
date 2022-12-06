@@ -21,7 +21,7 @@ class WebSocketHandler {
 
     sendMessage(message) {
         this.timer = getTimeStampMili();
-        message.id = this.id;
+        if (!message.id) message.id = this.id;
         message.connectionDisplayName = TUNABLE_VARIABLES.playerName;
 	    this.webSocket.send(
 	    	JSON.stringify({
@@ -44,7 +44,15 @@ class WebSocketHandler {
             headshot,
             score,
             interactedId,
+            cameraDirection,
 	    } = data;
+
+        if (action === 'confirmKill') {
+            if (id === this.id)
+                player.score += 1;
+            else this.connectedPlayers[id].score += 1;
+            menu.updateScores();
+        }
 
         if (id === this.id) {
             if (tag) return;
@@ -59,11 +67,24 @@ class WebSocketHandler {
             this.connectedPlayers[id] = new ConnectedPlayer(id);
         }
 
+        if (action === 'confirmKill') {
+            this.connectedPlayers[id].score += 1;
+            menu.updateScores();
+        }
+
         if (action === 'selectTeam') {
             menu.updateScores(true);
             console.log('new team selected');
             this.connectedPlayers[id].setTeam(data.teamSelection);
-            this.connectedPlayers[id].team;
+        }
+
+        if (action === 'shot') {
+            this.connectedPlayers[id].shoot(data.directionOfShot);
+        }
+
+        if (action === 'hit') {
+            if (interactedId === this.id)
+                player.onHit(headshot, this.connectedPlayers[id]);
         }
 
         if (position) {
@@ -71,21 +92,11 @@ class WebSocketHandler {
             this.connectedPlayers[id].setVelocity(velocity);
             this.connectedPlayers[id].setQuaternion(quaternion);
             this.connectedPlayers[id].setLookQuaternion(lookQuaternion);
-            this.connectedPlayers[id].setAnimState(animState);
-        }
-
-        if (score) {
-            this.connectedPlayers[id].score = score;
-            menu.updateScores();
+            this.connectedPlayers[id].moveRightArm(cameraDirection);
         }
 
         if (connectionDisplayName) {
             this.connectedPlayers[id].connectionDisplayName = connectionDisplayName;
-        }
-
-        if (tag) {
-            if (headshot && interactedId === this.id)
-                player.death();
         }
     }
 
@@ -105,9 +116,7 @@ class WebSocketHandler {
                 return;
             }
             const data = JSON.parse(message.data);
-            if (data.text) {
-                this.receiveTextMessage(data);
-            }
+            this.receiveTextMessage(data);
         }
     }
 

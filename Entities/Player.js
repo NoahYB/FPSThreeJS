@@ -63,9 +63,15 @@ class Player {
             this.object.position.y += 11;
         } else 
             this.object.position.set(20,20,0);
+        cameraController.setFollowedObject(player);
+        TUNABLE_VARIABLES.thirdPerson = false;
+        this.health = TUNABLE_VARIABLES.health;
+        hud.updateHealthBar(this.health);
+        if (hud) hud.onRespawn();
     }
 
     addBBOX() {
+        
         this.legL = this.object.getObjectByName("LegL");
         this.legR = this.object.getObjectByName("LegR");
         this.body = this.object.getObjectByName("Body");
@@ -145,32 +151,33 @@ class Player {
         player.shoot();
         raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
         const intersects = raycaster.intersectObjects( scene.children );
-        // LOL
+        let v = new THREE.Vector3();
+        camera.getWorldDirection(v);
         for ( let i = 0; i < intersects.length; i ++ ) {
             const object = intersects[ i ].object;
-            if (object === level.object) return;
             if (object.isEnemy && object.c.team !== player.team) {
-                if (object.name === 'headshot') {
-                    player.score += 1;
-                    player.headShot();
-                }
                 player.hitMarker();
-                const t = document.getElementById('scoreText');
-                let v = new THREE.Vector3();
-                camera.getWorldDirection(v);
+                let headshot = (object.name === 'Cube001');
                 webSocketHandler.sendMessage({
-                    tag: v,
+                    action: 'hit',
+                    directionOfShot: v,
                     text: 'connected',
-                    headshot: object.name === 'headshot' ? true : false,
+                    headshot,
                     interactedId: object.c.id,
                     score: player.score,
                     team: teamNumber,
                 })
                 audioManager.hit();
-                player.score += 1;
-                t.innerHTML = player.score;
+                return;
             }
+            else if (object) return;
+
         }
+        webSocketHandler.sendMessage({
+            action: 'shot',
+            directionOfShot: v,
+            text: 'connected',
+        })
     }
 
     headShot() {
@@ -182,8 +189,6 @@ class Player {
     }
 
     shoot() {
-        
-        audioManager.shoot();
 
         this.shooting = true;
 
@@ -201,6 +206,7 @@ class Player {
         this.spawnedEntities.push(bullet);
 
         this.shooting = true;
+
     }
 
     remove(entity) {
@@ -209,9 +215,16 @@ class Player {
         })
     }
 
-    death() {
-        this.object.position.copy(new THREE.Vector3(0,-1000,0));
+    death(whoKilledPlayer) {
+        this.object.position.set(0,-10000,0);
+        // cameraController.panTowards(whoKilledPlayer, .0072);
+        webSocketHandler.sendMessage({
+            id : whoKilledPlayer.id,
+            action: 'confirmKill'
+        })
+        TUNABLE_VARIABLES.thirdPerson = true;
         this.startRespawn();
+        hud.onDeath();
     }
 
     startRespawn() {
@@ -228,6 +241,14 @@ class Player {
         this.object.position.y += this.velocity.y;
         controls.moveForward(this.velocity.z);
         controls.moveRight(this.velocity.x);
+    }
+
+    onHit(headshot, enemy) {
+        if (headshot) this.health -= 40;
+        else this.health -= 20;
+        hud.updateHealthBar(this.health);
+        this.timeSinceLastHit = 0.00;
+        if (this.health <= 0) this.death(enemy);
     }
 
     setTeam() {
@@ -276,7 +297,7 @@ class Player {
     }
 
     handleCollisions() {
-        if (!this.boxLegL) return;
+        if (!this.boxLegL || this.respawning) return;
         if (!this.horizontalCollision) {
             // this.updateBBOX();
             this.addBBOX();
@@ -343,8 +364,9 @@ class Player {
         if (!this.object) return;
         if (this.respawning) {
             this.respawnTimer += deltaTime;
+            hud.respawnTimer(TUNABLE_VARIABLES.respawnTime - this.respawnTimer);
         }
-        if (this.respawnTimer > 2.0) {
+        if (this.respawnTimer > TUNABLE_VARIABLES.respawnTime) {
             this.respawn();
         }
         this.moveRightArm();

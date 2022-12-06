@@ -76,6 +76,7 @@ function onWebSocketConnected() {
     level = new Level();
     player = new Player();
     hud = new HUD(player);
+    hud.hideHUD();
     menu = new Menu();
     dummy = new ConnectedPlayer(0);
 }
@@ -94,6 +95,7 @@ function selectTeam(teamNumberSelection) {
     player.respawn();
     player.setTeam();
     menu.updateScores(true);
+    hud.showHUD();
     if (!started) startUpdate(60);
 }
 
@@ -125,6 +127,7 @@ function sendModelData() {
             lookQuaternion: camera.quaternion,
             animState: player.currentAnimationName,
             velocity: player.velocity,
+            cameraDirection: cameraController.getCameraDirection(),
         }
     );
 }

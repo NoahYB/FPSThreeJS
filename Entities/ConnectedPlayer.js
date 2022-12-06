@@ -5,6 +5,8 @@ class ConnectedPlayer {
         this.animations = {};
         this.velocity = new THREE.Vector3(0,0,0);
         this.health = TUNABLE_VARIABLES.health;
+        this.spawnedEntities = [];
+        this.score = 0;
     }
 
     loadModel() {
@@ -18,7 +20,6 @@ class ConnectedPlayer {
             'Models/PossibleCharacter.fbx',
             (object) => {
                 this.object = object;
-
                 object.scale.setScalar(.007);
                 object.c = this;
                 object.isEnemy = true;
@@ -50,9 +51,7 @@ class ConnectedPlayer {
 
     setPos(pos) {
         if (!this.object) return;
-        if (this.object.position.distanceToSquared(pos) > 3) {
-            this.object.position.copy(pos);
-        }
+        this.object.position.copy(pos);
     }
 
     setVelocity(velocity) {
@@ -74,6 +73,37 @@ class ConnectedPlayer {
         rotObjectMatrix.makeRotationFromQuaternion(quat);
         //Next we just have to apply a rotation to the quaternion using the created matrix
         this.object.rotation.setFromRotationMatrix(rotObjectMatrix);
+    }
+
+    moveRightArm(cameraDir) {
+
+        if (!this.rightArm) return;
+
+        const cameraDirVector = new THREE.Vector3(cameraDir.x, cameraDir.y, cameraDir.z);
+
+        this.rightArm.lookAt(cameraDirVector.multiplyScalar(300));
+
+        this.rightArm.rotateX(-Math.PI / 180 * 90);
+    }
+
+    shoot(dir) {
+
+        const directionVector = new THREE.Vector3(dir.x, dir.y, dir.z);
+
+        this.shooting = true;
+
+        this.gunBarrel.updateMatrixWorld(true);
+
+        let gunPosition = new THREE.Vector3();
+
+        this.gunBarrel.getWorldPosition(gunPosition);
+
+        const bullet = new Bullet(gunPosition, directionVector.multiplyScalar(10000), this.object);
+
+        this.spawnedEntities.push(bullet);
+
+        this.shooting = true;
+        
     }
 
     moveForward( distance ) {
@@ -117,8 +147,9 @@ class ConnectedPlayer {
         this.moveRight(this.velocity.x);
     }
 
-    update(delta) {
+    update(deltaTime) {
         if (!this.object) return;
         this.move();
+        this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log('no update function'));
     }
 }

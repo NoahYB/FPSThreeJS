@@ -11,6 +11,7 @@ class Variables {
                teamKillEnabled,
                thirdPerson,
                health,
+               respawnTime,
         } = params;
         this.variableNames = [
             'movementSpeed',
@@ -22,6 +23,7 @@ class Variables {
             'sensitivity',
             'thirdPerson',
             'health',
+            'respawnTime',
         ]
         this.set = {
             movementSpeed: this.setMovementSpeed,
@@ -33,6 +35,7 @@ class Variables {
             sensitivity: this.setSensitivity,
             thirdPerson: this.setThirdPerson,
             health: this.setHealth,
+            respawnTime: this.setRespawnTime,
         }
         this.movementSpeed = movementSpeed;
         this.playerName = playerName;
@@ -44,11 +47,18 @@ class Variables {
         this.teamKillEnabled = teamKillEnabled;
         this.thirdPerson = thirdPerson;
         this.health = health;
+        this.respawnTime = respawnTime;
     }
 
     setThirdPerson(thirdPerson) {
         const isTrueSet = (thirdPerson === 'true');
         TUNABLE_VARIABLES.thirdPerson = isTrueSet;
+    }
+
+    setRespawnTime(newRespawnTime) {
+        if (newRespawnTime === '') return false;
+        if (isNaN(newRespawnTime)) return false;
+        TUNABLE_VARIABLES.respawnTime = newRespawnTime;
     }
 
     setHealth(newHealth) {
@@ -121,5 +131,6 @@ const TUNABLE_VARIABLES = new Variables(
         health: 100,
         headShotDamage: 40,
         shotDamage: 30,
+        respawnTime: 3,
     }
 )

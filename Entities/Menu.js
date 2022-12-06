@@ -35,8 +35,6 @@ class Menu {
 
     updateScores(updateTeams) {
         const connectedPlayers = webSocketHandler.connectedPlayers;
-        console.log('connectedPlayers');
-        console.log(connectedPlayers);
         let scoresAndNames = [{
             displayName: TUNABLE_VARIABLES.playerName,
             score: player.score,
@@ -56,6 +54,7 @@ class Menu {
             })
         })
         scoresAndNames.map((obj => {
+            console.log(obj);
             let display = document.getElementById(obj.id);
             if (!display) {
                 display = document.createElement("div");
