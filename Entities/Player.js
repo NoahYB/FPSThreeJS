@@ -55,7 +55,7 @@ class Player {
         this.respawning = false;
         this.respawnTimer = 0;
         if (spawnLocations.length > 0) {
-            if (teamNumber === 1) {
+            if (this.team === 'team1') {
                 this.object.position.copy(spawnLocations[0]);
             } else {
                 this.object.position.copy(spawnLocations[1]);
