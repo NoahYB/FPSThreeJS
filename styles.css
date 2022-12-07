@@ -197,6 +197,12 @@ h1 {
     height: 70%;
 }
 
+.teamScore {
+    color: #28ebdb;
+    padding: 5px;
+    font-size: 25px;
+}
+
 .scoreboardBlue {
     background-color: #0099ff27;
 }

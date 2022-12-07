@@ -123,7 +123,6 @@ class Collisions {
         );
         const intersect = raycaster.intersectObject(object, true);
         if (intersect.length) {
-            // console.log(intersect[0].face)
             return intersect[0].face;
         }
         return false;

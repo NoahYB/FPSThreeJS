@@ -51,7 +51,6 @@ function onPlayerLoad() {
             keys[key] = false;
         })
     } );
-    console.log(player.object);
     let head = player.object.getObjectByName('Cube001');
     let headPosition = new THREE.Vector3();
     head.getWorldPosition(headPosition);

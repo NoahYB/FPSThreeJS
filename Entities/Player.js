@@ -159,22 +159,20 @@ class Player {
                 player.hitMarker();
                 let headshot = (object.name === 'Cube001');
                 webSocketHandler.sendMessage({
-                    action: 'hit',
+                    action: 'HIT',
                     directionOfShot: v,
-                    text: 'connected',
                     headshot,
                     interactedId: object.c.id,
-                    score: player.score,
                     team: teamNumber,
                 })
                 audioManager.hit();
-                return;
+                break;
             }
             else if (object) return;
 
         }
         webSocketHandler.sendMessage({
-            action: 'shot',
+            action: 'SHOT',
             directionOfShot: v,
             text: 'connected',
         })
@@ -189,6 +187,8 @@ class Player {
     }
 
     shoot() {
+
+        audioManager.shoot();
 
         this.shooting = true;
 
@@ -219,8 +219,9 @@ class Player {
         this.object.position.set(0,-10000,0);
         // cameraController.panTowards(whoKilledPlayer, .0072);
         webSocketHandler.sendMessage({
-            id : whoKilledPlayer.id,
-            action: 'confirmKill'
+            pointAwardedTo : whoKilledPlayer.id,
+            team : whoKilledPlayer.team,
+            action: 'CONFIRM_KILL'
         })
         TUNABLE_VARIABLES.thirdPerson = true;
         this.startRespawn();

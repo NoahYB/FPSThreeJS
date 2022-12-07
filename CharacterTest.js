@@ -1,7 +1,6 @@
 
 function newCharacterTest() {
     const PARENT = new THREE.Group();
-    console.log('CREATING CHARACTER');
     // Create the character's body using a cube geometry
     let bodyGeometry = new THREE.BoxGeometry(1, 1, 1);
     let bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
