@@ -17,9 +17,10 @@ go to localhost:1234
 To host the multiplayer server
 ```sh
 git clone https://github.com/NoahYB/mousey-be
+cd FPSBackend
 npm install
-cd back_e
-node mouseApp.js
+npm run build
+npm run start
 ```
 
 ## Development
