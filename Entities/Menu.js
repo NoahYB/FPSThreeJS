@@ -37,8 +37,8 @@ class Menu {
         const teamOneScore = document.getElementById('teamScoreRed');
         const teamTwoScore = document.getElementById('teamScoreBlue');
 
-        teamOneScore.innerHTML = GAMESTATE_VARIABLES.teamScores.one;
-        teamTwoScore.innerHTML = GAMESTATE_VARIABLES.teamScores.two;
+        teamOneScore.innerHTML = GAMESTATE_VARIABLES.teamScores.team1;
+        teamTwoScore.innerHTML = GAMESTATE_VARIABLES.teamScores.team2;
 
         const connectedPlayers = webSocketHandler.connectedPlayers;
         let scoresAndNames = [{
@@ -47,11 +47,12 @@ class Menu {
             key: webSocketHandler.id,
             team: player.team,
         }];
+
         Object.keys(connectedPlayers).forEach(key => {
             let connectedPlayerObject = connectedPlayers[key];
             let displayName = connectedPlayerObject.connectionDisplayName;
             let score = connectedPlayerObject.score;
-            let team = connectedPlayerObject.teamNumber;
+            let team = connectedPlayerObject.team;
             scoresAndNames.push({
                 id: key,
                 team,
@@ -60,22 +61,21 @@ class Menu {
             })
         })
         scoresAndNames.map((obj => {
-            console.log(obj);
             let display = document.getElementById(obj.id);
             if (!display) {
                 display = document.createElement("div");
                 display.id = obj.id;
                 display.classList.add('scoreText');
-                if (obj.team === 1) {
+                if (obj.team === 'team1') {
                     this.scoreBoardRed.append(display);
-                } else {
+                } else if (obj.team === 'team2') {
                     this.scoreBoardBlue.append(display);
                 }
             }
             if (updateTeams) {
-                if (obj.team === 1) {
+                if (obj.team === 'team1') {
                     this.scoreBoardRed.append(display);
-                } else {
+                } else if (obj.team === 'team2') {
                     this.scoreBoardBlue.append(display);
                 }
             }

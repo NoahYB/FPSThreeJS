@@ -106,7 +106,12 @@ class Variables {
 
     setPlayerName(newPlayerName) {
         if (newPlayerName === '') return false;
-        TUNABLE_VARIABLES.playerName = sanitize(newPlayerName);
+        const sanitizedName = sanitize(newPlayerName);
+        webSocketHandler.sendMessage({
+            action: 'NAME_CHANGE',
+            connectionDisplayName: sanitizedName,
+        })
+        TUNABLE_VARIABLES.playerName = sanitize(sanitizedName);
     }
 
     setJumpHeight(newJumpHeight) {
@@ -122,7 +127,6 @@ class Variables {
     }
 
     setVolume(newVolume) {
-        console.log(newVolume);
         if (newVolume === '') return false;
         if (isNaN(newVolume)) return false;
         TUNABLE_VARIABLES.volume = newVolume / 100;

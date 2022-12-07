@@ -37,9 +37,6 @@ loadingManager.onLoad = function ( ) {
     let bround = document.getElementById('blockout');
     progressElement.style.display = 'none';
     bround.style.display = 'none';
-    document.getElementById('teamselector')
-        .style
-        .display = 'block';
 };
 
 loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
@@ -65,6 +62,9 @@ function init(serverURL) {
 }
 
 function onWebSocketConnected() {
+    document.getElementById('teamselector')
+        .style
+        .display = 'block';
     layer01 = new THREE.TextureLoader(loadingManager).load('Textures/laser.png');
     layer01.wrap = layer01.wrapT = THREE.RepeatWrapping;
     layer02 = new THREE.TextureLoader(loadingManager).load('Textures/noise.png');
@@ -83,15 +83,17 @@ function onWebSocketConnected() {
     dummy = new ConnectedPlayer(0);
 }
 
-function selectTeam(teamNumberSelection) {
+function selectTeam(teamSelection) {
     teamSelected = true;
-    teamNumber = teamNumberSelection;
-    player.team = teamNumber;
+    player.team = teamSelection;
     document.getElementById('teamselector').style.display = 'none';
     webSocketHandler.sendMessage({
-        text: 'connected',
-        action: 'selectTeam',
-        teamSelection: teamNumber,
+        action: 'TEAM_SELECT',
+        team: teamSelection,
+    });
+    webSocketHandler.sendMessage({
+        action: 'NAME_CHANGE',
+        connectionDisplayName: TUNABLE_VARIABLES.playerName,
     });
     menuOpened = false;
     player.respawn();
@@ -103,7 +105,6 @@ function selectTeam(teamNumberSelection) {
 
 function keydown(e){
     if (e.key === 'Escape') {
-        console.log(menuOpened);
         menuOpened = !menuOpened;
         if (!menuOpened) {
             menu.hide();
@@ -122,8 +123,9 @@ const clock = new THREE.Clock();
 function sendModelData() {
     webSocketHandler.sendMessage(
         {
+            action: 'MOVEMENT',
             text: 'connected',
-            connectionDisplayName: 'test',
+            connectionDisplayName: TUNABLE_VARIABLES.playerName,
             position: player.object.position,
             quaternion: player.object.quaternion,
             lookQuaternion: camera.quaternion,
@@ -135,12 +137,13 @@ function sendModelData() {
 }
 
 let frameCount = 0;
-let fps, fpsInterval, startTime, now, then, elapsed;
+let fps, fpsInterval, startTime, now, then, elapsed, firstCall;
 
 function startUpdate(fps) {
     fpsInterval = 1000 / fps;
     then = Date.now();
     startTime = then;
+    firstCall = true;
     lockedUpdate();
 }
 
@@ -156,8 +159,8 @@ function lockedUpdate() {
 
     // if enough time has elapsed, draw the next frame
 
-    if (elapsed > fpsInterval) {
-
+    if (elapsed > fpsInterval || firstCall) {
+        firstCall = false;
         // Get ready for next frame by setting then=now, but also adjust for your
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);

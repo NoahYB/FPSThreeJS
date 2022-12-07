@@ -16,8 +16,6 @@ class HUD {
     }
 
     hideHUD() {
-        console.log('hiding hud');
-        console.log(this.html);
         this.html.style.display = 'none';
     }
 

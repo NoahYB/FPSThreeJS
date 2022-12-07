@@ -22,19 +22,18 @@ class WebSocketHandler {
     sendMessage(message) {
         this.timer = getTimeStampMili();
         if (!message.id) message.id = this.id;
-        message.connectionDisplayName = TUNABLE_VARIABLES.playerName;
-	    this.webSocket.send(
-	    	JSON.stringify({
-                data: message
-            })
-	    );
+        message.senderId = this.id;
+        const JSONString = JSON.stringify({
+            data: message
+        });
+	    this.webSocket.send(JSONString);
 	}
 
 	receiveTextMessage(data) {
         const {
             action,
 	    	connectionDisplayName,
-	    	id,
+            senderId,
             position,
             velocity,
             quaternion,
@@ -45,81 +44,95 @@ class WebSocketHandler {
             score,
             interactedId,
             cameraDirection,
+            scores,
+            gameData,
+            pointAwardedTo,
+            connectedClients
 	    } = data;
-
-        if (action === 'confirmKill') {
-            if (id === this.id) {
-                player.score += 1;
-
-                const teamString = player.team === 1 ? 'one' : 'two'
-            
-                GAMESTATE_VARIABLES.point(teamString);
-            } else {
-                this.connectedPlayers[id].score += 1;
-
-                const teamString = this.connectedPlayers[id].team === 1 ? 'one' : 'two'
-            
-                GAMESTATE_VARIABLES.point(teamString);
-            }
-
-
-            menu.updateScores();
+        
+        if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
+            Object.keys(connectedClients).forEach(clientKey => {
+                const incomingClient = connectedClients[clientKey];
+                const numericClientKey = parseInt(clientKey);
+                if (!this.connectedPlayers[numericClientKey] && numericClientKey !== this.id){
+                    this.createConnectedPlayerFromInit(incomingClient.clientData, numericClientKey);
+                }
+                GAMESTATE_VARIABLES.teamScores = gameData.scores;
+            })
+            onWebSocketConnected();
         }
 
-        if (id === this.id) {
-            if (tag) return;
+        if (senderId === this.id) {
             this.ping = getTimeStampMili() - this.timer;
             this.pings += 1;
             this.pingAverage += this.ping;
             return;
         }
 
-        if(!this.connectedPlayers[id]) {
-            this.connectedPlayers[id] = new ConnectedPlayer(id);
+        if(!this.connectedPlayers[senderId] && senderId !== 'WEBSOCKET_SERVER_GAME_INIT' && senderId !== undefined) {
+            this.connectedPlayers[senderId] = new ConnectedPlayer(senderId);
         }
 
-        if (action === 'selectTeam') {
+        if (action === 'UPDATE_TEAM_SCORES') {
+            GAMESTATE_VARIABLES.teamScores = scores;
+            if (pointAwardedTo === this.id) {
+                player.score += 1;
+            }
+            else this.connectedPlayers[pointAwardedTo].score += 1;
             menu.updateScores(true);
-            console.log('new team selected');
-            this.connectedPlayers[id].setTeam(data.teamSelection);
         }
 
-        if (action === 'shot') {
-            this.connectedPlayers[id].shoot(data.directionOfShot);
+        if (action === 'TEAM_SELECT') {
+            this.connectedPlayers[senderId].setTeam(data.team);
+            this.connectedPlayers[senderId].score = (data.score);
+            menu.updateScores(true);
         }
 
-        if (action === 'hit') {
+        if (action === 'SHOT') {
+            this.connectedPlayers[senderId].shoot(data.directionOfShot);
+        }
+
+        if (action === 'HIT') {
             if (interactedId === this.id)
-                player.onHit(headshot, this.connectedPlayers[id]);
+                player.onHit(headshot, this.connectedPlayers[senderId]);
         }
 
-        if (position) {
-            this.connectedPlayers[id].setPos(position);
-            this.connectedPlayers[id].setVelocity(velocity);
-            this.connectedPlayers[id].setQuaternion(quaternion);
-            this.connectedPlayers[id].setLookQuaternion(lookQuaternion);
-            this.connectedPlayers[id].moveRightArm(cameraDirection);
+        if (action === 'MOVEMENT') {
+            this.connectedPlayers[senderId].setPos(position);
+            this.connectedPlayers[senderId].setVelocity(velocity);
+            this.connectedPlayers[senderId].setQuaternion(quaternion);
+            this.connectedPlayers[senderId].setLookQuaternion(lookQuaternion);
+            this.connectedPlayers[senderId].moveRightArm(cameraDirection);
         }
 
-        if (connectionDisplayName) {
-            this.connectedPlayers[id].connectionDisplayName = connectionDisplayName;
+        if (action === 'NAME_CHANGE') {
+            this.connectedPlayers[senderId].connectionDisplayName = connectionDisplayName;
         }
+    }
+
+    createConnectedPlayerFromInit(clientData, senderId) {
+        console.log(clientData);
+        this.connectedPlayers[senderId] = new ConnectedPlayer(senderId);
+        if (clientData.inTeamSelect) return;
+        this.connectedPlayers[senderId].connectionDisplayName = clientData.connectionDisplayName;
+        const vectorPos = new THREE.Vector3(clientData.position.x, clientData.position.y, clientData.position.z);
+        this.connectedPlayers[senderId].setPos(vectorPos);
+        this.connectedPlayers[senderId].score = parseInt(clientData.score);
+        this.connectedPlayers[senderId].team = clientData.team;
     }
 
     initializeCallBacks() {
         this.webSocket.onopen = (message) => {
             this.ready = true;
             this.sendMessage({
-                id: this.id,
+                senderId: this.id,
                 connectionDisplayName: this.connectionDisplayName,
             })  
         }
     
         this.webSocket.onmessage = (message) => {
             if (!this.connected) {
-                onWebSocketConnected();
                 this.connected = true;
-                return;
             }
             const data = JSON.parse(message.data);
             this.receiveTextMessage(data);

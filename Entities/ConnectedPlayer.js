@@ -60,9 +60,7 @@ class ConnectedPlayer {
     }
 
     setTeam(teamNumber) {
-        this.teamNumber = teamNumber;
         this.team = teamNumber;
-        let color = teamNumber === 1 ? 'blue' : 'red'
         menu.updateScores(true);
     }
 

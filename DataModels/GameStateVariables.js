@@ -1,13 +1,12 @@
 class GameStateVariables {
     constructor() {
         this.teamScores = {
-            one: 0,
-            two: 0,
+            team1: 0,
+            team2: 0,
         }
     }
 
     point(team) {
-        console.log(team);
         this.teamScores[team] += 1;  
         menu.updateScores();
     }
