@@ -35,3 +35,13 @@ function randomSpherePoint(x0,y0,z0,radius){
     let z = z0 + (radius * Math.cos(phi));
     return new THREE.Vector3(x,y,z);
  }
+
+function showOBB(obb, child) {
+    const geometry = new THREE.BoxGeometry( obb.halfSize.x * 2, obb.halfSize.y * 2, obb.halfSize.z * 2);
+    const material = new THREE.MeshBasicMaterial( {color: 'green', wireframe: true} );
+    const cube = new THREE.Mesh( geometry, material );
+    cube.position.copy(obb.center);
+    const euler = new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().setFromMatrix3(obb.rotation));
+    cube.quaternion.setFromEuler(euler);
+    scene.add(cube);
+}

@@ -14,25 +14,28 @@ function setUpCamera() {
 }
 
 function setUpRenderer() {
+    	
+    // scene.fog = new THREE.Fog('grey', 0.02, 300);
+
     const renderer = new THREE.WebGLRenderer();
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth , window.innerHeight  );
     document.body.appendChild( renderer.domElement );
     return renderer;
 }
 
 function setUpLights() {
 
-    const spotLight = new THREE.PointLight( 'white', 1 );
+    const spotLight = new THREE.PointLight( 'white', .4 );
     spotLight.position.set( 30, 100, 0 );
     spotLight.rotateZ(3.14 / 4)
     spotLight.shadowMapWidth = 4096;
     spotLight.shadowMapHeight = 4096;
     spotLight.castShadow = true;
-    scene.add(spotLight);
+    // scene.add(spotLight);
     
-    const ambientLight = new THREE.AmbientLight("white", .5);
+    const ambientLight = new THREE.AmbientLight("white", .01);
     
     scene.add(ambientLight);
 }

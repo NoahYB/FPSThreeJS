@@ -32,7 +32,7 @@ class PostProcessingSetup {
         this.bloomComposer = new THREE.EffectComposer(renderer);
         this.bloomPass = new THREE.UnrealBloomPass(
             new THREE.Vector2(this.width, this.height),
-            .3,
+            .6,
             0,
             0
         )

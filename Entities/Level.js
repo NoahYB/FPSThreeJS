@@ -22,7 +22,7 @@ class Level {
             const d = Math.max(100, 1000 * Math.random());
             const randomPoint = randomSpherePoint(0,0,0,d);
             const geometry = new THREE.SphereGeometry(1, 10, 10); 
-            const material = new THREE.MeshToonMaterial({ 
+            const material = new THREE.MeshBasicMaterial({ 
                 color: '#28ebdb'
             });
             const sphere = new THREE.Mesh( geometry, material );
@@ -108,13 +108,19 @@ class Level {
         // scene.add(cube);
         gltfLoader.load(
             // resource URL
-            'Models/Level4.gltf',
+            'Models/citymap.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
                         child.castShadow = true;
+                        if (child.name.startsWith('Light')) {
+                            const light = new THREE.PointLight( 'purple', 1, 100 );
+                            light.position.copy(child.position);
+                            child.material.emissive = new THREE.Color('purple');
+                            child.add( light );
+                        }
                         if (child.name === 'Ground') {
                             child.receiveShadow = true;
                             child.castShadow = false;
@@ -122,16 +128,24 @@ class Level {
                         if (child.name.startsWith('Spawn')) {
                             spawnLocations.push(child.position);
                         } else {
-                            const box = new THREE.Box3().setFromObject(child);
-                            // const boxHelper = new THREE.BoxHelper( child );
+                            new THREE.Box3().setFromObject(child);
+
+                            child.geometry.computeBoundingBox();
+                            
+                            const obb = new THREE.OBB().fromBox3(
+                                child.geometry.boundingBox,
+                            );
+
+                            obb.applyMatrix4(child.matrixWorld);
+
+                            // showOBB(obb, child);
+
                             this.levelBBOX.push( {
                                 object: child,
-                                box
+                                box: obb
                             });
-                            // scene.add(boxHelper);
+                            child.obb = obb;
                             this.levelObjects.push(child);
-                            // const helper = new THREE.VertexNormalsHelper( child, 1, 0xff0000 );
-                            // scene.add(helper);
                         }
                     }
                 });
