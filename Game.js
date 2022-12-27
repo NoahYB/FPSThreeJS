@@ -144,6 +144,7 @@ function startUpdate(fps) {
     then = Date.now();
     startTime = then;
     firstCall = true;
+    renderer.setSize( window.innerWidth, window.innerHeight );
     lockedUpdate();
 }
 

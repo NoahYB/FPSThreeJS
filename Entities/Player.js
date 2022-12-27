@@ -318,7 +318,9 @@ class Player {
             this.velocity.y <= 0
         ) {
             this.velocity.y = 0;
-            this.object.position.y = vertical.point.y + this.boxLegL.halfSize.z - .1;
+            const ground = this.collisions.getGroundHeight(vertical.mesh, this.boxLegL.center);
+            if (ground)
+                this.object.position.y = ground.y + this.boxLegL.halfSize.z;
             this.grounded = true;
             this.jumping = false;
         } else {
@@ -326,17 +328,23 @@ class Player {
         }
 
         if (horizontalCollision) {
+            console.log('colliding');
             const playerPos = this.object.position.clone();
             playerPos.y = horizontalCollision.object.position.y;
-            const dir = playerPos.clone()
-                .sub(horizontalCollision.object.position)
+            const f = horizontalCollision.object.position.clone();
+            const dir = f.sub(playerPos.clone()).normalize();
+            // showVector(dir, playerPos);
             const face = this.collisions.getFace(
                 dir, 
-                horizontalCollision.object.position,
+                playerPos,
                 horizontalCollision.object
             )
-            const collisionDepth = oldPosition.distanceTo(this.object.position);
-            this.push(face.normal.multiplyScalar(collisionDepth));
+            // console.log(face);
+            if (face) {
+                const collisionDepth = oldPosition.distanceTo(this.object.position);
+                console.log(face.normal);
+                this.push(face.normal.multiplyScalar(collisionDepth));
+            }
             
         } else {
 
