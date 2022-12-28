@@ -330,7 +330,6 @@ class Player {
         if (horizontalCollision) {
             console.log('colliding');
             const playerPos = this.object.position.clone();
-            playerPos.y = horizontalCollision.object.position.y;
             const f = horizontalCollision.object.position.clone();
             const dir = f.sub(playerPos.clone()).normalize();
             // showVector(dir, playerPos);
@@ -339,7 +338,8 @@ class Player {
                 playerPos,
                 horizontalCollision.object
             )
-            // console.log(face);
+            console.log('collided');
+            console.log(face);
             if (face) {
                 const collisionDepth = oldPosition.distanceTo(this.object.position);
                 console.log(face.normal);
