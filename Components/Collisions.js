@@ -144,7 +144,6 @@ class Collisions {
             rayPos, 
             dir
         );
-        showVector(dir, origin);
         const intersect = raycaster.intersectObject(object, true);
         if (intersect.length > 0 && intersect[0].face) {
             return intersect[0].face;

@@ -329,7 +329,7 @@ class Player {
 
         if (horizontalCollision) {
             console.log('colliding');
-            const playerPos = this.object.position.clone();
+            const playerPos = this.boxBody.center.clone();
             const f = horizontalCollision.object.position.clone();
             const dir = f.sub(playerPos.clone()).normalize();
             // showVector(dir, playerPos);
