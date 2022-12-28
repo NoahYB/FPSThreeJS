@@ -115,7 +115,6 @@ class Level {
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
                         child.castShadow = true;
-                        child.geometry.computeVertexNormals();
                         if (child.name.startsWith('Light')) {
                             const light = new THREE.PointLight( 'purple', 1, 100 );
                             light.position.copy(child.position);
@@ -130,8 +129,6 @@ class Level {
                             spawnLocations.push(child.position);
                         } else {
                             new THREE.Box3().setFromObject(child);
-
-                            child.matrixWorldNeedsUpdate = true;
 
                             child.geometry.computeBoundingBox();
                             

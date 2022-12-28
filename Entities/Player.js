@@ -338,8 +338,7 @@ class Player {
                 playerPos,
                 horizontalCollision.object
             )
-            console.log('collided');
-            console.log(face);
+            // console.log(face);
             if (face) {
                 const collisionDepth = oldPosition.distanceTo(this.object.position);
                 console.log(face.normal);
