@@ -47,7 +47,11 @@ class WebSocketHandler {
             scores,
             gameData,
             pointAwardedTo,
-            connectedClients
+            connectedClients,
+            specialMessage,
+            winner,
+            timeTillNextMatch,
+            topScorer
 	    } = data;
         
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
@@ -72,6 +76,23 @@ class WebSocketHandler {
         if(!this.connectedPlayers[senderId] && senderId !== 'WEBSOCKET_SERVER_GAME_INIT' && senderId !== undefined) {
             this.connectedPlayers[senderId] = new ConnectedPlayer(senderId);
         }
+
+        
+        if (action === 'START_NEW_GAME') {
+            menu.hideGameOver();
+            Object.keys(this.connectedPlayers).forEach(key =>this.connectedPlayers[key].score = 0);
+            player.score = 0;
+            player.respawn();
+        }
+
+        if (action === 'GAME_OVER') {
+            console.log(winner);
+            GAMESTATE_VARIABLES.teamScores = gameData.scores;
+            console.log(timeTillNextMatch);
+            menu.displayGameOver(winner, specialMessage, timeTillNextMatch, topScorer);
+            menu.updateScores(true);
+        }
+
 
         if (action === 'UPDATE_TEAM_SCORES') {
             GAMESTATE_VARIABLES.teamScores = scores;

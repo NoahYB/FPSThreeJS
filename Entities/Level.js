@@ -138,7 +138,7 @@ class Level {
 
                             obb.applyMatrix4(child.matrixWorld);
 
-                            // showOBB(obb, child);
+                            showOBB(obb, child);
 
                             this.levelBBOX.push( {
                                 object: child,

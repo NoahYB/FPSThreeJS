@@ -151,6 +151,23 @@ class Menu {
         return html;
     }
 
+    displayGameOver(winner, specialMessage, timeTillMatch, topScorer) {
+        const overlay = document.getElementById('gameOverScreen');
+        overlay.style.display = 'block';
+        const mvp = document.getElementById('mvp');
+        const winnerText = document.getElementById('winnerText');
+        const matchTimer = document.getElementById('matchTimer');
+
+        mvp.innerHTML = `mvp: ${topScorer}`;
+        winnerText.innerHTML = `winner: ${winner}`;
+        matchTimer.innerHTML = `next match in ${timeTillMatch} seconds`
+    }
+
+    hideGameOver() {
+        const overlay = document.getElementById('gameOverScreen');
+        overlay.style.display = 'none';
+    }
+
     loadNameChange() {
 
     }
