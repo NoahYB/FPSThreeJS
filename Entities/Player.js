@@ -361,7 +361,7 @@ class Player {
 
         camera.getWorldDirection(dir);
 
-        this.rightArm.lookAt(dir.multiplyScalar(300));
+        this.rightArm.lookAt(dir.multiplyScalar(10000000000));
 
         this.rightArm.rotateX(-Math.PI / 180 * 90);
     }
