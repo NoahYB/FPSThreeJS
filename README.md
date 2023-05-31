@@ -1,5 +1,5 @@
 # In Browser FPS
-
+https://noahyb.github.io/FPSThreeJS/
 ## Requirements for local testing
 
 npm, node, python (or something to run a webserver)
