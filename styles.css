@@ -164,6 +164,21 @@ h1 {
     padding: 3px;
 }
 
+.inventoryContainer {
+    position: fixed;
+    background-size: 20px;
+    background-color: #ffffff63;
+    border: black;
+    border-radius: 10px;
+    left: 1%;
+    top: 11.5%;
+    border-style: dotted;
+    padding: 3px;
+}
+
+.icon {
+    height: 55px;
+}
 .respawnScreen {
     display: none;
     position: fixed;

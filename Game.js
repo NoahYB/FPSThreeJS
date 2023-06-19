@@ -25,11 +25,13 @@ let dummy;
 let teamNumber = 0;
 let i = 0;
 let teamSelected = false;
+let testItem;
 
 let started = false;
 
-document.addEventListener('keydown',keydown);
-document.addEventListener('keyup',keyup);
+document.addEventListener('keydown', keydown);
+document.addEventListener('keyup', keyup);
+document.addEventListener('wheel', wheel);
 
 loadingManager.onLoad = function ( ) {
     if (started) return;
@@ -75,6 +77,8 @@ function onWebSocketConnected() {
     renderer = setUpRenderer();
     postProcessing = new PostProcessingSetup(renderer, scene);
     setUpLights();
+    testItem = new Item("Rocket");
+    testItem.spawn();
     level = new Level();
     player = new Player();
     hud = new HUD(player);
@@ -116,6 +120,11 @@ function keydown(e){
 
 function keyup(e){
     keys[e.key.toLowerCase()] = false;
+}
+
+function wheel(e) {
+    console.log('wheel');
+    player.inventory.next();
 }
 
 const clock = new THREE.Clock();
@@ -193,8 +202,9 @@ function update() {
         player.addBBOX();
     }
     i++;
-    postProcessing.update();
-    // renderer.render( scene, camera );
+    //postProcessing.update();
+    testItem.update();
+    renderer.render( scene, camera );
 }
 
 window.addEventListener( 'resize', onWindowResize, false );

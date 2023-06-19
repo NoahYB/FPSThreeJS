@@ -94,8 +94,9 @@ class Collisions {
             const intersect = currentBox.intersectsOBB(bbox1);
             if(intersect && 
                 vertical &&
-                (currentBox.center.y + currentBox.halfSize.y) - (bbox1.center.y - bbox1.halfSize.y) < 10
+                (currentBox.center.y + currentBox.halfSize.y) - (bbox1.center.y - bbox1.halfSize.y) < 30
             ) {
+                    //console.log('colliding');
                     return {
                         point: this.getOBBMax(currentBox),
                         mesh: boxArray[i].object

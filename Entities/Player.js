@@ -34,6 +34,8 @@ class Player {
         this.shootingTimer = 0;
 
         this.horizontalCollision = false;
+
+        this.inventory = new Inventory();
     }
 
     onLoadFinish() {
@@ -99,13 +101,13 @@ class Player {
 
     loadModel() {
         const materialToon = new THREE.MeshToonMaterial({
-            color: '#873E23',
+            color: 'red',
         });
         const materialToonGun = new THREE.MeshToonMaterial({
             color: 'rgb(55, 40, 217)',
         });
         fbxLoader.load(
-            'Models/PossibleCharacter.fbx',
+            'Models/PossibleCharacter2.fbx',
             (object) => {
                 camera.add(object);
                 this.object = object;
@@ -115,14 +117,7 @@ class Player {
 
                 object.traverse(( child ) => {
                     child.c = this;
-                    if (child.name.includes('Gun')) {
-                        if (child.name === 'Gun') {
-                            this.gunBarrel = child;
-                        }
-                        child.material = materialToonGun;
-                        child.castShadow = true;
-                    }
-                    else if ( child.isMesh ) {
+                    if ( child.isMesh ) {
                         child.material = materialToon;
                         child.castShadow = true;
                     }
@@ -188,24 +183,25 @@ class Player {
 
     shoot() {
 
-        audioManager.shoot();
+        // audioManager.shoot();
 
-        this.shooting = true;
+        // this.shooting = true;
 
-        this.gunBarrel.updateMatrixWorld(true);
+        // this.gunBarrel.updateMatrixWorld(true);
 
-        let dir = new THREE.Vector3(0,0,0);
+        // let dir = new THREE.Vector3(0,0,0);
 
-        camera.getWorldDirection(dir);
+        // camera.getWorldDirection(dir);
 
-        let gunPosition = new THREE.Vector3();
-        this.gunBarrel.getWorldPosition(gunPosition);
+        // let gunPosition = new THREE.Vector3();
 
-        const bullet = new Bullet(gunPosition, dir.multiplyScalar(10000), player);
+        // this.gunBarrel.getWorldPosition(gunPosition);
 
-        this.spawnedEntities.push(bullet);
+        // const bullet = new Bullet(gunPosition, dir.multiplyScalar(10000), player);
 
-        this.shooting = true;
+        // this.spawnedEntities.push(bullet);
+
+        // this.shooting = true;
 
     }
 
