@@ -51,7 +51,9 @@ class WebSocketHandler {
             specialMessage,
             winner,
             timeTillNextMatch,
-            topScorer
+            projectileVelocity,
+            topScorer,
+            itemId
 	    } = data;
         
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
@@ -63,6 +65,22 @@ class WebSocketHandler {
                 }
                 GAMESTATE_VARIABLES.teamScores = gameData.scores;
             })
+            console.log(gameData);
+            if (gameData.itemData) {
+                Object.keys(gameData.itemData.items).forEach(itemKey => {
+                    console.log(itemKey);
+                    const item = gameData.itemData.items[itemKey];
+                    if (item.heldBy === 0) {
+                        if (item.type ==='ROCKET') {
+                            items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                            );
+                        }
+                    }
+                })
+            }
             onWebSocketConnected();
         }
 
@@ -129,6 +147,19 @@ class WebSocketHandler {
         if (action === 'NAME_CHANGE') {
             this.connectedPlayers[senderId].connectionDisplayName = connectionDisplayName;
         }
+
+        if (action === 'PROJECTILE_DATA') {
+            items[itemId].fire(projectileVelocity);
+        }
+
+        
+        if (action === 'ITEM_PICKUP') {
+            console.log("so and so picked up item", itemId)
+
+            this.connectedPlayers[senderId].inventory.add(items[itemId]);
+            items[itemId].pickedUpByConnectedPlayer(senderId);
+        }
+
     }
 
     createConnectedPlayerFromInit(clientData, senderId) {

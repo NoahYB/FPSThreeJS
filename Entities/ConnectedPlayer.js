@@ -7,6 +7,7 @@ class ConnectedPlayer {
         this.health = TUNABLE_VARIABLES.health;
         this.spawnedEntities = [];
         this.score = 0;
+        this.inventory = new Inventory();
     }
 
     loadModel() {
@@ -17,7 +18,7 @@ class ConnectedPlayer {
             color: 'rgb(55, 40, 217)',
         });
         fbxLoader.load(
-            'Models/PossibleCharacter.fbx',
+            'Models/PossibleCharacter2.fbx',
             (object) => {
                 this.object = object;
                 object.scale.setScalar(.007);
@@ -26,14 +27,7 @@ class ConnectedPlayer {
                 object.traverse(( child ) => {
                     child.c = this;
                     child.isEnemy = true;
-                    if (child.name.includes('Gun')) {
-                        if (child.name === 'Gun') {
-                            this.gunBarrel = child;
-                        }
-                        child.material = materialToonGun;
-                        child.castShadow = true;
-                    }
-                    else if ( child.isMesh ) {
+                    if ( child.isMesh ) {
                         child.material = materialToon;
                         child.castShadow = true;
                     }
@@ -62,6 +56,10 @@ class ConnectedPlayer {
     setTeam(teamNumber) {
         this.team = teamNumber;
         menu.updateScores(true);
+    }
+
+    setEquippedWeapon(item) {
+        this.inventory.add(item) 
     }
 
     setQuaternion(quat) {

@@ -1,19 +1,29 @@
 class Item {
-    constructor(type) {
+    constructor(type, id, position) {
         this.type = type;
         this.parent = undefined;
         this.model = undefined;
         this.iconSrc = `Icons/${type}.png`
         this.pickedUp = false;
+        this.id = id;
+        this.position = position;
     }
     
+    pickedUpByConnectedPlayer(id) {
+        this.pickedup = true;
+        let armPos = new THREE.Vector3();
+        this.heldBy = webSocketHandler.connectedPlayers[id];
+        this.heldBy.rightArm.getWorldPosition(armPos);
+        this.model.position.copy(armPos);
+    }
     // Update the weapon pickup object.
     update() {
         if (this.pickedUp) {
             let armPos = new THREE.Vector3();
-            player.rightArm.getWorldPosition(armPos);
+            this.heldBy.rightArm.getWorldPosition(armPos);
             this.model.position.copy(armPos);
             this.allignItem();
+            return;
         };
         // Check if the player is within range of the weapon pickup.
         if (this.intersectsPlayer()) {
@@ -21,6 +31,11 @@ class Item {
             document.getElementById("equipedItem").append(
                 this.iconElement
             )
+            webSocketHandler.sendMessage({
+                action: "ITEM_PICKUP",
+                itemId: this.id,
+            })
+            this.heldBy = player;
             player.inventory.add(this);
         }
         else {
@@ -29,7 +44,13 @@ class Item {
     }
 
     fire() {
-
+        if (this.heldBy === player) {
+            webSocketHandler.sendMessage({
+                action: 'PROJECTILE_DATA',
+                projectileVelocity: this.directionalVelocity(),
+                itemId: this.id
+            })
+        }
     }
 
     spawn() {

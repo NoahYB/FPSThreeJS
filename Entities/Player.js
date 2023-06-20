@@ -73,7 +73,6 @@ class Player {
     }
 
     addBBOX() {
-        
         this.legL = this.object.getObjectByName("LegL");
         this.legR = this.object.getObjectByName("LegR");
         this.body = this.object.getObjectByName("Body");
@@ -227,6 +226,13 @@ class Player {
     onHit(headshot, enemy) {
         if (headshot) this.health -= TUNABLE_VARIABLES.headShotDamage;
         else this.health -= TUNABLE_VARIABLES.shotDamage;
+        hud.updateHealthBar(this.health);
+        this.timeSinceLastHit = 0.00;
+        if (this.health <= 0) this.death(enemy);
+    }
+
+    explosionDamage(pos, enemy) {
+        this.health -= Math.max(0, 100-this.object.position.distanceTo(pos));
         hud.updateHealthBar(this.health);
         this.timeSinceLastHit = 0.00;
         if (this.health <= 0) this.death(enemy);

@@ -29,6 +29,8 @@ let testItem;
 
 let started = false;
 
+let items = {};
+
 document.addEventListener('keydown', keydown);
 document.addEventListener('keyup', keyup);
 document.addEventListener('wheel', wheel);
@@ -77,14 +79,14 @@ function onWebSocketConnected() {
     renderer = setUpRenderer();
     postProcessing = new PostProcessingSetup(renderer, scene);
     setUpLights();
-    testItem = new RocketLauncher();
-    testItem.spawn();
     level = new Level();
     player = new Player();
+    player.id = webSocketHandler.id;
     hud = new HUD(player);
     hud.hideHUD();
     menu = new Menu();
     dummy = new ConnectedPlayer(0);
+    Object.keys(items).forEach(key => items[key].spawn());
 }
 
 function selectTeam(teamSelection) {
@@ -202,8 +204,8 @@ function update() {
         player.addBBOX();
     }
     i++;
+    Object.keys(items).map(k => items[k].update());
     //postProcessing.update();
-    testItem.update();
     renderer.render( scene, camera );
 }
 

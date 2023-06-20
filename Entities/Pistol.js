@@ -1,25 +1,14 @@
-class RocketLauncher extends Item {
-    constructor(type="Rocket",id, position){
-        super(type, id, position);
+class Pistol extends Item {
+    constructor(type="Pistol"){
+        super(type);
         this.rocketGeometry = new THREE.BoxGeometry(1,1,1);
         this.rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         this.projectiles = [];
         this.explosions = [];
-        this.collisions = new Collisions();
-        this.explosionTexture = new THREE.TextureLoader().load('../Icons/explosion.png'); 
     }
 
-    fire(velocity) {
+    fire() {
         super.fire();
-
-        if (this.heldBy === player) {
-            webSocketHandler.sendMessage({
-                action: 'PROJECTILE_DATA',
-                projectileVelocity: this.directionalVelocity().multiplyScalar(5),
-                itemId: this.id
-            })
-        }
-
         const projectile = new THREE.Mesh(this.rocketGeometry, this.rocketMaterial);
         this.projectiles.push(projectile);
 
@@ -27,13 +16,12 @@ class RocketLauncher extends Item {
         projectile.geometry.computeBoundingBox();
 
         scene.add(projectile);
-
-        projectile.userData.velocity = velocity ? velocity: this.directionalVelocity().multiplyScalar(5);
+        
+        projectile.userData.velocity = this.directionalVelocity();
 
         const bbox = new THREE.Box3();
         bbox.setFromObject(projectile);
         projectile.userData.bbox = bbox;
-
     }
 
     update() {
@@ -80,7 +68,6 @@ class RocketLauncher extends Item {
         scene.add(explosion);
         this.explosions.push(explosion);
         explosion.position.copy(pos);
-        player.explosionDamage(pos, this.heldBy)
     }
 
     spawn() {
@@ -92,8 +79,7 @@ class RocketLauncher extends Item {
         this.iconElement.classList.add('icon');
         this.model = createRocketLauncher();
 
-        this.model.position.copy(this.position);
-        this.model.position.y += 5;
+        this.model.position.copy(new THREE.Vector3(-5.384025573730469,45.79417535350264,209.65176391601562));
         this.bbox = new THREE.Box3();
         this.bbox.setFromObject(this.model);
     }
