@@ -45,3 +45,17 @@ function showOBB(obb, child) {
     cube.quaternion.setFromEuler(euler);
     scene.add(cube);
 }
+
+function showAABB(aabb, child) {
+    const geometry = new THREE.BoxGeometry(
+        (aabb.max.x-aabb.min.x) * 2, 
+        (aabb.max.y-aabb.min.y) * 2, 
+        (aabb.max.z-aabb.min.z) * 2
+        );
+    const material = new THREE.MeshBasicMaterial( {color: 'green', wireframe: true} );
+    const cube = new THREE.Mesh( geometry, material );
+    const center = new THREE.Vector3();
+    aabb.getCenter(center);
+    cube.position.copy(center);
+    scene.add(cube);
+}

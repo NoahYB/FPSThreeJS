@@ -4,28 +4,72 @@ class RocketLauncher extends Item {
         this.rocketGeometry = new THREE.BoxGeometry(1,1,1);
         this.rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         this.projectiles = [];
-
+        this.explosions = [];
+        this.collisions = new Collisions();
+        this.explosionTexture = new THREE.TextureLoader().load('../Icons/explosion.png'); 
     }
 
     fire() {
         super.fire();
         const projectile = new THREE.Mesh(this.rocketGeometry, this.rocketMaterial);
         this.projectiles.push(projectile);
-        scene.add(projectile);
+
         projectile.position.copy(this.model.position);
+        projectile.geometry.computeBoundingBox();
+
+        scene.add(projectile);
+        
         projectile.userData.velocity = this.directionalVelocity();
 
         const bbox = new THREE.Box3();
         bbox.setFromObject(projectile);
-
         projectile.userData.bbox = bbox;
     }
 
     update() {
         super.update();
-        this.projectiles.forEach(projectile => {
+        const remove = [];
+        this.projectiles = this.projectiles.filter(projectile => {
+            projectile.userData.bbox.copy( projectile.geometry.boundingBox ).applyMatrix4( projectile.matrixWorld );
+
+            let collided = this.collisions.projectileCollisionsOBB(projectile.userData.bbox, level.levelBBOX);
             projectile.position.add(projectile.userData.velocity);
+            if (collided) {
+                this.explosion(projectile.position);
+                scene.remove(projectile);
+                return false;
+            }
+            return true;
         });
+        this.explosions = this.explosions.filter(explosion => {
+            explosion.material.uniforms.time.value += 0.05;
+            if (explosion.material.uniforms.time.value < 3) return true;
+            scene.remove(explosion);
+            return false;
+        })
+    }
+
+    explosion(pos) {
+        const explosionMaterial = new THREE.ShaderMaterial( {
+
+            uniforms: {
+                time: { value: 0 },
+                uColor: {value: new THREE.Color('red')},
+                tExplosion: {
+                    type: "t",
+                    value: this.explosionTexture
+                },
+            },
+        
+            vertexShader: this.shader(true),
+            fragmentShader: this.shader(false)
+        
+        } );
+        const geo = new THREE.SphereGeometry( 1, 32, 16 );
+        const explosion = new THREE.Mesh(geo, explosionMaterial);
+        scene.add(explosion);
+        this.explosions.push(explosion);
+        explosion.position.copy(pos);
     }
 
     spawn() {
@@ -40,6 +84,70 @@ class RocketLauncher extends Item {
         this.model.position.copy(new THREE.Vector3(-5.384025573730469,45.79417535350264,209.65176391601562));
         this.bbox = new THREE.Box3();
         this.bbox.setFromObject(this.model);
+    }
+
+    shader(v) {
+        if (v){
+            return `   
+                varying vec3 vNormal;
+                varying vec3 vUv; 
+                uniform float time;
+                varying float noise;
+                ${classic3D()}
+                float turbulence( vec3 p ) {
+
+                    float w = 100.0;
+                    float t = -.65;
+                  
+                    for (float f = 1.0 ; f <= 10.0 ; f++ ){
+                      float power = pow( 2.0, f );
+                      t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
+                    }
+                  
+                    return t;
+                }
+
+                void main() {
+                    vUv = position; 
+                    vNormal = normalize(normalMatrix * normal); 
+                    vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+
+                    // get a turbulent 3d noise using the normal, normal to high freq
+                    noise = 10.0 *  -.10 * turbulence( .5 * normal + time);
+                    // get a 3d noise using the position, low frequency
+                    float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
+                    // compose both noises
+                    float displacement = noise * 40.0;
+
+                    vec3 newPosition = position + normal * (displacement * time);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+                } `
+            }
+        else {
+            return `
+                #include <common>
+                #include <lights_pars_begin>
+                uniform vec3 uColor;
+                uniform float time;
+                varying vec3 vNormal;
+                varying float noise;
+                uniform sampler2D tExplosion;
+
+                float random( vec3 scale, float seed ){
+                    return fract( sin( dot( gl_FragCoord.xyz + seed, scale ) ) * 43758.5453 + seed ) ;
+                }
+
+                void main() {
+                    // get a random offset
+                    float r = .01 * random( vec3( 12.9898, 78.233, 151.7182 ), 0.0 );
+                    // lookup vertically in the texture, using noise and offset
+                    // to get the right RGB colour
+                    vec2 tPos = vec2( 0, 1.3 * noise + r );
+                    vec4 color = texture2D( tExplosion, tPos );
+                  
+                    gl_FragColor = vec4( color.rgb, 1.0 );
+                }`
+        }
     }
 }
 

@@ -2,7 +2,7 @@ class Collisions {
     constructor() {
 
     }
-    
+
     checkVerticalCollisions(object1, object2, velocity) {
         const raycaster = new THREE.Raycaster();
         let rayPos = object1.position.clone();
@@ -123,6 +123,16 @@ class Collisions {
                     point: boxArray[i],
                 }
             }
+        }
+        return false;
+    }
+
+    projectileCollisionsOBB(bbox, boxArray) {
+        //showAABB(bbox);
+        for (let i = 0; i < boxArray.length; i ++) {
+            const currentBox = boxArray[i].box;
+            const intersect = currentBox.intersectsBox3(bbox);
+            if (intersect) return true;
         }
         return false;
     }
