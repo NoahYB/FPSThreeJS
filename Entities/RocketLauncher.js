@@ -1,3 +1,48 @@
+class RocketLauncher extends Item {
+    constructor(type="Rocket"){
+        super(type);
+        this.rocketGeometry = new THREE.BoxGeometry(1,1,1);
+        this.rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        this.projectiles = [];
+
+    }
+
+    fire() {
+        super.fire();
+        const projectile = new THREE.Mesh(this.rocketGeometry, this.rocketMaterial);
+        this.projectiles.push(projectile);
+        scene.add(projectile);
+        projectile.position.copy(this.model.position);
+        projectile.userData.velocity = this.directionalVelocity();
+
+        const bbox = new THREE.Box3();
+        bbox.setFromObject(projectile);
+
+        projectile.userData.bbox = bbox;
+    }
+
+    update() {
+        super.update();
+        this.projectiles.forEach(projectile => {
+            projectile.position.add(projectile.userData.velocity);
+        });
+    }
+
+    spawn() {
+        super.spawn();
+
+        this.pickupRadius = 5;
+        this.iconElement = document.createElement('img');
+        this.iconElement.src = this.iconSrc;
+        this.iconElement.classList.add('icon');
+        this.model = createRocketLauncher();
+
+        this.model.position.copy(new THREE.Vector3(-5.384025573730469,45.79417535350264,209.65176391601562));
+        this.bbox = new THREE.Box3();
+        this.bbox.setFromObject(this.model);
+    }
+}
+
 
 function createRocketLauncher() {
     // Create the base of the rocket launcher

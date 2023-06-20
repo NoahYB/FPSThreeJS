@@ -183,26 +183,10 @@ class Player {
 
     shoot() {
 
-        // audioManager.shoot();
+        audioManager.shoot();
 
-        // this.shooting = true;
-
-        // this.gunBarrel.updateMatrixWorld(true);
-
-        // let dir = new THREE.Vector3(0,0,0);
-
-        // camera.getWorldDirection(dir);
-
-        // let gunPosition = new THREE.Vector3();
-
-        // this.gunBarrel.getWorldPosition(gunPosition);
-
-        // const bullet = new Bullet(gunPosition, dir.multiplyScalar(10000), player);
-
-        // this.spawnedEntities.push(bullet);
-
-        // this.shooting = true;
-
+        this.shooting = true;
+        this.inventory.equippedItem.fire();
     }
 
     remove(entity) {

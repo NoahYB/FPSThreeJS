@@ -14,6 +14,8 @@ class Inventory {
             // this.allignItem(item);
             //player.rightArm.add(item.model);
             this.inventory.push(item);
+            this.equippedItem = item;
+            
             console.log(this.inventory);
         }
     }

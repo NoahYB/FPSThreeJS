@@ -28,21 +28,28 @@ class Item {
         }
     }
 
+    fire() {
+
+    }
+
     spawn() {
-        
-        if (this.type==='Rocket') {
-            this.model = this.spawnRocket();
-        }
-        this.bbox = new THREE.Box3();
-        this.bbox.setFromObject(this.model);
+
     }
 
     spawnRocket() {
-        this.pickupRadius = 5;
-        this.iconElement = document.createElement('img');
-        this.iconElement.src = this.iconSrc;
-        this.iconElement.classList.add('icon');
-        return createRocketLauncher();
+
+    }
+
+    directionalVelocity() {
+
+        this.model.updateMatrixWorld(true);
+
+        let dir = new THREE.Vector3(0,0,0);
+
+        camera.getWorldDirection(dir);
+
+        return dir;
+
     }
 
     intersectsPlayer() {

@@ -77,7 +77,7 @@ function onWebSocketConnected() {
     renderer = setUpRenderer();
     postProcessing = new PostProcessingSetup(renderer, scene);
     setUpLights();
-    testItem = new Item("Rocket");
+    testItem = new RocketLauncher();
     testItem.spawn();
     level = new Level();
     player = new Player();
