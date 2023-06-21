@@ -85,7 +85,7 @@ class RocketLauncher extends Item {
         scene.add(explosion);
         this.explosions.push(explosion);
         explosion.position.copy(pos);
-        player.explosionDamage(pos, this.heldBy, 10)
+        player.explosionDamage(pos, this.heldBy, 50)
     }
 
     spawn() {
