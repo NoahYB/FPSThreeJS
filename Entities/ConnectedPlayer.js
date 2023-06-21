@@ -1,13 +1,16 @@
 class ConnectedPlayer {
-    constructor(id) {
+    constructor(id, item) {
         this.id = id;
+        this.inventory = new Inventory();
+        if (item) {
+            this.itemToAdd = item;
+        }
         this.loadModel();
         this.animations = {};
         this.velocity = new THREE.Vector3(0,0,0);
         this.health = TUNABLE_VARIABLES.health;
         this.spawnedEntities = [];
         this.score = 0;
-        this.inventory = new Inventory();
     }
 
     loadModel() {
@@ -32,13 +35,18 @@ class ConnectedPlayer {
                         child.castShadow = true;
                     }
                     if (child.name === 'RightShoulder') {
+                        console.log("SETTING RIGHT ARM");
                         this.rightArm = child;
+                        if (this.itemToAdd) {
+                            this.inventory.add(this.itemToAdd);
+                            this.itemToAdd.pickedUpByConnectedPlayer(this.id);
+                        }
                     }
                     if (child.isMesh) child.castShadow = true;
                 }
                 );
                 scene.add( object );
-                this.setPos(new THREE.Vector3(10,10,10))
+                this.setPos(new THREE.Vector3(10,10,10));
             }, e => 1 + 1, e => console.log(e),
         )
     }

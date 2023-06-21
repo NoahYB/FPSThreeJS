@@ -3,7 +3,7 @@ class Level {
         this.levelObjects = [];
         this.levelBBOX = [];
         this.center = new THREE.Group();
-        //this.loadBackgroundColor();
+        this.loadBackgroundColor();
         this.loadStars(100);
         this.loadLevelObj();
     }
@@ -15,7 +15,7 @@ class Level {
 
     loadBackgroundColor() {
         const loader = new THREE.TextureLoader();
-        scene.background = new THREE.Color('black');
+        scene.background = new THREE.Color('rgba(55,10,120)');
     }
 
     loadStars(n) {
@@ -111,7 +111,7 @@ class Level {
         // scene.add(cube);
         gltfLoader.load(
             // resource URL
-            'Models/LevelTower.gltf',
+            'Models/Map.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;

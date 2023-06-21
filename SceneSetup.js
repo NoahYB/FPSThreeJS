@@ -35,7 +35,7 @@ function setUpLights() {
     spotLight.castShadow = true;
     scene.add(spotLight);
     
-    const ambientLight = new THREE.AmbientLight("white", .1);
+    const ambientLight = new THREE.AmbientLight("white", .5);
     
     scene.add(ambientLight);
 }

@@ -7,11 +7,13 @@ class RocketLauncher extends Item {
         this.explosions = [];
         this.collisions = new Collisions();
         this.explosionTexture = new THREE.TextureLoader().load('../Icons/explosion.png'); 
+        this.coolDownTimer = 0;
     }
 
     fire(velocity) {
         super.fire();
-
+        if (this.coolDownTimer > 0) return;
+        this.coolDownTimer = 4;
         if (this.heldBy === player) {
             webSocketHandler.sendMessage({
                 action: 'PROJECTILE_DATA',
@@ -30,6 +32,7 @@ class RocketLauncher extends Item {
 
         projectile.userData.velocity = velocity ? velocity: this.directionalVelocity().multiplyScalar(5);
 
+        if (projectile.userData.velocity) player.velocity.add(projectile.userData.velocity.clone().multiplyScalar(-.3));
         const bbox = new THREE.Box3();
         bbox.setFromObject(projectile);
         projectile.userData.bbox = bbox;
@@ -37,6 +40,8 @@ class RocketLauncher extends Item {
     }
 
     update() {
+        this.coolDownTimer -= .05;
+        console.log(this.coolDownTimer);
         super.update();
         const remove = [];
         this.projectiles = this.projectiles.filter(projectile => {
@@ -52,8 +57,8 @@ class RocketLauncher extends Item {
             return true;
         });
         this.explosions = this.explosions.filter(explosion => {
-            explosion.material.uniforms.time.value += 0.05;
-            if (explosion.material.uniforms.time.value < 3) return true;
+            explosion.material.uniforms.time.value += 0.02;
+            if (explosion.material.uniforms.time.value < 1) return true;
             scene.remove(explosion);
             return false;
         })
@@ -80,7 +85,7 @@ class RocketLauncher extends Item {
         scene.add(explosion);
         this.explosions.push(explosion);
         explosion.position.copy(pos);
-        player.explosionDamage(pos, this.heldBy)
+        player.explosionDamage(pos, this.heldBy, 10)
     }
 
     spawn() {

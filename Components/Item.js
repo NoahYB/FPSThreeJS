@@ -44,13 +44,6 @@ class Item {
     }
 
     fire() {
-        if (this.heldBy === player) {
-            webSocketHandler.sendMessage({
-                action: 'PROJECTILE_DATA',
-                projectileVelocity: this.directionalVelocity(),
-                itemId: this.id
-            })
-        }
     }
 
     spawn() {

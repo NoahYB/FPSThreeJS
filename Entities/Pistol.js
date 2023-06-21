@@ -9,42 +9,40 @@ class Pistol extends Item {
 
     fire() {
         super.fire();
-        const projectile = new THREE.Mesh(this.rocketGeometry, this.rocketMaterial);
-        this.projectiles.push(projectile);
-
-        projectile.position.copy(this.model.position);
-        projectile.geometry.computeBoundingBox();
-
-        scene.add(projectile);
         
-        projectile.userData.velocity = this.directionalVelocity();
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
+        const intersects = raycaster.intersectObjects( scene.children );
+        let v = new THREE.Vector3();
+        camera.getWorldDirection(v);
+        for ( let i = 0; i < intersects.length; i ++ ) {
+            const object = intersects[ i ].object;
+            if (object.isEnemy && object.c.team !== player.team) {
+                player.hitMarker();
+                let headshot = (object.name === 'Cube001');
+                webSocketHandler.sendMessage({
+                    action: 'HIT',
+                    directionOfShot: v,
+                    headshot,
+                    interactedId: object.c.id,
+                    team: teamNumber,
+                })
+                audioManager.hit();
+                break;
+            }
+            else if (object) return;
 
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(projectile);
-        projectile.userData.bbox = bbox;
+        }
+        webSocketHandler.sendMessage({
+            action: 'SHOT',
+            directionOfShot: v,
+            text: 'connected',
+        })
     }
 
     update() {
         super.update();
-        const remove = [];
-        this.projectiles = this.projectiles.filter(projectile => {
-            projectile.userData.bbox.copy( projectile.geometry.boundingBox ).applyMatrix4( projectile.matrixWorld );
 
-            let collided = this.collisions.projectileCollisionsOBB(projectile.userData.bbox, level.levelBBOX);
-            projectile.position.add(projectile.userData.velocity);
-            if (collided) {
-                this.explosion(projectile.position);
-                scene.remove(projectile);
-                return false;
-            }
-            return true;
-        });
-        this.explosions = this.explosions.filter(explosion => {
-            explosion.material.uniforms.time.value += 0.05;
-            if (explosion.material.uniforms.time.value < 3) return true;
-            scene.remove(explosion);
-            return false;
-        })
     }
 
     explosion(pos) {

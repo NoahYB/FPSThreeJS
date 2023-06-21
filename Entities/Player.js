@@ -195,6 +195,7 @@ class Player {
     }
 
     death(whoKilledPlayer) {
+        if (this.respawning) return;
         this.object.position.set(0,-10000,0);
         // cameraController.panTowards(whoKilledPlayer, .0072);
         webSocketHandler.sendMessage({
@@ -231,8 +232,13 @@ class Player {
         if (this.health <= 0) this.death(enemy);
     }
 
-    explosionDamage(pos, enemy) {
-        this.health -= Math.max(0, 100-this.object.position.distanceTo(pos));
+    explosionDamage(pos, enemy, explosionRadius) {
+        const damageFactor = Math.max(
+            0, 
+            (explosionRadius - this.object.position.distanceTo(pos)) / explosionRadius
+        );
+        console.log(damageFactor);
+        this.health -= damageFactor * TUNABLE_VARIABLES.health;
         hud.updateHealthBar(this.health);
         this.timeSinceLastHit = 0.00;
         if (this.health <= 0) this.death(enemy);
@@ -327,7 +333,6 @@ class Player {
             // console.log(face);
             if (face) {
                 const collisionDepth = oldPosition.distanceTo(this.object.position);
-                console.log(face.normal);
                 this.push(face.normal.multiplyScalar(collisionDepth));
             }
             
