@@ -25,11 +25,15 @@ let dummy;
 let teamNumber = 0;
 let i = 0;
 let teamSelected = false;
+let testItem;
 
 let started = false;
 
-document.addEventListener('keydown',keydown);
-document.addEventListener('keyup',keyup);
+let items = {};
+
+document.addEventListener('keydown', keydown);
+document.addEventListener('keyup', keyup);
+document.addEventListener('wheel', wheel);
 
 loadingManager.onLoad = function ( ) {
     if (started) return;
@@ -77,10 +81,12 @@ function onWebSocketConnected() {
     setUpLights();
     level = new Level();
     player = new Player();
+    player.id = webSocketHandler.id;
     hud = new HUD(player);
     hud.hideHUD();
     menu = new Menu();
     dummy = new ConnectedPlayer(0);
+    Object.keys(items).forEach(key => items[key].spawn());
 }
 
 function selectTeam(teamSelection) {
@@ -118,6 +124,11 @@ function keyup(e){
     keys[e.key.toLowerCase()] = false;
 }
 
+function wheel(e) {
+    console.log('wheel');
+    player.inventory.next();
+}
+
 const clock = new THREE.Clock();
 
 function sendModelData() {
@@ -144,7 +155,7 @@ function startUpdate(fps) {
     then = Date.now();
     startTime = then;
     firstCall = true;
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth, window.innerHeight, false );
     lockedUpdate();
 }
 
@@ -193,8 +204,9 @@ function update() {
         player.addBBOX();
     }
     i++;
-    postProcessing.update();
-    // renderer.render( scene, camera );
+    Object.keys(items).map(k => items[k].update());
+    //postProcessing.update();
+    renderer.render( scene, camera );
 }
 
 window.addEventListener( 'resize', onWindowResize, false );

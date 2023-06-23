@@ -2,7 +2,7 @@ class Collisions {
     constructor() {
 
     }
-    
+
     checkVerticalCollisions(object1, object2, velocity) {
         const raycaster = new THREE.Raycaster();
         let rayPos = object1.position.clone();
@@ -39,6 +39,8 @@ class Collisions {
         );
 
         let intersect = raycaster.intersectObject(object2, true);
+
+        console.log(intersect);
 
         if (intersect.length >= 1 && intersect[0].distance < 2) {
             return intersect[0].point;
@@ -89,21 +91,24 @@ class Collisions {
 
     checkBBOXvArray(bbox1, boxArray, vertical) {
         // bbox1.min.y -= .1;
+        const horizontalCollisions = [];
         for (let i = 0; i < boxArray.length; i ++) {
             const currentBox = boxArray[i].box;
             const intersect = currentBox.intersectsOBB(bbox1);
             if(intersect && 
                 vertical &&
-                (currentBox.center.y + currentBox.halfSize.y) - (bbox1.center.y - bbox1.halfSize.y) < 10
+                (currentBox.center.y + currentBox.halfSize.y) - (bbox1.center.y - bbox1.halfSize.y) < 30
             ) {
+                    //console.log('colliding');
                     return {
                         point: this.getOBBMax(currentBox),
                         mesh: boxArray[i].object
                     }
             } else if (!vertical && intersect) {
-                return boxArray[i];
+                horizontalCollisions.push(boxArray[i]);
             }
         }
+        if (horizontalCollisions.length > 0) return horizontalCollisions;
         return false;
     }
 
@@ -122,6 +127,16 @@ class Collisions {
                     point: boxArray[i],
                 }
             }
+        }
+        return false;
+    }
+
+    projectileCollisionsOBB(bbox, boxArray) {
+        //showAABB(bbox);
+        for (let i = 0; i < boxArray.length; i ++) {
+            const currentBox = boxArray[i].box;
+            const intersect = currentBox.intersectsBox3(bbox);
+            if (intersect) return true;
         }
         return false;
     }

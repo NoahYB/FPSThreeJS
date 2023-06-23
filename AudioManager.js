@@ -15,7 +15,7 @@ class AudioManager {
         this.play(
             'Audio/shoot.mp3',
             false,
-            .8 * TUNABLE_VARIABLES.volume
+            .8 * TUNABLE_.volume
         )
     }
 

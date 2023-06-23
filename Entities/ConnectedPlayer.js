@@ -1,6 +1,10 @@
 class ConnectedPlayer {
-    constructor(id) {
+    constructor(id, item) {
         this.id = id;
+        this.inventory = new Inventory();
+        if (item) {
+            this.itemToAdd = item;
+        }
         this.loadModel();
         this.animations = {};
         this.velocity = new THREE.Vector3(0,0,0);
@@ -17,7 +21,7 @@ class ConnectedPlayer {
             color: 'rgb(55, 40, 217)',
         });
         fbxLoader.load(
-            'Models/PossibleCharacter.fbx',
+            'Models/PossibleCharacter2.fbx',
             (object) => {
                 this.object = object;
                 object.scale.setScalar(.007);
@@ -26,25 +30,23 @@ class ConnectedPlayer {
                 object.traverse(( child ) => {
                     child.c = this;
                     child.isEnemy = true;
-                    if (child.name.includes('Gun')) {
-                        if (child.name === 'Gun') {
-                            this.gunBarrel = child;
-                        }
-                        child.material = materialToonGun;
-                        child.castShadow = true;
-                    }
-                    else if ( child.isMesh ) {
+                    if ( child.isMesh ) {
                         child.material = materialToon;
                         child.castShadow = true;
                     }
                     if (child.name === 'RightShoulder') {
+                        console.log("SETTING RIGHT ARM");
                         this.rightArm = child;
+                        if (this.itemToAdd) {
+                            this.inventory.add(this.itemToAdd);
+                            this.itemToAdd.pickedUpByConnectedPlayer(this.id);
+                        }
                     }
                     if (child.isMesh) child.castShadow = true;
                 }
                 );
                 scene.add( object );
-                this.setPos(new THREE.Vector3(10,10,10))
+                this.setPos(new THREE.Vector3(10,10,10));
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -62,6 +64,10 @@ class ConnectedPlayer {
     setTeam(teamNumber) {
         this.team = teamNumber;
         menu.updateScores(true);
+    }
+
+    setEquippedWeapon(item) {
+        this.inventory.add(item) 
     }
 
     setQuaternion(quat) {

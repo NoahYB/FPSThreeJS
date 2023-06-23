@@ -34,6 +34,8 @@ class Player {
         this.shootingTimer = 0;
 
         this.horizontalCollision = false;
+
+        this.inventory = new Inventory();
     }
 
     onLoadFinish() {
@@ -71,14 +73,13 @@ class Player {
     }
 
     addBBOX() {
-        
         this.legL = this.object.getObjectByName("LegL");
         this.legR = this.object.getObjectByName("LegR");
         this.body = this.object.getObjectByName("Body");
 
         this.legL.geometry.computeBoundingBox();
         this.legR.geometry.computeBoundingBox();
-        this.body.geometry.computeBoundingBox();
+        this.collisionBox.geometry.computeBoundingBox();
 
         this.boxLegL = new THREE.OBB().fromBox3(
             this.legL.geometry.boundingBox
@@ -87,25 +88,25 @@ class Player {
             this.legR.geometry.boundingBox
         );
         this.boxBody = new THREE.OBB().fromBox3(
-            this.body.geometry.boundingBox
+            this.collisionBox.geometry.boundingBox
         );
     }
 
     updateBBOX() {
         this.boxLegL.applyMatrix4(this.legL.matrixWorld);
         this.boxLegR.applyMatrix4(this.legR.matrixWorld);
-        this.boxBody.applyMatrix4(this.body.matrixWorld);
+        this.boxBody.applyMatrix4(this.collisionBox.matrixWorld);
     }
 
     loadModel() {
         const materialToon = new THREE.MeshToonMaterial({
-            color: '#873E23',
+            color: 'red',
         });
         const materialToonGun = new THREE.MeshToonMaterial({
             color: 'rgb(55, 40, 217)',
         });
         fbxLoader.load(
-            'Models/PossibleCharacter.fbx',
+            'Models/PossibleCharacter2.fbx',
             (object) => {
                 camera.add(object);
                 this.object = object;
@@ -115,24 +116,21 @@ class Player {
 
                 object.traverse(( child ) => {
                     child.c = this;
-                    if (child.name.includes('Gun')) {
-                        if (child.name === 'Gun') {
-                            this.gunBarrel = child;
-                        }
-                        child.material = materialToonGun;
-                        child.castShadow = true;
-                    }
-                    else if ( child.isMesh ) {
+                    if ( child.isMesh ) {
                         child.material = materialToon;
                         child.castShadow = true;
                     }
                     if (child.name === 'RightShoulder') {
                         this.rightArm = child;
                     }
+                    if (child.name === 'CollisionBox') {
+                        this.collisionBox = child;
+                    }
                 }
                 );
                 this.onLoadFinish();
                 scene.add( object );
+                console.log(this.collisionBox);
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -191,22 +189,7 @@ class Player {
         audioManager.shoot();
 
         this.shooting = true;
-
-        this.gunBarrel.updateMatrixWorld(true);
-
-        let dir = new THREE.Vector3(0,0,0);
-
-        camera.getWorldDirection(dir);
-
-        let gunPosition = new THREE.Vector3();
-        this.gunBarrel.getWorldPosition(gunPosition);
-
-        const bullet = new Bullet(gunPosition, dir.multiplyScalar(10000), player);
-
-        this.spawnedEntities.push(bullet);
-
-        this.shooting = true;
-
+        this.inventory.equippedItem.fire();
     }
 
     remove(entity) {
@@ -216,6 +199,7 @@ class Player {
     }
 
     death(whoKilledPlayer) {
+        if (this.respawning) return;
         this.object.position.set(0,-10000,0);
         // cameraController.panTowards(whoKilledPlayer, .0072);
         webSocketHandler.sendMessage({
@@ -247,6 +231,20 @@ class Player {
     onHit(headshot, enemy) {
         if (headshot) this.health -= TUNABLE_VARIABLES.headShotDamage;
         else this.health -= TUNABLE_VARIABLES.shotDamage;
+        hud.updateHealthBar(this.health);
+        this.timeSinceLastHit = 0.00;
+        if (this.health <= 0) this.death(enemy);
+    }
+
+    explosionDamage(pos, enemy, explosionRadius) {
+        const d = this.object.position.distanceTo(pos) 
+            - (this.object.position.y - pos.y);
+        if (d > explosionRadius) return;
+        const damageFactor = 1 / (d *  d)
+        if (enemy.id === this.id) {
+            this.health -= 10;
+        }
+        else this.health -= damageFactor + 20;
         hud.updateHealthBar(this.health);
         this.timeSinceLastHit = 0.00;
         if (this.health <= 0) this.death(enemy);
@@ -306,7 +304,7 @@ class Player {
         this.updateBBOX();
         let verticalCollisionsL = this.collisions.checkBBOXvArray(this.boxLegL, level.levelBBOX, true);
         let verticalCollisionsR = this.collisions.checkBBOXvArray(this.boxLegR, level.levelBBOX, true);
-        let horizontalCollision = this.collisions.checkBBOXvArray(this.boxBody, level.levelBBOX, false);
+        let horizontalCollisions = this.collisions.checkBBOXvArray(this.boxBody, level.levelBBOX, false);
 
         let vertical = verticalCollisionsL || verticalCollisionsR;
 
@@ -327,24 +325,25 @@ class Player {
             this.grounded = false;
         }
 
-        if (horizontalCollision) {
-            console.log('colliding');
-            const playerPos = this.boxBody.center.clone();
-            const f = horizontalCollision.object.position.clone();
-            const dir = f.sub(playerPos.clone()).normalize();
-            // showVector(dir, playerPos);
-            const face = this.collisions.getFace(
-                dir, 
-                playerPos,
-                horizontalCollision.object
-            )
-            // console.log(face);
-            if (face) {
-                const collisionDepth = oldPosition.distanceTo(this.object.position);
-                console.log(face.normal);
-                this.push(face.normal.multiplyScalar(collisionDepth));
-            }
-            
+        if (horizontalCollisions) {
+            horizontalCollisions.forEach(horizontalCollision => {
+                console.log(horizontalCollision);
+                const playerPos = this.boxBody.center.clone();
+                const f = horizontalCollision.object.position.clone();
+                const dir = f.sub(playerPos.clone()).normalize();
+                // showVector(dir, playerPos);
+
+                const face = this.collisions.getFace(
+                    dir, 
+                    playerPos,
+                    horizontalCollision.object
+                )
+                // console.log(face);
+                if (face) {
+                    const collisionDepth = oldPosition.distanceTo(this.object.position);
+                    this.push(face.normal.multiplyScalar(collisionDepth));
+                }
+            }) 
         } else {
 
         }

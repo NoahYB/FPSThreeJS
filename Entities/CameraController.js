@@ -68,8 +68,10 @@ class CameraController {
         this.camera.position.copy(headPosition);
 
         this.camera.position.add(
-            worldDirection.normalize().multiplyScalar(.3)
+            worldDirection.normalize().multiplyScalar(1)
         );
+
+        this.camera.position.y -= .2;
         this.thirdPerson = TUNABLE_VARIABLES.thirdPerson;
 
         if (this.thirdPerson) {

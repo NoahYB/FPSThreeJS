@@ -33,9 +33,9 @@ function setUpLights() {
     spotLight.shadowMapWidth = 4096;
     spotLight.shadowMapHeight = 4096;
     spotLight.castShadow = true;
-    // scene.add(spotLight);
+    scene.add(spotLight);
     
-    const ambientLight = new THREE.AmbientLight("white", .01);
+    const ambientLight = new THREE.AmbientLight("white", .5);
     
     scene.add(ambientLight);
 }

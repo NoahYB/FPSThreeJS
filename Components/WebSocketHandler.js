@@ -51,15 +51,59 @@ class WebSocketHandler {
             specialMessage,
             winner,
             timeTillNextMatch,
-            topScorer
+            projectileVelocity,
+            topScorer,
+            itemId
 	    } = data;
         
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
+            const itemsHeld = {};
+            if (gameData.itemData) {
+                console.log(gameData.itemData);
+                Object.keys(gameData.itemData.items).forEach(itemKey => {
+                    console.log(itemKey);
+                    const item = gameData.itemData.items[itemKey];
+                    if (item.heldBy === 0) {
+                        if (item.type ==='ROCKET') {
+                            items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                            );
+                        }
+                        // if (item.type ==='PISTOL') {
+                        //     items[item.id] = new Pistol(
+                        //         'Pistol', 
+                        //         item.id, 
+                        //         new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
+                    } else {
+                        if (item.type ==='ROCKET') {
+                            items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                            );
+                        }
+                        // if (item.type ==='PISTOL') {
+                        //     items[item.id] = new Pistol(
+                        //         'Pistol', 
+                        //         item.id, 
+                        //         new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
+                        itemsHeld[item.heldBy] = items[item.id];
+                        
+                    }
+                })
+            }
+
             Object.keys(connectedClients).forEach(clientKey => {
                 const incomingClient = connectedClients[clientKey];
                 const numericClientKey = parseInt(clientKey);
                 if (!this.connectedPlayers[numericClientKey] && numericClientKey !== this.id){
-                    this.createConnectedPlayerFromInit(incomingClient.clientData, numericClientKey);
+                    this.createConnectedPlayerFromInit(incomingClient.clientData, numericClientKey, itemsHeld[numericClientKey]);
                 }
                 GAMESTATE_VARIABLES.teamScores = gameData.scores;
             })
@@ -129,11 +173,23 @@ class WebSocketHandler {
         if (action === 'NAME_CHANGE') {
             this.connectedPlayers[senderId].connectionDisplayName = connectionDisplayName;
         }
+
+        if (action === 'PROJECTILE_DATA') {
+            items[itemId].fire(projectileVelocity);
+        }
+
+        
+        if (action === 'ITEM_PICKUP') {
+            console.log("so and so picked up item", itemId)
+
+            this.connectedPlayers[senderId].inventory.add(items[itemId]);
+            items[itemId].pickedUpByConnectedPlayer(senderId);
+        }
+
     }
 
-    createConnectedPlayerFromInit(clientData, senderId) {
-        console.log(clientData);
-        this.connectedPlayers[senderId] = new ConnectedPlayer(senderId);
+    createConnectedPlayerFromInit(clientData, senderId, item) {
+        this.connectedPlayers[senderId] = new ConnectedPlayer(senderId, item);
         if (clientData.inTeamSelect) return;
         this.connectedPlayers[senderId].connectionDisplayName = clientData.connectionDisplayName;
         const vectorPos = new THREE.Vector3(clientData.position.x, clientData.position.y, clientData.position.z);

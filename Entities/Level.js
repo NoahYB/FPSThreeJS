@@ -3,6 +3,7 @@ class Level {
         this.levelObjects = [];
         this.levelBBOX = [];
         this.center = new THREE.Group();
+        this.loadBackgroundColor();
         this.loadStars(100);
         this.loadLevelObj();
     }
@@ -14,7 +15,7 @@ class Level {
 
     loadBackgroundColor() {
         const loader = new THREE.TextureLoader();
-        scene.background = new THREE.Color('black');
+        scene.background = new THREE.Color('rgba(55,10,120)');
     }
 
     loadStars(n) {
@@ -100,7 +101,9 @@ class Level {
     loadLevelObj() {
         // FOR TESTING HITBOXES
         // const geometry = new THREE.BoxGeometry( 5, 5, 5 );
-        // const material = new THREE.MeshPhongMaterial( {color: '#904E55'} );
+        const materialToon = new THREE.MeshToonMaterial({
+            color: 'grey',
+        });
         // const cube = new THREE.Mesh( geometry, material );
         // cube.isEnemy = true;
         // cube.position.x = 20;
@@ -108,20 +111,14 @@ class Level {
         // scene.add(cube);
         gltfLoader.load(
             // resource URL
-            'Models/citymap.gltf',
+            'Models/Map.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
-                        child.castShadow = true;
-                        if (child.name.startsWith('Light')) {
-                            const light = new THREE.PointLight( 'purple', 1, 100 );
-                            light.position.copy(child.position);
-                            child.material.emissive = new THREE.Color('purple');
-                            child.add( light );
-                        }
                         if (child.name === 'Ground') {
+                            //child.material = materialToon;
                             child.receiveShadow = true;
                             child.castShadow = false;
                         }
