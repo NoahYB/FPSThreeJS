@@ -24,9 +24,6 @@ export function setUpCamera() {
 }
 
 export function setUpRenderer() {
-    	
-    // GlobalGame.scene.fog = new Fog('grey', 0.02, 300);
-
     const renderer = new WebGLRenderer();
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;

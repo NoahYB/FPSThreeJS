@@ -2,7 +2,8 @@ import { ConnectedPlayer } from "../Entities/ConnectedPlayer";
 import { Vector3 } from 'three';
 import { getTimeStampMili } from "../Utilities";
 export class WebSocketHandler {
-    constructor(url) {
+    constructor(url, onWebSocketConnected) {
+        this.onWebSocketConnected = onWebSocketConnected;
         const id = window.localStorage.getItem('playerId');
         if (id) this.id = parseInt(id);
         else this.id = getTimeStampMili();
@@ -111,7 +112,7 @@ export class WebSocketHandler {
                 }
                 GAMESTATE_VARIABLES.teamScores = gameData.scores;
             })
-            window.onWebSocketConnected();
+            this.onWebSocketConnected();
         }
 
         if (senderId === this.id) {

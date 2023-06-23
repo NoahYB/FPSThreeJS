@@ -2,7 +2,7 @@
 import { OBB } from 'three/examples/jsm/math/OBB';
 import { Inventory } from '../Components/Inventory'
 import { Collisions } from '../Components/Collisions'
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+import { PointerLockControls } from '../Components/PointerLockControlsCustom';
 import { HUD } from './HUD';
 import { CameraController } from './CameraController';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
@@ -72,14 +72,12 @@ export class Player {
 
     constructor(
         cameraController: CameraController, 
-        spawnLocations: THREE.Vector3[],
-        fbxLoader: FBXLoader,
     ) {
-        this.fbxLoader = fbxLoader;
+        this.fbxLoader = GlobalGame.fbxLoader;
 
         this.cameraController = cameraController;
 
-        this.spawnLocations = spawnLocations;
+        this.spawnLocations = GlobalGame.level.spawnLocations;
 
         this.loadModel(); 
 
@@ -87,6 +85,7 @@ export class Player {
 
         document.addEventListener('mousedown',this.mousedown);
 
+        console.log('spawning player');
     }
 
     onLoadFinish() {
@@ -175,13 +174,12 @@ export class Player {
                         this.rightArm = child;
                     }
                     if (child.name === 'CollisionBox') {
-                        this.collisionBox = child;
+                        this.collisionObject = child;
                     }
                 }
                 );
                 this.onLoadFinish();
                 GlobalGame.scene.add( object );
-                console.log(this.collisionBox);
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -194,7 +192,12 @@ export class Player {
     }
 
     mousedown(e) {
-        this.inventory.equippedItem.fire();
+        console.log(GlobalGame.teamSelected)
+        if (!GlobalGame.teamSelected) return;
+        GlobalGame.player.controls.lock();
+        if (GlobalGame.player.inventory.equippedItem){
+            GlobalGame.player.inventory.equippedItem.fire();
+        }
     }
 
     shoot() {
@@ -262,35 +265,35 @@ export class Player {
     input() {
         if (!this.object) return;
         
-        if (this.playerKeyMap[' '] && !this.jumping) {
+        if (GlobalGame.keys[' '] && !this.jumping) {
             this.jumping = true;
             this.jump();
         }
         
-        this.sprinting = this.playerKeyMap['shift'] ? true : false;
+        this.sprinting = GlobalGame.keys['shift'] ? true : false;
         this.walking = false;
 
-        if(this.playerKeyMap['w']){
+        if(GlobalGame.keys['w']){
             this.velocity.z = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
-        if(this.playerKeyMap['s']){
+        if(GlobalGame.keys['s']){
             this.velocity.z = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
-        if(this.playerKeyMap['a']){
+        if(GlobalGame.keys['a']){
             this.velocity.x = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
-        if(this.playerKeyMap['d']){
+        if(GlobalGame.keys['d']){
             this.velocity.x = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
 
-        if (!this.playerKeyMap['w'] && !this.playerKeyMap['s']
+        if (!GlobalGame.keys['w'] && !GlobalGame.keys['s']
         ) this.velocity.z = 0;
 
-        if (!this.playerKeyMap['a'] && !this.playerKeyMap['d'] 
+        if (!GlobalGame.keys['a'] && !GlobalGame.keys['d'] 
         ) this.velocity.x = 0;
         
     }
@@ -387,14 +390,14 @@ export class Player {
         this.controls = new PointerLockControls( this.object, GlobalGame.renderer.domElement );
         this.controls.addEventListener( 'lock', function () {
             if (GlobalGame.menu.opened) {
-                this.controls.unlock();
+                GlobalGame.player.controls.unlock();
             }
             GlobalGame.menu.hide();
         } );
         this.controls.addEventListener( 'unlock', function () {
             GlobalGame.menu.show();
-            Object.keys(this.playerKeyMap).forEach(key => {
-                this.playerKeyMap[key] = false;
+            Object.keys(GlobalGame.keys).forEach(key => {
+                GlobalGame.keys[key] = false;
             })
         } );
         this.cameraController.camera.rotateY(180 * Math.PI / 180);

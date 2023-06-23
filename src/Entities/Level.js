@@ -21,8 +21,9 @@ import {
 } from 'three';
 export class Level {
     
-    constructor(scene, gltfLoader) {
-        this.gltfLoader = gltfLoader;
+    constructor() {
+        this.gltfLoader = GlobalGame.gltfLoader;
+        this.spawnLocations = [];
         this.levelObjects = [];
         this.levelBBOX = [];
         this.center = new Group();
@@ -146,7 +147,7 @@ export class Level {
                             child.castShadow = false;
                         }
                         if (child.name.startsWith('Spawn')) {
-                            spawnLocations.push(child.position);
+                            this.spawnLocations.push(child.position);
                         } else {
                             new Box3().setFromObject(child);
 

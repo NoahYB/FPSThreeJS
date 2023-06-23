@@ -1,8 +1,9 @@
 import { Vector3 } from 'three';
+import { GlobalGame } from '../Game';
 export class CameraController {
-    constructor(camera, player) {
+    constructor(camera) {
         this.camera = camera;
-        this.followedObject = player;
+        this.followedObject =    GlobalGame.player;
         this.thirdPerson = TUNABLE_VARIABLES.thirdPerson;
     }
 
@@ -47,7 +48,7 @@ export class CameraController {
     }
 
     update() {
-        if (!player.object || !camera) return;
+        if (!   GlobalGame.player.object || !GlobalGame.camera) return;
         if (this.pan) {
             this.panTowards();
             if (this.target.object.position.distanceTo(camera.position) < 1) {

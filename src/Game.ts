@@ -19,30 +19,22 @@ export class GlobalGame {
     static menu: Menu;
     static level: Level;
     static scene: THREE.Scene;
-    
-    loadingManager = new THREE.LoadingManager();
-    
-    fbxLoader = new FBXLoader(this.loadingManager);
-    
-    gltfLoader = new GLTFLoader(this.loadingManager);
-    
+    static player: Player;
+    static items = {};
+    static started = false;
+    static camera: THREE.Camera;
+    static loadingManager = new THREE.LoadingManager();
+    static fbxLoader = new FBXLoader(this.loadingManager);  
+    static gltfLoader = new GLTFLoader(this.loadingManager); 
+    static cameraController: CameraController;
+    static teamSelected = false;
+    static keys = {};
     audioManager = new AudioManager();
     
+
     spawnLocations = [];
-    
-    static camera: THREE.Camera;
-    cameraController;
-    
-    player: Player;
-    
-    keys = {};
-    dummy;
+
     i = 0;
-    teamSelected = false;
-    
-    started = false;
-    
-    items = {};
     
     frameCount:number = 0;
     fps: number; 
@@ -56,40 +48,56 @@ export class GlobalGame {
     clock = new THREE.Clock();
     
     constructor() {
+
+        GlobalGame.loadingManager = new THREE.LoadingManager();
+    
+        GlobalGame.fbxLoader = new FBXLoader(GlobalGame.loadingManager);
+        
+        GlobalGame.gltfLoader = new GLTFLoader(GlobalGame.loadingManager);
+
         document.addEventListener('keydown', this.keydown);
         document.addEventListener('keyup', this.keyup);
         document.addEventListener('wheel', this.wheel);
         window.addEventListener( 'resize', onWindowResize, false );
 
-        this.loadingManager.onLoad = function ( ) {
-            if (this.started) return;
+        document.getElementById("team1").addEventListener('click', (e) =>
+            {
+                this.selectTeam("team1");
+            });
+        document.getElementById("team2").addEventListener('click', (e) =>
+        {
+            this.selectTeam("team2");
+        });
+        GlobalGame.loadingManager.onLoad = function ( ) {
+            if (GlobalGame.started) return;
             let progressElement = document.getElementById('progressbar');
             let bround = document.getElementById('blockout');
             progressElement.style.display = 'none';
             bround.style.display = 'none';
         };
         
-        this.loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-            if (this.started) return;
+        GlobalGame.loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+            if (GlobalGame.started) return;
             let progressElement = document.getElementById('progressbar');
             let bound = document.getElementById('blockout');
             progressElement.style.display = 'flex';
             bound.style.display = 'flex';
         };
         
-        this.loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-            if (this.started) return;
+        GlobalGame.loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+            if (GlobalGame.started) return;
             let progressElement = document.getElementById('progressbar');
             progressElement.style.width = (itemsLoaded / itemsTotal * 40) + '%';
         };
     }
     
     init(serverURL: string | undefined) {
+        console.log('init called');
         if (!serverURL) {
             serverURL = window.localStorage.getItem('serverURL');
         }
         this.audioManager.music();
-        GlobalGame.webSocketHandler = new WebSocketHandler(serverURL);
+        GlobalGame.webSocketHandler = new WebSocketHandler(serverURL, this.onWebSocketConnected);
     }
     
     onWebSocketConnected() {
@@ -99,24 +107,21 @@ export class GlobalGame {
             .display = 'block';
         GlobalGame.scene = new THREE.Scene();
         GlobalGame.camera = setUpCamera();
-        this.cameraController = new CameraController(GlobalGame.camera);
+        GlobalGame.cameraController = new CameraController(GlobalGame.camera);
         GlobalGame.renderer = setUpRenderer();
         setUpLights();
-        GlobalGame.level = new Level(GlobalGame.scene, this.gltfLoader);
-        this.player = new Player(
-            this.cameraController,
-            GlobalGame.scene,
-            this.spawnLocations,
+        GlobalGame.level = new Level();
+        GlobalGame.player = new Player(
+            GlobalGame.cameraController,
         );
-        this.player.id = GlobalGame.webSocketHandler.id;
+        GlobalGame.player.id = GlobalGame.webSocketHandler.id;
         HUD.hideHUD();
-        GlobalGame.menu = new Menu( GlobalGame.webSocketHandler, this.player );
-        Object.keys(this.items).forEach(key => this.items[key].spawn());
+        GlobalGame.menu = new Menu( GlobalGame.webSocketHandler, GlobalGame.player );
+        Object.keys(GlobalGame.items).forEach(key => GlobalGame.items[key].spawn());
     }
 
     selectTeam(teamSelection) {
-        this.teamSelected = true;
-        this.player.team = teamSelection;
+        GlobalGame.player.team = teamSelection;
         document.getElementById('teamselector').style.display = 'none';
         GlobalGame.webSocketHandler.sendMessage({
             action: 'TEAM_SELECT',
@@ -127,11 +132,12 @@ export class GlobalGame {
             connectionDisplayName: TUNABLE_VARIABLES.playerName,
         });
         GlobalGame.menu.opened = false;
-        this.player.respawn();
-        this.player.setTeam();
+        GlobalGame.player.respawn();
+        GlobalGame.player.setTeam();
         GlobalGame.menu.updateScores(true);
         HUD.showHUD();
-        if (!this.started) this.startUpdate(60);
+        GlobalGame.teamSelected = true;
+        if (!GlobalGame.started) this.startUpdate(60);
     }
     
     keydown(e){
@@ -142,16 +148,15 @@ export class GlobalGame {
             }
             else GlobalGame.menu.show();
         }
-        this.keys[e.key.toLowerCase()] = true;
+        GlobalGame.keys[e.key.toLowerCase()] = true;
     }
     
     keyup(e){
-        this.keys[e.key.toLowerCase()] = false;
+        GlobalGame.keys[e.key.toLowerCase()] = false;
     }
     
     wheel(e) {
-        console.log('wheel');
-        this.player.inventory.next();
+        //GlobalGame.player.inventory.next();
     }
 
     
@@ -161,11 +166,11 @@ export class GlobalGame {
                 action: 'MOVEMENT',
                 text: 'connected',
                 connectionDisplayName: TUNABLE_VARIABLES.playerName,
-                position: this.player.object.position,
-                quaternion: this.player.object.quaternion,
+                position: GlobalGame.player.object.position,
+                quaternion: GlobalGame.player.object.quaternion,
                 lookQuaternion: GlobalGame.camera.quaternion,
-                velocity: this.player.velocity,
-                cameraDirection: this.cameraController.getCameraDirection(),
+                velocity: GlobalGame.player.velocity,
+                cameraDirection: GlobalGame.cameraController.getCameraDirection(),
             }
         );
     }
@@ -181,8 +186,7 @@ export class GlobalGame {
     
     lockedUpdate() {
         // request another frame
-    
-        requestAnimationFrame(this.lockedUpdate);
+        requestAnimationFrame(()=>this.lockedUpdate());
     
         // calc elapsed time since last loop
     
@@ -203,28 +207,27 @@ export class GlobalGame {
     }
     
     update() {
-        this.started = true;
-        if (this.keys['Tab']) GlobalGame.menu.showScore();
+        GlobalGame.started = true;
+        if (GlobalGame.keys['Tab']) GlobalGame.menu.showScore();
         else GlobalGame.menu.hideScore();
-        if (this.keys['2']) GlobalGame.menu.showScore();
+        if (GlobalGame.keys['2']) GlobalGame.menu.showScore();
         else GlobalGame.menu.hideScore();
-        if (this.player.object && GlobalGame.webSocketHandler.ready) {
+        if (GlobalGame.player.object && GlobalGame.webSocketHandler.ready) {
             this.sendModelData();
         }
-        this.dummy.update();
         const delta = this.clock.getDelta();
-        this.player.update(delta);
+        GlobalGame.player.update(delta);
         GlobalGame.level.update(delta);
-        this.cameraController.update(this.player);
+        GlobalGame.cameraController.update();
         Object.keys(GlobalGame.webSocketHandler.connectedPlayers).forEach(key => {
             GlobalGame.webSocketHandler.connectedPlayers[key].update(delta);
         })
         if (this.i === 2) {
-            this.player.updateBBOX();
-            this.player.addBBOX();
+            GlobalGame.player.addBBOX();
+            GlobalGame.player.updateBBOX();
         }
         this.i++;
-        Object.keys(this.items).map(k => this.items[k].update());
+        Object.keys(GlobalGame.items).map(k => GlobalGame.items[k].update());
         GlobalGame.renderer.render( GlobalGame.scene, GlobalGame.camera );
     }   
 }
@@ -239,5 +242,7 @@ function onWindowResize(){
 }
 
 const GAME = new GlobalGame();
+
+//(window as any).GAME = GAME;
 
 GAME.init(undefined);

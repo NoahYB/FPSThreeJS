@@ -57,7 +57,7 @@ export class ConnectedPlayer {
                     if (child.isMesh) child.castShadow = true;
                 }
                 );
-                GlobalGame.GlobalGame.scene.add( object );
+                GlobalGame.scene.add( object );
                 this.setPos(new Vector3(10,10,10));
             }, e => 1 + 1, e => console.log(e),
         )

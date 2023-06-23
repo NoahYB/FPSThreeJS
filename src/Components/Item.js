@@ -1,5 +1,6 @@
 import { Vector3 } from 'three';
 import { GlobalGame } from '../Game';
+
 class Item {
     constructor(type, id, position) {
         this.type = type;
