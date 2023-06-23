@@ -71,13 +71,13 @@ class WebSocketHandler {
                                 new THREE.Vector3(item.position[0],item.position[1],item.position[2])
                             );
                         }
-                        if (item.type ==='PISTOL') {
-                            items[item.id] = new Pisol(
-                                'Pistol', 
-                                item.id, 
-                                new THREE.Vector3(item.position[0],item.position[1],item.position[2])
-                            );
-                        }
+                        // if (item.type ==='PISTOL') {
+                        //     items[item.id] = new Pistol(
+                        //         'Pistol', 
+                        //         item.id, 
+                        //         new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
                     } else {
                         if (item.type ==='ROCKET') {
                             items[item.id] = new RocketLauncher(
@@ -86,13 +86,13 @@ class WebSocketHandler {
                                 new THREE.Vector3(item.position[0],item.position[1],item.position[2])
                             );
                         }
-                        if (item.type ==='PISTOL') {
-                            items[item.id] = new Pisol(
-                                'Pistol', 
-                                item.id, 
-                                new THREE.Vector3(item.position[0],item.position[1],item.position[2])
-                            );
-                        }
+                        // if (item.type ==='PISTOL') {
+                        //     items[item.id] = new Pistol(
+                        //         'Pistol', 
+                        //         item.id, 
+                        //         new THREE.Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
                         itemsHeld[item.heldBy] = items[item.id];
                         
                     }

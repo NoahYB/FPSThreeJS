@@ -14,6 +14,7 @@ class RocketLauncher extends Item {
         super.fire();
         if (this.coolDownTimer > 0) return;
         this.coolDownTimer = 4;
+        this.model.material.color = new THREE.Color('red');
         if (this.heldBy === player) {
             webSocketHandler.sendMessage({
                 action: 'PROJECTILE_DATA',
@@ -32,7 +33,7 @@ class RocketLauncher extends Item {
 
         projectile.userData.velocity = velocity ? velocity: this.directionalVelocity().multiplyScalar(5);
 
-        if (projectile.userData.velocity) player.velocity.add(projectile.userData.velocity.clone().multiplyScalar(-.3));
+        if (projectile.userData.velocity) player.velocity.add(projectile.userData.velocity.clone().multiplyScalar(-.2));
         const bbox = new THREE.Box3();
         bbox.setFromObject(projectile);
         projectile.userData.bbox = bbox;
@@ -41,19 +42,24 @@ class RocketLauncher extends Item {
 
     update() {
         this.coolDownTimer -= .05;
-        console.log(this.coolDownTimer);
+        if (this.coolDownTimer < 0) {
+            this.model.material.color = new THREE.Color(0x444444);
+        }
         super.update();
         const remove = [];
         this.projectiles = this.projectiles.filter(projectile => {
+            
             projectile.userData.bbox.copy( projectile.geometry.boundingBox ).applyMatrix4( projectile.matrixWorld );
 
             let collided = this.collisions.projectileCollisionsOBB(projectile.userData.bbox, level.levelBBOX);
-            projectile.position.add(projectile.userData.velocity);
+
             if (collided) {
                 this.explosion(projectile.position);
                 scene.remove(projectile);
                 return false;
             }
+
+            projectile.position.add(projectile.userData.velocity);
             return true;
         });
         this.explosions = this.explosions.filter(explosion => {
@@ -85,7 +91,7 @@ class RocketLauncher extends Item {
         scene.add(explosion);
         this.explosions.push(explosion);
         explosion.position.copy(pos);
-        player.explosionDamage(pos, this.heldBy, 50)
+        player.explosionDamage(pos, this.heldBy, 10)
     }
 
     spawn() {

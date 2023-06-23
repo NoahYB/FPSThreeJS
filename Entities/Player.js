@@ -79,7 +79,7 @@ class Player {
 
         this.legL.geometry.computeBoundingBox();
         this.legR.geometry.computeBoundingBox();
-        this.body.geometry.computeBoundingBox();
+        this.collisionBox.geometry.computeBoundingBox();
 
         this.boxLegL = new THREE.OBB().fromBox3(
             this.legL.geometry.boundingBox
@@ -88,14 +88,14 @@ class Player {
             this.legR.geometry.boundingBox
         );
         this.boxBody = new THREE.OBB().fromBox3(
-            this.body.geometry.boundingBox
+            this.collisionBox.geometry.boundingBox
         );
     }
 
     updateBBOX() {
         this.boxLegL.applyMatrix4(this.legL.matrixWorld);
         this.boxLegR.applyMatrix4(this.legR.matrixWorld);
-        this.boxBody.applyMatrix4(this.body.matrixWorld);
+        this.boxBody.applyMatrix4(this.collisionBox.matrixWorld);
     }
 
     loadModel() {
@@ -123,10 +123,14 @@ class Player {
                     if (child.name === 'RightShoulder') {
                         this.rightArm = child;
                     }
+                    if (child.name === 'CollisionBox') {
+                        this.collisionBox = child;
+                    }
                 }
                 );
                 this.onLoadFinish();
                 scene.add( object );
+                console.log(this.collisionBox);
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -233,12 +237,14 @@ class Player {
     }
 
     explosionDamage(pos, enemy, explosionRadius) {
-        const damageFactor = Math.max(
-            0, 
-            (explosionRadius - this.object.position.distanceTo(pos)) / explosionRadius
-        );
-        console.log(damageFactor);
-        this.health -= damageFactor * TUNABLE_VARIABLES.health;
+        const d = this.object.position.distanceTo(pos) 
+            - (this.object.position.y - pos.y);
+        if (d > explosionRadius) return;
+        const damageFactor = 1 / (d *  d)
+        if (enemy.id === this.id) {
+            this.health -= 10;
+        }
+        else this.health -= damageFactor + 20;
         hud.updateHealthBar(this.health);
         this.timeSinceLastHit = 0.00;
         if (this.health <= 0) this.death(enemy);
@@ -298,7 +304,7 @@ class Player {
         this.updateBBOX();
         let verticalCollisionsL = this.collisions.checkBBOXvArray(this.boxLegL, level.levelBBOX, true);
         let verticalCollisionsR = this.collisions.checkBBOXvArray(this.boxLegR, level.levelBBOX, true);
-        let horizontalCollision = this.collisions.checkBBOXvArray(this.boxBody, level.levelBBOX, false);
+        let horizontalCollisions = this.collisions.checkBBOXvArray(this.boxBody, level.levelBBOX, false);
 
         let vertical = verticalCollisionsL || verticalCollisionsR;
 
@@ -319,23 +325,25 @@ class Player {
             this.grounded = false;
         }
 
-        if (horizontalCollision) {
-            console.log('colliding');
-            const playerPos = this.boxBody.center.clone();
-            const f = horizontalCollision.object.position.clone();
-            const dir = f.sub(playerPos.clone()).normalize();
-            // showVector(dir, playerPos);
-            const face = this.collisions.getFace(
-                dir, 
-                playerPos,
-                horizontalCollision.object
-            )
-            // console.log(face);
-            if (face) {
-                const collisionDepth = oldPosition.distanceTo(this.object.position);
-                this.push(face.normal.multiplyScalar(collisionDepth));
-            }
-            
+        if (horizontalCollisions) {
+            horizontalCollisions.forEach(horizontalCollision => {
+                console.log(horizontalCollision);
+                const playerPos = this.boxBody.center.clone();
+                const f = horizontalCollision.object.position.clone();
+                const dir = f.sub(playerPos.clone()).normalize();
+                // showVector(dir, playerPos);
+
+                const face = this.collisions.getFace(
+                    dir, 
+                    playerPos,
+                    horizontalCollision.object
+                )
+                // console.log(face);
+                if (face) {
+                    const collisionDepth = oldPosition.distanceTo(this.object.position);
+                    this.push(face.normal.multiplyScalar(collisionDepth));
+                }
+            }) 
         } else {
 
         }
