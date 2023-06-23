@@ -1,0 +1,29 @@
+{
+  "name": "fpsthreejs",
+  "version": "1.0.0",
+  "description": "FPS multiplayer game using three js and ws",
+  "main": "Game.js",
+  "type": "module",
+  "exports": {
+    "./t/": "./node_modules/three"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NoahYB/FPSThreeJS.git"
+  },
+  "author": "NoahYB",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NoahYB/FPSThreeJS/issues"
+  },
+  "homepage": "https://github.com/NoahYB/FPSThreeJS#readme",
+  "dependencies": {
+    "three": "^0.153.0"
+  },
+  "devDependencies": {
+    "vite": "^4.3.9"
+  }
+}
