@@ -2,7 +2,7 @@
   "name": "fpsthreejs",
   "version": "1.0.0",
   "description": "FPS multiplayer game using three js and ws",
-  "main": "Game.js",
+  "main": "",
   "type": "module",
   "exports": {
     "./t/": "./node_modules/three"
@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/NoahYB/FPSThreeJS#readme",
   "dependencies": {
+    "@dimforge/rapier3d": "^0.11.2",
+    "@dimforge/rapier3d-compat": "^0.11.2",
     "three": "^0.153.0"
   },
   "devDependencies": {

@@ -47,7 +47,7 @@ export class ConnectedPlayer {
                         child.castShadow = true;
                     }
                     if (child.name === 'RightShoulder') {
-                        console.log("SETTING RIGHT ARM");
+
                         this.rightArm = child;
                         if (this.itemToAdd) {
                             this.inventory.add(this.itemToAdd);

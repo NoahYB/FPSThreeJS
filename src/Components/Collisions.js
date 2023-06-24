@@ -49,8 +49,6 @@ export class Collisions {
 
         let intersect = raycaster.intersectObject(object2, true);
 
-        console.log(intersect);
-
         if (intersect.length >= 1 && intersect[0].distance < 2) {
             return intersect[0].point;
         }
@@ -80,7 +78,6 @@ export class Collisions {
 
     getOBBMax(obb) {
         const max = obb.center.clone().add(obb.halfSize.clone());
-        // console.log(max);
         return  max;
     }
 
@@ -108,7 +105,6 @@ export class Collisions {
                 vertical &&
                 (currentBox.center.y + currentBox.halfSize.y) - (bbox1.center.y - bbox1.halfSize.y) < 30
             ) {
-                    //console.log('colliding');
                     return {
                         point: this.getOBBMax(currentBox),
                         mesh: boxArray[i].object

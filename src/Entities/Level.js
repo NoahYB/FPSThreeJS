@@ -21,7 +21,7 @@ import {
 } from 'three';
 export class Level {
     
-    constructor() {
+    constructor(RAPIER) {
         this.gltfLoader = GlobalGame.gltfLoader;
         this.spawnLocations = [];
         this.levelObjects = [];
@@ -30,6 +30,7 @@ export class Level {
         this.loadBackgroundColor();
         this.loadStars(100);
         this.loadLevelObj();
+        this.RAPIER = RAPIER;
     }
     
     loadCameraTexture() {
@@ -161,9 +162,20 @@ export class Level {
 
                             showOBB(obb, child, GlobalGame.scene);
 
+                            // Create a dynamic rigid-body.
+                            let rigidBodyDesc = this.RAPIER.RigidBodyDesc.fixed()
+                                .setTranslation(object.position.x, object.position.y, object.position.z);
+
+                            let rigidBody = world.createRigidBody(rigidBodyDesc);
+
+                            // Create a cuboid collider attached to the dynamic rigidBody.
+                            let colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
+                            let collider = world.createCollider(colliderDesc, rigidBody);
+
                             this.levelBBOX.push( {
                                 object: child,
-                                box: obb
+                                box: obb,
+                                collider: collider,
                             });
                             child.obb = obb;
                             this.levelObjects.push(child);

@@ -1,5 +1,7 @@
 export class Menu {
     constructor(webSocketHandler, player) {
+
+        console.log("Menu Initiated");
         this.player = player;
         this.webSocketHandler = webSocketHandler;
         this.menuItems = TUNABLE_VARIABLES.variableNames;

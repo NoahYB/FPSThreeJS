@@ -1,4 +1,3 @@
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GlobalGame } from './Game';
 import { 
     PointLight,

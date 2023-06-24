@@ -11,6 +11,7 @@ import { WebSocketHandler} from './Components/WebSocketHandler';
 import { CameraController } from './Entities/CameraController';
 import { Menu } from './Entities/Menu';
 import { Player } from './Entities/Player';
+import RAPIER from '@dimforge/rapier3d-compat';
 
 export class GlobalGame {
     
@@ -28,7 +29,9 @@ export class GlobalGame {
     static gltfLoader = new GLTFLoader(this.loadingManager); 
     static cameraController: CameraController;
     static teamSelected = false;
+    static physicsWorld: any;
     static keys = {};
+   
     audioManager = new AudioManager();
     
 
@@ -90,13 +93,22 @@ export class GlobalGame {
             progressElement.style.width = (itemsLoaded / itemsTotal * 40) + '%';
         };
     }
-    
-    init(serverURL: string | undefined) {
+
+    async loadRapier() {
+        RAPIER.init().then(() => {
+            console.log("Rapier Loaded");
+            let gravity = { x: 0.0, y: -9.81, z: 0.0 };
+            GlobalGame.physicsWorld = new RAPIER.World(gravity);
+            this.init();
+        });
+    }
+
+    init() {
         console.log('init called');
-        if (!serverURL) {
-            serverURL = window.localStorage.getItem('serverURL');
-        }
+        const serverURL = window.localStorage.getItem('serverURL');
+
         this.audioManager.music();
+        
         GlobalGame.webSocketHandler = new WebSocketHandler(serverURL, this.onWebSocketConnected);
     }
     
@@ -110,7 +122,7 @@ export class GlobalGame {
         GlobalGame.cameraController = new CameraController(GlobalGame.camera);
         GlobalGame.renderer = setUpRenderer();
         setUpLights();
-        GlobalGame.level = new Level();
+        GlobalGame.level = new Level(RAPIER);
         GlobalGame.player = new Player(
             GlobalGame.cameraController,
         );
@@ -241,8 +253,8 @@ function onWindowResize(){
 
 }
 
+
 const GAME = new GlobalGame();
 
 //(window as any).GAME = GAME;
-
-GAME.init(undefined);
+GAME.loadRapier();

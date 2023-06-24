@@ -157,7 +157,6 @@ function createRocketLauncher() {
         metalness: 0.0
     });
     let baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
-    console.log('adding mesh');
     baseMesh.position.copy(new THREE.Vector3(0,5,0));
     baseMesh.geometry.computeBoundingBox();
 

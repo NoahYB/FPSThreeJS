@@ -192,8 +192,8 @@ export class Player {
     }
 
     mousedown(e) {
-        console.log(GlobalGame.teamSelected)
-        if (!GlobalGame.teamSelected) return;
+        console.log("Click");
+        if (GlobalGame.menu.opened || !GlobalGame.teamSelected) return;
         GlobalGame.player.controls.lock();
         if (GlobalGame.player.inventory.equippedItem){
             GlobalGame.player.inventory.equippedItem.fire();
@@ -395,6 +395,7 @@ export class Player {
             GlobalGame.menu.hide();
         } );
         this.controls.addEventListener( 'unlock', function () {
+            console.log("unlock");
             GlobalGame.menu.show();
             Object.keys(GlobalGame.keys).forEach(key => {
                 GlobalGame.keys[key] = false;

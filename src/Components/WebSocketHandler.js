@@ -63,7 +63,6 @@ export class WebSocketHandler {
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
             const itemsHeld = {};
             if (gameData.itemData) {
-                console.log(gameData.itemData);
                 // Object.keys(gameData.itemData.items).forEach(itemKey => {
                 //     console.log(itemKey);
                 //     const item = gameData.itemData.items[itemKey];
@@ -135,9 +134,7 @@ export class WebSocketHandler {
         }
 
         if (action === 'GAME_OVER') {
-            console.log(winner);
             GAMESTATE_VARIABLES.teamScores = gameData.scores;
-            console.log(timeTillNextMatch);
             menu.displayGameOver(winner, specialMessage, timeTillNextMatch, topScorer);
             menu.updateScores(true);
         }
@@ -185,8 +182,6 @@ export class WebSocketHandler {
 
         
         if (action === 'ITEM_PICKUP') {
-            console.log("so and so picked up item", itemId)
-
             this.connectedPlayers[senderId].inventory.add(items[itemId]);
             items[itemId].pickedUpByConnectedPlayer(senderId);
         }

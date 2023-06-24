@@ -114,6 +114,7 @@ class PointerLockControls extends EventDispatcher {
 // event listeners
 
 function onMouseMove( event ) {
+    
     const _eulerBody = new Euler( 0, 0, 0, 'YXZ' );
     
 	const player = GlobalGame.player.object;
