@@ -156,7 +156,7 @@ class Variables {
 const HTML_INPUT_FIELDS = [];
 const TUNABLE_VARIABLES = new Variables(
     {
-        movementSpeed: 40,
+        movementSpeed: 20,
         playerName: 'Donut',
         jumpHeight: 20,
         FOV: 120,

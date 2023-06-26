@@ -79,13 +79,22 @@ class PointerLockControls extends EventDispatcher {
 
 	moveForward( distance ) {
 
-{				// move forward parallel to the xz-plane
+	// move forward parallel to the xz-plane
 		// assumes player.up is y-
 		_vector.setFromMatrixColumn(  GlobalGame.player.object.matrix, 0 );
 
 		_vector.crossVectors(  GlobalGame.player.object.up, _vector );
 
-		GlobalGame.player.object.position.addScaledVector( _vector, distance );}
+		_vector.multiplyScalar(distance);
+
+		GlobalGame.player.characterController.computeColliderMovement(
+            GlobalGame.player.characterCollider,           // The collider we would like to move.
+            _vector,                                       // The movement we would like to apply if there wasn’t any obstacle.
+        );
+        // Read the result.
+        let correctedMovement = GlobalGame.player.characterController.computedMovement();
+
+		GlobalGame.player.object.position.add(correctedMovement);
 
 	}
 
@@ -93,7 +102,30 @@ class PointerLockControls extends EventDispatcher {
 
 		_vector.setFromMatrixColumn( GlobalGame.player.object.matrix, 0 );
 
-		GlobalGame.player.object.position.addScaledVector( _vector, distance );
+		_vector.multiplyScalar(distance);
+
+		GlobalGame.player.characterController.computeColliderMovement(
+            GlobalGame.player.characterCollider,           // The collider we would like to move.
+            _vector, // The movement we would like to apply if there wasn’t any obstacle.
+        );
+        // Read the result.
+        let correctedMovement = GlobalGame.player.characterController.computedMovement();
+
+		GlobalGame.player.object.position.add( correctedMovement );
+
+	}
+
+	moveDown( distance ) {
+		const g = new Vector3(0, distance - TUNABLE_VARIABLES.gravity, 0);
+
+		GlobalGame.player.characterController.computeColliderMovement(
+            GlobalGame.player.characterCollider,           // The collider we would like to move.
+            g, // The movement we would like to apply if there wasn’t any obstacle.
+        );
+        // Read the result.
+        let correctedMovement = GlobalGame.player.characterController.computedMovement();
+
+		GlobalGame.player.object.position.add( correctedMovement );
 
 	}
 

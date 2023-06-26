@@ -97,7 +97,7 @@ export class GlobalGame {
     async loadRapier() {
         RAPIER.init().then(() => {
             console.log("Rapier Loaded");
-            let gravity = { x: 0.0, y: -9.81, z: 0.0 };
+            let gravity = { x: 0.0, y: -1.0, z: 0.0 };
             GlobalGame.physicsWorld = new RAPIER.World(gravity);
             this.init();
         });
@@ -125,6 +125,7 @@ export class GlobalGame {
         GlobalGame.level = new Level(RAPIER);
         GlobalGame.player = new Player(
             GlobalGame.cameraController,
+            RAPIER
         );
         GlobalGame.player.id = GlobalGame.webSocketHandler.id;
         HUD.hideHUD();
@@ -230,13 +231,14 @@ export class GlobalGame {
         const delta = this.clock.getDelta();
         GlobalGame.player.update(delta);
         GlobalGame.level.update(delta);
+        GlobalGame.physicsWorld.step();
         GlobalGame.cameraController.update();
         Object.keys(GlobalGame.webSocketHandler.connectedPlayers).forEach(key => {
             GlobalGame.webSocketHandler.connectedPlayers[key].update(delta);
         })
         if (this.i === 2) {
-            GlobalGame.player.addBBOX();
-            GlobalGame.player.updateBBOX();
+            //GlobalGame.player.addBBOX();
+            //GlobalGame.player.updateBBOX();
         }
         this.i++;
         Object.keys(GlobalGame.items).map(k => GlobalGame.items[k].update());

@@ -39,6 +39,9 @@ export function showVector(v, o, c) {
     GlobalGame.scene.add( arrowHelper );
 }
 
+export function threeVectorToRapier(vec3) {
+
+}
 export function randomSpherePoint(x0,y0,z0,radius){
     let u = Math.random();
     let v = Math.random();
@@ -60,11 +63,30 @@ export function showOBB(obb, child) {
     GlobalGame.scene.add(cube);
 }
 
+export function showRapierCollider(halfSize, position, rotation) {
+    const geometry = new BoxGeometry( halfSize.x * 2, halfSize.y * 2, halfSize.z * 2);
+    const material = new MeshBasicMaterial( {color: 'green', wireframe: true} );
+    const cube = new Mesh( geometry, material );
+    cube.position.copy(position);
+    cube.quaternion.copy(rotation);
+    GlobalGame.scene.add(cube);
+}
+export function getAABBHalfSize(aabb) {
+    const vector = new Vector3(0,0,0);
+    aabb.getSize(vector).multiplyScalar(0.5);
+    return vector;
+    return {
+        x: (aabb.max.x - aabb.min.x) / 2,
+        y: (aabb.max.y - aabb.min.y) / 2,
+        z: (aabb.max.z - aabb.min.z) / 2
+    }
+}
+
 export function showAABB(aabb, child) {
     const geometry = new BoxGeometry(
-        (aabb.max.x-aabb.min.x) * 2, 
-        (aabb.max.y-aabb.min.y) * 2, 
-        (aabb.max.z-aabb.min.z) * 2
+        (aabb.max.x-aabb.min.x) / 2, 
+        (aabb.max.y-aabb.min.y) / 2, 
+        (aabb.max.z-aabb.min.z) / 2
         );
     const material = new MeshBasicMaterial( {color: 'green', wireframe: true} );
     const cube = new Mesh( geometry, material );

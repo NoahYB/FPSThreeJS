@@ -1,5 +1,5 @@
 import { OBB } from 'three/addons/math/OBB.js';
-import { randomSpherePoint, showOBB } from '../Utilities';
+import { getAABBHalfSize, randomSpherePoint, showOBB, showRapierCollider, threeVectorToRapier } from '../Utilities';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { GlobalGame } from '../Game';
 import {
@@ -124,61 +124,43 @@ export class Level {
     }
     
     loadLevelObj() {
-        // FOR TESTING HITBOXES
-        // const geometry = new BoxGeometry( 5, 5, 5 );
         const materialToon = new MeshToonMaterial({
             color: 'grey',
         });
-        // const cube = new Mesh( geometry, material );
-        // cube.isEnemy = true;
-        // cube.position.x = 20;
-        // cube.position.z  = 20;
-        // GlobalGame.scene.add(cube);
         this.gltfLoader.load(
             // resource URL
-            'Models/Map.gltf',
+            'Models/Map3.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;
+                level.scene.updateMatrixWorld( true );
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
                         if (child.name === 'Ground') {
-                            //child.material = materialToon;
                             child.receiveShadow = true;
                             child.castShadow = false;
                         }
                         if (child.name.startsWith('Spawn')) {
                             this.spawnLocations.push(child.position);
                         } else {
-                            new Box3().setFromObject(child);
-
                             child.geometry.computeBoundingBox();
                             
-                            const obb = new OBB().fromBox3(
-                                child.geometry.boundingBox,
-                            );
+                            child.updateMatrixWorld( true );
+                            
+                            let halfSize = getAABBHalfSize(child.geometry.boundingBox);
 
-                            obb.applyMatrix4(child.matrixWorld);
-
-                            showOBB(obb, child, GlobalGame.scene);
-
-                            // Create a dynamic rigid-body.
-                            let rigidBodyDesc = this.RAPIER.RigidBodyDesc.fixed()
-                                .setTranslation(object.position.x, object.position.y, object.position.z);
-
-                            let rigidBody = world.createRigidBody(rigidBodyDesc);
+                            halfSize.x *= child.scale.x;
+                            halfSize.y *= child.scale.y;
+                            halfSize.z *= child.scale.z;
 
                             // Create a cuboid collider attached to the dynamic rigidBody.
-                            let colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
-                            let collider = world.createCollider(colliderDesc, rigidBody);
+                            let colliderDesc = new this.RAPIER.ColliderDesc(
+                                new this.RAPIER.Cuboid(halfSize.x, halfSize.y, halfSize.z))
+                                .setTranslation(child.position.x, child.position.y, child.position.z)
+                                .setRotation(child.quaternion)
+                                .setFriction(0.1);
 
-                            this.levelBBOX.push( {
-                                object: child,
-                                box: obb,
-                                collider: collider,
-                            });
-                            child.obb = obb;
-                            this.levelObjects.push(child);
+                            let collider = GlobalGame.physicsWorld.createCollider(colliderDesc);
                         }
                     }
                 });

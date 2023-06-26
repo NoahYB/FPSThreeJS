@@ -8,6 +8,7 @@ import { CameraController } from './CameraController';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import * as THREE from 'three';
 import { GlobalGame } from '../Game';
+import { showRapierCollider } from '../Utilities';
 
 interface KeyDictionary {
     [index: string]: boolean;
@@ -70,9 +71,20 @@ export class Player {
 
     fbxLoader: FBXLoader;
 
+    RAPIER: any;
+
+    rigidBody: any;
+
+    characterCollider: any;
+
+    characterController: any;
+
     constructor(
         cameraController: CameraController, 
+        RAPIER: any,
     ) {
+        this.RAPIER = RAPIER;
+
         this.fbxLoader = GlobalGame.fbxLoader;
 
         this.cameraController = cameraController;
@@ -123,6 +135,7 @@ export class Player {
     }
 
     addBBOX() {
+        console.log("ADDING BBOX");
         this.legL = this.object.getObjectByName("LegL");
         this.legR = this.object.getObjectByName("LegR");
         this.body = this.object.getObjectByName("Body");
@@ -140,6 +153,17 @@ export class Player {
         this.collisionBox = new OBB().fromBox3(
             this.collisionObject.geometry.boundingBox
         );
+
+        let colliderDesc = this.RAPIER.ColliderDesc.cuboid(this.collisionBox.halfSize.x, this.collisionBox.halfSize.y, this.collisionBox.halfSize.z);
+
+        this.characterCollider = GlobalGame.physicsWorld.createCollider(colliderDesc);
+
+        showRapierCollider(this.collisionBox.halfSize, this.collisionObject.position, this.collisionObject.rotation);
+        // The gap the controller will leave between the character and its environment.
+        let offset = 0.2;
+        // Create the controller.
+        this.characterController = GlobalGame.physicsWorld.createCharacterController(offset);
+        this.characterController.enableAutostep(3.0, 0.0, true);
     }
 
     updateBBOX() {
@@ -152,8 +176,8 @@ export class Player {
         const materialToon = new THREE.MeshToonMaterial({
             color: 'red',
         });
-        const materialToonGun = new THREE.MeshToonMaterial({
-            color: 'rgb(55, 40, 217)',
+        const invisible = new THREE.MeshToonMaterial({
+            visible: false,
         });
         this.fbxLoader.load(
             'Models/PossibleCharacter2.fbx',
@@ -174,6 +198,7 @@ export class Player {
                         this.rightArm = child;
                     }
                     if (child.name === 'CollisionBox') {
+                        child.material = invisible;
                         this.collisionObject = child;
                     }
                 }
@@ -228,9 +253,11 @@ export class Player {
     }
 
     move() {
-        this.object.position.y += this.velocity.y;
+        //if (this.characterController.computedGrounded()) this.velocity.y = 0;
+        this.velocity.y = TUNABLE_VARIABLES.gravity;
         this.controls.moveForward(this.velocity.z);
         this.controls.moveRight(this.velocity.x);
+        this.controls.moveDown(this.velocity.y);
     }
 
     onHit(headshot, enemy) {
@@ -265,7 +292,7 @@ export class Player {
     input() {
         if (!this.object) return;
         
-        if (GlobalGame.keys[' '] && !this.jumping) {
+        if (GlobalGame.keys[' ']) {
             this.jumping = true;
             this.jump();
         }
@@ -274,18 +301,22 @@ export class Player {
         this.walking = false;
 
         if(GlobalGame.keys['w']){
+            //this.rigidBody.addForce({ x: 0.0, y: 0.0, z: this.movementSpeed * (this.sprinting ? 2 : 1) }, true);
             this.velocity.z = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if(GlobalGame.keys['s']){
+            //this.rigidBody.addForce({ x: 0.0, y: 0.0, z: -this.movementSpeed * (this.sprinting ? 2 : 1) }, true);
             this.velocity.z = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if(GlobalGame.keys['a']){
+            //.rigidBody.addForce({ x: this.movementSpeed * (this.sprinting ? 2 : 1), y: 0.0, z: 0.0 }, true);
             this.velocity.x = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
         if(GlobalGame.keys['d']){
+            //this.rigidBody.addForce({ x: -this.movementSpeed * (this.sprinting ? 2 : 1), y: 0.0, z: 0.0 }, true);
             this.velocity.x = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
@@ -302,7 +333,7 @@ export class Player {
         if (!this.boxLegL || this.respawning) return;
         if (!this.horizontalCollision) {
             // this.updateBBOX();
-            this.addBBOX();
+            
         }
         this.updateBBOX();
         let verticalCollisionsL = this.collisions.checkBBOXvArray(this.boxLegL, GlobalGame.level.levelBBOX, true) as CollisionData;
@@ -352,6 +383,7 @@ export class Player {
         // }
         
         if (!this.grounded){
+            
             this.velocity.y -= TUNABLE_VARIABLES.gravity;
         }
     }
@@ -378,12 +410,19 @@ export class Player {
         if (this.respawnTimer > TUNABLE_VARIABLES.respawnTime) {
             this.respawn();
         }
+
+        this.move();
+
+        this.characterCollider.setRotation(this.collisionObject.quaternion);
+        this.characterCollider.setTranslation(this.object.position);
+
+        showRapierCollider(this.collisionBox.halfSize, this.collisionObject.position, this.collisionObject.quaternion);
+
         this.moveRightArm();
         let worldDirection = new THREE.Vector3();
         this.object.getWorldDirection(worldDirection);
         this.checkY();
         this.input();
-        this.handleCollisions();
     }
 
     onPlayerLoad() {
