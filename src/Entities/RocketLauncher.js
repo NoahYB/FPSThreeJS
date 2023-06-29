@@ -1,4 +1,3 @@
-// @ts-check
 import { Item } from '../Components/Item';
 import {
     BoxGeometry,
@@ -12,11 +11,16 @@ import {
     CylinderGeometry,
     Vector3
 } from 'three';
+import { getPlayer, getScene, getRapier, getPhysicsWorld } from '../Game';
+import { createCollisionMask } from '../Utilities';
 
 export class RocketLauncher extends Item {
-    constructor(type="Rocket", id, position, webSocketHandler, player, camera, scene){
-        
-        super(type="Rocket", id, position, webSocketHandler, player, camera, scene);
+    constructor(type="Rocket", id, position, webSocketHandler){
+        super(type="Rocket", id, position, webSocketHandler);
+
+        this.RAPIER = getRapier();
+        this.physicsWorld = getPhysicsWorld();
+
         this.rocketGeometry = new BoxGeometry(1,1,1);
         this.rocketMaterial = new MeshBasicMaterial({ color: 0xff0000 });
         this.projectiles = [];
@@ -30,27 +34,57 @@ export class RocketLauncher extends Item {
         if (this.coolDownTimer > 0) return;
         this.coolDownTimer = 4;
         this.model.material.color = new Color('red');
-        if (this.heldBy === this.player) {
+
+        const player = getPlayer();
+
+        if (this.heldBy === player) {
             this.webSocketHandler.sendMessage({
                 action: 'PROJECTILE_DATA',
-                projectileVelocity: this.directionalVelocity().multiplyScalar(5),
+                projectileVelocity: this.directionalVelocity(),
                 itemId: this.id
             })
         }
 
         const projectile = new Mesh(this.rocketGeometry, this.rocketMaterial);
-        this.projectiles.push(projectile);
+
+        let rigidBodyDesc = new this.RAPIER.RigidBodyDesc(this.RAPIER.RigidBodyType.Dynamic)
+            .setTranslation(...this.model.position)
+            .setRotation(this.model.quaternion)
+            .setGravityScale(3)
+
+        const rigidBody = this.physicsWorld.createRigidBody(rigidBodyDesc)
+
+        let colliderDesc = this.RAPIER.ColliderDesc.cuboid(1.0, 1.0, 1.0)
+                                .setDensity(1.3)
+                                .setFriction(0.1)
+                                .setCollisionGroups(0x00040001);
+
+        this.physicsWorld.createCollider(colliderDesc, rigidBody);
+
+        this.projectiles.push({
+            mesh: projectile,
+            rigidBody
+        });
 
         projectile.position.copy(this.model.position);
         projectile.geometry.computeBoundingBox();
 
-        this.scene.add(projectile);
+        getScene().add(projectile);
 
-        projectile.userData.velocity = velocity ? velocity: this.directionalVelocity().multiplyScalar(5);
+        projectile.userData.velocity = velocity ? new Vector3(velocity.x, velocity.y, velocity.z) : this.directionalVelocity();
 
-        if (projectile.userData.velocity) this.player.velocity.add(projectile.userData.velocity.clone().multiplyScalar(-.2));
+        const projectileVelocity = projectile.userData.velocity;
+
+        console.log(projectileVelocity);
+
+        rigidBody.addForce(projectileVelocity.multiplyScalar(2000), true);
+
+        if (!velocity) player.characterController.velocity.add(projectileVelocity.multiply(new Vector3(.0001,-.0005,.0001)));
+
         const bbox = new Box3();
+
         bbox.setFromObject(projectile);
+
         projectile.userData.bbox = bbox;
 
     }
@@ -63,9 +97,7 @@ export class RocketLauncher extends Item {
         super.update();
         const remove = [];
         this.projectiles = this.projectiles.filter(projectile => {
-            
-            projectile.userData.bbox.copy( projectile.geometry.boundingBox ).applyMatrix4( projectile.matrixWorld );
-            projectile.position.add(projectile.userData.velocity);
+            projectile.mesh.position.copy(projectile.rigidBody.translation());
             return true;
         });
         this.explosions = this.explosions.filter(explosion => {
@@ -77,6 +109,8 @@ export class RocketLauncher extends Item {
     }
 
     explosion(pos) {
+        const player = getPlayer();
+
         const explosionMaterial = new ShaderMaterial( {
 
             uniforms: {
@@ -97,7 +131,7 @@ export class RocketLauncher extends Item {
         this.scene.add(explosion);
         this.explosions.push(explosion);
         explosion.position.copy(pos);
-        this.player.explosionDamage(pos, this.heldBy, 10)
+        player.explosionDamage(pos, this.heldBy, 10)
     }
 
     spawn() {
@@ -107,12 +141,54 @@ export class RocketLauncher extends Item {
         this.iconElement = document.createElement('img');
         this.iconElement.src = this.iconSrc;
         this.iconElement.classList.add('icon');
-        this.model = createRocketLauncher();
+        this.model = this.createRocketLauncher();
 
         this.model.position.copy(this.position);
         this.model.position.y += 5;
         this.bbox = new Box3();
         this.bbox.setFromObject(this.model);
+    }
+
+    createRocketLauncher() {
+        // Create the base of the rocket launcher
+        let baseGeometry = new BoxGeometry(10, 10, 10);
+        let baseMaterial = new MeshBasicMaterial({
+            color: new Color('Blue'),
+        });
+        let baseMesh = new Mesh(baseGeometry, baseMaterial);
+        baseMesh.position.copy(new Vector3(0,5,0));
+        baseMesh.geometry.computeBoundingBox();
+    
+        // Create the rocket launcher components using object primitives
+        const bodyGeometry = new CylinderGeometry(0.2, 0.2, 1, 32);
+        const bodyMaterial = new MeshBasicMaterial({ color: 0x444444 });
+        const body = new Mesh(bodyGeometry, bodyMaterial);
+    
+        const nozzleGeometry = new CylinderGeometry(0.08, 0.08, 0.5, 32);
+        const nozzleMaterial = new MeshBasicMaterial({ color: 0x888888 });
+        const nozzle = new Mesh(nozzleGeometry, nozzleMaterial);
+        nozzle.position.y = 0.75;
+    
+        const scopeGeometry = new BoxGeometry(0.1, 0.1, 0.1);
+        const scopeMaterial = new MeshBasicMaterial({ color: 0x222222 });
+        const scope = new Mesh(scopeGeometry, scopeMaterial);
+        scope.position.y = 0.9;
+    
+        const stockGeometry = new BoxGeometry(0.1, 0.4, 0.2);
+        const stockMaterial = new MeshBasicMaterial({ color: 0x666666 });
+        const stock = new Mesh(stockGeometry, stockMaterial);
+        stock.position.y = 0.4;
+    
+        body.add(scope);
+        body.add(nozzle);
+        body.add(stock);
+    
+        body.rotateZ(-Math.PI / 2);
+        body.scale.set(4,4,4); 
+        body.position.y += 8;
+        getScene().add(body);
+    
+        return body;
     }
 
     shader(v) {
@@ -180,48 +256,6 @@ export class RocketLauncher extends Item {
     }
 }
 
-
-function createRocketLauncher() {
-    // Create the base of the rocket launcher
-    let baseGeometry = new BoxGeometry(10, 10, 10);
-    let baseMaterial = new MeshBasicMaterial({
-        color: new Color('Blue'),
-    });
-    let baseMesh = new Mesh(baseGeometry, baseMaterial);
-    baseMesh.position.copy(new Vector3(0,5,0));
-    baseMesh.geometry.computeBoundingBox();
-
-    // Create the rocket launcher components using object primitives
-    const bodyGeometry = new CylinderGeometry(0.2, 0.2, 1, 32);
-    const bodyMaterial = new MeshBasicMaterial({ color: 0x444444 });
-    const body = new Mesh(bodyGeometry, bodyMaterial);
-
-    const nozzleGeometry = new CylinderGeometry(0.08, 0.08, 0.5, 32);
-    const nozzleMaterial = new MeshBasicMaterial({ color: 0x888888 });
-    const nozzle = new Mesh(nozzleGeometry, nozzleMaterial);
-    nozzle.position.y = 0.75;
-
-    const scopeGeometry = new BoxGeometry(0.1, 0.1, 0.1);
-    const scopeMaterial = new MeshBasicMaterial({ color: 0x222222 });
-    const scope = new Mesh(scopeGeometry, scopeMaterial);
-    scope.position.y = 0.9;
-
-    const stockGeometry = new BoxGeometry(0.1, 0.4, 0.2);
-    const stockMaterial = new MeshBasicMaterial({ color: 0x666666 });
-    const stock = new Mesh(stockGeometry, stockMaterial);
-    stock.position.y = 0.4;
-
-    body.add(scope);
-    body.add(nozzle);
-    body.add(stock);
-
-    body.rotateZ(-Math.PI / 2);
-    body.scale.set(4,4,4); 
-    body.position.y += 8;
-    this.scene.add(body);
-
-    return body;
-}
 
 function createPistol() {
     // Create the barrel.

@@ -72,38 +72,23 @@ export class WebSocketHandler {
                 Object.keys(gameData.itemData.items).forEach(itemKey => {
                     const item = gameData.itemData.items[itemKey];
                     if (item.heldBy === 0) {
-                        // if (item.type ==='ROCKET') {
-                        //     this.items[item.id] = new RocketLauncher(
-                        //         'Rocket', 
-                        //         item.id, 
-                        //         new Vector3(item.position[0],item.position[1],item.position[2]),
-                        //         this,
-                        //         this.player,
-                        //     );
-                        // }
-                        // if (item.type ==='PISTOL') {
-                        //     items[item.id] = new Pistol(
-                        //         'Pistol', 
-                        //         item.id, 
-                        //         new Vector3(item.position[0],item.position[1],item.position[2])
-                        //     );
-                        // }
+                        if (item.type ==='ROCKET') {
+                            this.items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                this,
+                            );
+                        }
                     } else {
-                        // if (item.type ==='ROCKET') {
-                        //     console.log(this);
-                        //     this.items[item.id] = new RocketLauncher(
-                        //         'Rocket', 
-                        //         item.id, 
-                        //         new Vector3(item.position[0],item.position[1],item.position[2])
-                        //     );
-                        // }
-                        // if (item.type ==='PISTOL') {
-                        //     items[item.id] = new Pistol(
-                        //         'Pistol', 
-                        //         item.id, 
-                        //         new Vector3(item.position[0],item.position[1],item.position[2])
-                        //     );
-                        // }
+                        if (item.type ==='ROCKET') {
+                            this.items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                this
+                            );
+                        }
                         itemsHeld[item.heldBy] = this.items[item.id];
                         
                     }
@@ -129,7 +114,6 @@ export class WebSocketHandler {
         }
 
         if(!this.connectedPlayers[senderId] && senderId !== 'WEBSOCKET_SERVER_GAME_INIT' && senderId !== undefined) {
-            console.log(this.gameContext);
             this.connectedPlayers[senderId] = new ConnectedPlayer(senderId, undefined, this.menu, this.gameContext);
         }
 
@@ -173,8 +157,6 @@ export class WebSocketHandler {
         }
 
         if (action === 'MOVEMENT') {
-            console.log(quaternion);
-            console.log(position);
             this.connectedPlayers[senderId].setPos(position);
             this.connectedPlayers[senderId].setVelocity(velocity);
             this.connectedPlayers[senderId].setQuaternion(quaternion);
@@ -187,13 +169,13 @@ export class WebSocketHandler {
         }
 
         if (action === 'PROJECTILE_DATA') {
-            items[itemId].fire(projectileVelocity);
+            this.items[itemId].fire(projectileVelocity);
         }
 
         
         if (action === 'ITEM_PICKUP') {
-            this.connectedPlayers[senderId].inventory.add(items[itemId]);
-            items[itemId].pickedUpByConnectedPlayer(senderId);
+            this.connectedPlayers[senderId].inventory.add(this.items[itemId]);
+            this.items[itemId].pickedUpByConnectedPlayer(senderId);
         }
 
     }

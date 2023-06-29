@@ -97,3 +97,25 @@ export function showAABB(aabb, child, scene) {
     cube.position.copy(center);
     scene.add(cube);
 }
+
+export function createCollisionMask(membershipGroups, filterGroups) {
+    let membership = 0;
+    let filter = 0;
+  
+    for (let i = 0; i < membershipGroups.length; i++) {
+      const group = membershipGroups[i];
+      membership |= (1 << group);
+    }
+  
+    for (let i = 0; i < filterGroups.length; i++) {
+      const group = filterGroups[i];
+      filter |= (1 << group);
+    }
+  
+    const membershipMask = membership << 16;
+    const filterMask = filter & 0xFFFF;
+    const mask = membershipMask | filterMask;
+  
+    console.log(mask);
+    return `0x${mask.toString(16).toUpperCase().padStart(8, '0')}`;
+  }

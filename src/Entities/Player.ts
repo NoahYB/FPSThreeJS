@@ -222,7 +222,7 @@ export class Player {
         const menu = getMenu();
 
         console.log(renderer);
-        
+
         renderer.domElement.addEventListener( 'lock', function () {
             if (menu.opened) {
                 this.player.controls.unlock();
@@ -236,6 +236,7 @@ export class Player {
                 this.playerKeyMap[key] = false;
             })
         } );
+
     }
 }
 

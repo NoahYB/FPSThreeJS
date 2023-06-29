@@ -2,7 +2,7 @@ import { PointerLockControls } from "./PointerLockControlsCustom";
 import { getRenderer, getRapier, getPhysicsWorld, getPlayer, getTeamSelected } from "../Game";
 import { Player } from "../Entities/Player";
 import { Vector3 } from 'three';
-import { showRapierCollider, getAABBHalfSize } from "../Utilities";
+import { showRapierCollider, getAABBHalfSize, createCollisionMask } from "../Utilities";
 
 export class CharacterController {
     RAPIER: any;
@@ -24,6 +24,7 @@ export class CharacterController {
         this.addCharacterController();
 
         console.log(this.rapierController);
+
         this.pointerLockControls = new PointerLockControls(
             this.player, 
             getRenderer().domElement,
@@ -36,11 +37,12 @@ export class CharacterController {
 
         let halfSize = getAABBHalfSize( this.player.collisionObject.geometry.boundingBox );
 
+
         let colliderDesc = this.RAPIER.ColliderDesc.cuboid(
             halfSize.x, 
             halfSize.y, 
             halfSize.z
-        );
+        ).setCollisionGroups(0x00020001);
 
         this.characterCollider = this.physicsWorld.createCollider(colliderDesc);
         
@@ -57,23 +59,29 @@ export class CharacterController {
     }
 
     jump() {
-        this.velocity.y = TUNABLE_VARIABLES.jumpHeight * TUNABLE_VARIABLES.gravity;
+
+        if (this.rapierController.computedGrounded())
+            this.velocity.y = TUNABLE_VARIABLES.jumpHeight * TUNABLE_VARIABLES.gravity;
     }
 
     move() {
         if (!this.rapierController) return;
-        if (this.rapierController.computedGrounded()) this.velocity.y = Math.max(this.velocity.y,0);
+
+        if (this.rapierController.computedGrounded()) this.velocity.y = Math.max(this.velocity.y, 0);
+
         else this.velocity.y -= TUNABLE_VARIABLES.gravity;
-        
+
         const movementToCorrect = new Vector3(0,0,0);
 
         if (this.velocity.z !== 0) movementToCorrect.add(this.pointerLockControls.moveForward(this.velocity.z));
         if (this.velocity.x !== 0) movementToCorrect.add(this.pointerLockControls.moveRight(this.velocity.x));
-        if (this.velocity.y !== 0) movementToCorrect.add(this.pointerLockControls.moveDown(this.velocity.y));
+        movementToCorrect.add(this.pointerLockControls.moveDown(this.velocity.y));
 
         this.rapierController.computeColliderMovement(
             this.characterCollider,           // The collider we would like to move.
             movementToCorrect, // The movement we would like to apply if there wasn’t any obstacle.
+            undefined,
+            0x00020001
         );
         // Read the result.
         let correctedMovement = this.rapierController.computedMovement();

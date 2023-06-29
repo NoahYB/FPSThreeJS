@@ -48,11 +48,11 @@ export class ConnectedPlayer {
                     if (child.name === 'Cube.001') this.head = child;
                     if (child.name === 'RightShoulder') {
 
-                        // this.rightArm = child;
-                        // if (this.itemToAdd) {
-                        //     this.inventory.add(this.itemToAdd);
-                        //     this.itemToAdd.pickedUpByConnectedPlayer(this.id);
-                        // }
+                        this.rightArm = child;
+                        if (this.itemToAdd) {
+                            this.inventory.add(this.itemToAdd);
+                            this.itemToAdd.pickedUpByConnectedPlayer(this.id);
+                        }
                     }
                     if (child.isMesh) child.castShadow = true;
                 }

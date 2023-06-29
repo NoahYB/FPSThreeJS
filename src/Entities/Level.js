@@ -1,5 +1,5 @@
 import { OBB } from 'three/addons/math/OBB.js';
-import { getAABBHalfSize, randomSpherePoint, showOBB, showRapierCollider, threeVectorToRapier } from '../Utilities';
+import { createCollisionMask, getAABBHalfSize, randomSpherePoint, showOBB, showRapierCollider, threeVectorToRapier } from '../Utilities';
 import {
     Vector3,
     Group,
@@ -159,7 +159,8 @@ export class Level {
                                 new this.RAPIER.Cuboid(halfSize.x, halfSize.y, halfSize.z))
                                 .setTranslation(child.position.x, child.position.y, child.position.z)
                                 .setRotation(child.quaternion)
-                                .setFriction(0.1);
+                                .setFriction(0.1)
+                                .setCollisionGroups(0x00010007);
 
                             let collider = this.physicsWorld.createCollider(colliderDesc);
                         }

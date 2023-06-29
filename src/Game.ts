@@ -101,7 +101,7 @@ class GlobalGame {
     async loadRapier() {
         RAPIER.init().then(() => {  
             this.RAPIER = RAPIER;
-            let gravity = { x: 0.0, y: -1.0, z: 0.0 };
+            let gravity = { x: 0.0, y: -9.0, z: 0.0 };
             this.physicsWorld = new RAPIER.World(gravity);
             this.init();
         });

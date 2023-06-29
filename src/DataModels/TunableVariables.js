@@ -158,7 +158,7 @@ const TUNABLE_VARIABLES = new Variables(
     {
         movementSpeed: 40,
         playerName: 'Donut',
-        jumpHeight: 20,
+        jumpHeight: 40,
         FOV: 120,
         gravity: .025,
         volume: .5,
