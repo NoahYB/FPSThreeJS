@@ -124,7 +124,7 @@ export class Player {
                 this.object = object;
                 object.scale.setScalar(.007);
                 object.traverse(( child ) => {
-                    if ( child.isMesh ) child.material = materialToon;
+                    if ( child.isMesh ) child.material = invisible;
                     if (child.name === 'RightShoulder') this.rightArm = child;
                     if (child.name === 'CollisionBox') {
                         child.material = invisible;

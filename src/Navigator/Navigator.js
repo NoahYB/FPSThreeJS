@@ -8,22 +8,22 @@ if(baseURL === 'https://noahyb.github.io') {
 }
 
 function goToGame() {
-    window.location = (baseURL + '/game.html');
+    window.location = (baseURL + '/src/index.html');
 }
 
 function goToServerSelection() {
-    window.location = (baseURL + '/Pages/serverselection.html');
+    window.location = (baseURL + '/src/Pages/serverselection.html');
 }
 
 function goToDonationInformation() {
-    window.location = (baseURL + '/Pages/donationinfo.html');
+    window.location = (baseURL + '/src/Pages/donationinfo.html');
 }
 
 function goToContact() {
-    window.location = (baseURL + '/Pages/contact.html');
+    window.location = (baseURL + '/src/Pages/contact.html');
 }
 
 function connectToServer(serverURL) {
     window.localStorage.setItem('serverURL', serverURL);
-    window.location = (baseURL + '/game.html');
+    window.location = (baseURL + '/src/index.html');
 }

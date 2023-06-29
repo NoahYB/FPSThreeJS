@@ -44,7 +44,7 @@ export class Level {
 
     loadBackgroundColor() {
         const loader = new TextureLoader();
-        this.scene.background = new Color('rgba(55,10,120)');
+        this.scene.background = new Color('rgba(0,10,10)');
     }
 
     loadStars(n) {

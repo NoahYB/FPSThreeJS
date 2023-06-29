@@ -75,8 +75,6 @@ export class RocketLauncher extends Item {
 
         const projectileVelocity = projectile.userData.velocity;
 
-        console.log(projectileVelocity);
-
         rigidBody.addForce(projectileVelocity.multiplyScalar(2000), true);
 
         if (!velocity) player.characterController.velocity.add(projectileVelocity.multiply(new Vector3(.0001,-.0005,.0001)));
