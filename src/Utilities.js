@@ -8,6 +8,8 @@ import {
     Euler
   } from "three";
 
+import { GLOBAL_GAME } from "./Game";
+
 export function getTimeStampMili() {
     const d = new Date();
     let time = d.getTime();
@@ -52,24 +54,25 @@ export function randomSpherePoint(x0,y0,z0,radius){
     return new Vector3(x,y,z);
  }
 
-export function showOBB(obb, child, scene) {
+export function showOBB(obb, child) {
     const geometry = new BoxGeometry( obb.halfSize.x * 2, obb.halfSize.y * 2, obb.halfSize.z * 2);
     const material = new MeshBasicMaterial( {color: 'green', wireframe: true} );
     const cube = new Mesh( geometry, material );
     cube.position.copy(obb.center);
     const euler = new Euler().setFromRotationMatrix(new Matrix4().setFromMatrix3(obb.rotation));
     cube.quaternion.setFromEuler(euler);
-    scene.add(cube);
+    GLOBAL_GAME.scene.add(cube);
 }
 
-export function showRapierCollider(halfSize, position, rotation, scene) {
+export function showRapierCollider(halfSize, position, rotation) {
     const geometry = new BoxGeometry( halfSize.x * 2, halfSize.y * 2, halfSize.z * 2);
     const material = new MeshBasicMaterial( {color: 'green', wireframe: true} );
     const cube = new Mesh( geometry, material );
     cube.position.copy(position);
     cube.quaternion.copy(rotation);
-    scene.add(cube);
+    GLOBAL_GAME.scene.add(cube);
 }
+
 export function getAABBHalfSize(aabb) {
     const vector = new Vector3(0,0,0);
     aabb.getSize(vector).multiplyScalar(0.5);

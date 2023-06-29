@@ -1,7 +1,6 @@
 //@ts-check
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { AudioManager } from './AudioManager';
 import { setUpCamera, setUpLights, setUpRenderer } from './SceneSetup';
@@ -11,7 +10,6 @@ import { WebSocketHandler} from './Components/WebSocketHandler';
 import { CameraController } from './Entities/CameraController';
 import { Menu } from './Entities/Menu';
 import { Player } from './Entities/Player';
-
 import RAPIER from '@dimforge/rapier3d-compat';
 
 class GlobalGame {
@@ -31,7 +29,10 @@ class GlobalGame {
     cameraController: CameraController;
     teamSelected = false;
     physicsWorld: any;
+    RAPIER: any;
+
     keys = {};
+
    
     audioManager = new AudioManager();
     
@@ -59,9 +60,10 @@ class GlobalGame {
         
         this.gltfLoader = new GLTFLoader(this.loadingManager);
 
-        document.addEventListener('keydown', this.keydown);
-        document.addEventListener('keyup', this.keyup);
+        document.addEventListener('keydown', keydown);
+
         document.addEventListener('wheel', this.wheel);
+
         window.addEventListener( 'resize', onWindowResize, false );
 
         document.getElementById("team1").addEventListener('click', (e) =>
@@ -97,8 +99,8 @@ class GlobalGame {
     }
 
     async loadRapier() {
-        RAPIER.init().then(() => {
-            console.log("Rapier Loaded");
+        RAPIER.init().then(() => {  
+            this.RAPIER = RAPIER;
             let gravity = { x: 0.0, y: -1.0, z: 0.0 };
             this.physicsWorld = new RAPIER.World(gravity);
             this.init();
@@ -118,7 +120,6 @@ class GlobalGame {
             this.onWebSocketConnected, 
             this.menu,
             this.items,
-            this.scene,
             this
         );
     }
@@ -133,16 +134,7 @@ class GlobalGame {
         setUpLights(context.scene);
         context.level = new Level(RAPIER, context.scene, context.physicsWorld, context.gltfLoader);
         context.player = new Player(
-            RAPIER,
-            context.renderer,
             context.webSocketHandler,
-            context.level,
-            context.physicsWorld,
-            context.scene,
-            context.keys,
-            context.teamSelected,
-            context.fbxLoader,
-            context.camera,
         );
         context.cameraController = new CameraController(context.camera, context.player);
         context.player.cameraController = context.cameraController;
@@ -167,30 +159,12 @@ class GlobalGame {
         });
         this.menu.opened = false;
         this.player.respawn();
-        this.player.setTeam();
         this.menu.updateScores(true);
         HUD.showHUD();
         this.teamSelected = true;
-        this.player.teamSelected = true;
         if (!this.started) this.startUpdate(60);
     }
-    
-    keydown(e){
-        this.keys = (window as any).keys;
-        if (e.key === 'Escape') {
-            this.menu.opened = !this.menu.opened;
-            if (!this.menu.opened) {
-                this.menu.hide();
-            }
-            else this.menu.show();
-        }
-        this.keys[e.key.toLowerCase()] = true;
-    }
-    
-    keyup(e){
-        this.keys = (window as any).keys;
-        this.keys[e.key.toLowerCase()] = false;
-    }
+
     
     wheel(e) {
         //this.player.inventory.next();
@@ -204,9 +178,9 @@ class GlobalGame {
                 text: 'connected',
                 connectionDisplayName: TUNABLE_VARIABLES.playerName,
                 position: this.player.object.position,
-                quaternion: this.player.object.quaternion,
-                lookQuaternion: this.camera.quaternion,
-                velocity: this.player.velocity,
+                quaternion: this.player.object.rotation,
+                lookQuaternion: this.camera.rotation,
+                velocity: this.player.characterController.velocity,
                 cameraDirection: this.cameraController.getCameraDirection(),
             }
         );
@@ -260,10 +234,6 @@ class GlobalGame {
         Object.keys(this.webSocketHandler.connectedPlayers).forEach(key => {
             this.webSocketHandler.connectedPlayers[key].update(delta);
         })
-        if (this.i === 2) {
-            //this.player.addBBOX();
-            //this.player.updateBBOX();
-        }
         this.i++;
         Object.keys(this.items).map(k => this.items[k].update());
         this.renderer.render( this.scene, this.camera );
@@ -272,16 +242,88 @@ class GlobalGame {
 
 function onWindowResize(){
     
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    getCamera().aspect = window.innerWidth / window.innerHeight;
+    getCamera().updateProjectionMatrix();
 
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    getRenderer().setSize( window.innerWidth, window.innerHeight );
 
+}
+
+function keydown(e){
+    const menu = getMenu();
+    console.log('ESCAPE');
+    if (e.key === 'Escape') {
+        menu.opened = !menu.opened;
+        if (!menu.opened) {
+            menu.hide();
+        }
+        else menu.show();
+    }
 }
 
 console.log(document.getElementById("Game").getAttribute('src'));
 
-const GLOBAL_GAME = new GlobalGame();
-(window as any).keys = GLOBAL_GAME.keys;
-(window as any).menu = GLOBAL_GAME.menu;
-GLOBAL_GAME.loadRapier();
+export const GLOBAL_GAME = new GlobalGame();
+
+/**
+ * 
+ * @returns THREE.Scene
+ */
+export const getScene = () => GLOBAL_GAME.scene;
+
+/**
+ * 
+ * @returns THREE.Renderer
+ */
+export const getRenderer = () => GLOBAL_GAME.renderer;
+
+/**
+ * 
+ * @returns THREE.Camera
+ */
+export const getCamera = () => GLOBAL_GAME.camera;
+
+
+/**
+ * 
+ * @returns GLOBAL_GAME.Player
+ */
+export const getPlayer = () => GLOBAL_GAME.player;
+
+/**
+ * 
+ * @returns RAPIER
+ */
+export const getRapier = () => GLOBAL_GAME.RAPIER;
+
+/**
+ * 
+ * @returns RAPIER physics world
+ */
+export const getPhysicsWorld = () => GLOBAL_GAME.physicsWorld;
+
+/**
+ * 
+ * @returns Level
+ */
+export const getlevel = () => GLOBAL_GAME.level;
+
+/**
+ * 
+ * @returns Level
+ */
+export const getMenu = () => GLOBAL_GAME.menu;
+
+
+/**
+ * 
+ * @returns FBXLoader
+ */
+export const getFBXLoader = () => GLOBAL_GAME.fbxLoader;
+
+/**
+ * 
+ * @returns FBXLoader
+ */
+export const getTeamSelected = () => GLOBAL_GAME.teamSelected;
+

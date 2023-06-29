@@ -6,6 +6,7 @@ import {
     Object3D
   } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { getMenu, getScene } from "../Game";
 
 export class ConnectedPlayer {
 
@@ -13,9 +14,7 @@ export class ConnectedPlayer {
 
     head = new Object3D();
 
-    constructor(id, item, menu, scene) {
-        console.log(scene);
-        console.log(scene.scene);
+    constructor(id, item) {
         this.id = id;
         this.inventory = new Inventory();
         if (item) {
@@ -25,8 +24,6 @@ export class ConnectedPlayer {
         this.health = TUNABLE_VARIABLES.health;
         this.spawnedEntities = [];
         this.score = 0;
-        this.menu = (window).menu;
-        this.scene = scene;
         this.loadModel();
     }
 
@@ -48,6 +45,7 @@ export class ConnectedPlayer {
                         child.material = materialToon;
                         child.castShadow = true;
                     }
+                    if (child.name === 'Cube.001') this.head = child;
                     if (child.name === 'RightShoulder') {
 
                         // this.rightArm = child;
@@ -59,7 +57,7 @@ export class ConnectedPlayer {
                     if (child.isMesh) child.castShadow = true;
                 }
                 );
-                this.scene.add( object );
+                getScene().add( object );
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -75,21 +73,19 @@ export class ConnectedPlayer {
     }
 
     setTeam(teamNumber) {
+        const menu = getMenu();
         this.team = teamNumber;
-        this.menu.updateScores(true);
+        menu.updateScores(true);
     }
 
     setEquippedWeapon(item) {
         this.inventory.add(item) 
     }
 
-    setQuaternion(quat) {
+    setQuaternion(euler) {
         if (!this.object) return;
-        //First of all we create a matrix and put the rotation of the cube into it
-        let rotObjectMatrix = new Matrix4();
-        rotObjectMatrix.makeRotationFromQuaternion(quat);
-        //Next we just have to apply a rotation to the quaternion using the created matrix
-        this.object.rotation.setFromRotationMatrix(rotObjectMatrix);
+
+        this.object.rotation.copy(euler);
     }
 
     moveRightArm(cameraDir) {
@@ -145,13 +141,9 @@ export class ConnectedPlayer {
 
     };
 
-    setLookQuaternion(quat) {
+    setLookQuaternion(euler) {
         if (!this.head) return;
-        //First of all we create a matrix and put the rotation of the cube into it
-        let rotObjectMatrix = new Matrix4();
-        rotObjectMatrix.makeRotationFromQuaternion(quat);
-        //Next we just have to apply a rotation to the quaternion using the created matrix
-        this.head.rotation.setFromRotationMatrix(rotObjectMatrix);
+        this.head.rotation.copy(euler);
     }
 
     setHealth(newHealth) {

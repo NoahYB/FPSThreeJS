@@ -2,13 +2,12 @@ import { ConnectedPlayer } from "../Entities/ConnectedPlayer";
 import { Vector3 } from 'three';
 import { getTimeStampMili } from "../Utilities";
 import { RocketLauncher } from "../Entities/RocketLauncher";
+import { GLOBAL_GAME, getScene } from "../Game";
 
 export class WebSocketHandler {
-    constructor(url, onWebSocketConnected, menu, items, scene, gameContext) {
-        console.log(gameContext);
+    constructor(url, onWebSocketConnected, menu, items, gameContext) {
         this.gameContext = gameContext;
         this.onWebSocketConnected = onWebSocketConnected;
-        this.scene = scene;
         const id = window.localStorage.getItem('playerId');
         if (id) this.id = parseInt(id);
         else this.id = getTimeStampMili();
@@ -174,6 +173,8 @@ export class WebSocketHandler {
         }
 
         if (action === 'MOVEMENT') {
+            console.log(quaternion);
+            console.log(position);
             this.connectedPlayers[senderId].setPos(position);
             this.connectedPlayers[senderId].setVelocity(velocity);
             this.connectedPlayers[senderId].setQuaternion(quaternion);

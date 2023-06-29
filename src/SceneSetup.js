@@ -17,6 +17,8 @@ export function setUpCamera() {
     camera.position.y += .7;
     camera.fov = 120;
     camera.updateProjectionMatrix();
+    camera.rotateY(180 * Math.PI / 180);
+    camera.position.y -= 1;
     return camera;
 }
 
@@ -24,7 +26,7 @@ export function setUpRenderer() {
     const renderer = new WebGLRenderer();
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.setSize( window.innerWidth , window.innerHeight  );
+    renderer.setSize( window.innerWidth , window.innerHeight );
     document.body.appendChild( renderer.domElement );
     return renderer;
 }

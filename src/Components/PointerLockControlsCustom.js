@@ -3,7 +3,7 @@ import {
 	EventDispatcher,
 	Vector3
 } from 'three';
-
+import { getCamera, getMenu, getPlayer } from '../Game';
 const _euler = new Euler( 0, 0, 0, 'YXZ' );
 const _vector = new Vector3();
 
@@ -15,13 +15,14 @@ const _PI_2 = Math.PI / 2;
 
 class PointerLockControls extends EventDispatcher {
 
-	constructor( player, domElement) {
+	constructor( player, domElement ) {
 
 		super();
 
-		this.camera = player.camera;
-		this.domElement = domElement;
+		this.camera = getCamera();
 		this.player = player;
+		
+		this.domElement = domElement;
 		this.isLocked = false;
 
 		// Set to constrain the pitch of the camera
@@ -74,8 +75,7 @@ class PointerLockControls extends EventDispatcher {
 	}
 
 	moveForward( distance ) {
-
-	// move forward parallel to the xz-plane
+		// move forward parallel to the xz-plane
 		// assumes player.up is y-
 		_vector.setFromMatrixColumn(  this.player.object.matrix, 0 );
 
@@ -83,15 +83,7 @@ class PointerLockControls extends EventDispatcher {
 
 		_vector.multiplyScalar(distance);
 
-		this.player.characterController.computeColliderMovement(
-            this.player.characterCollider,           // The collider we would like to move.
-            _vector,                                       // The movement we would like to apply if there wasn’t any obstacle.
-        );
-        // Read the result.
-        let correctedMovement = this.player.characterController.computedMovement();
-
-		this.player.object.position.add(correctedMovement);
-
+		return _vector;
 	}
 
 	moveRight( distance ) {
@@ -100,30 +92,13 @@ class PointerLockControls extends EventDispatcher {
 
 		_vector.multiplyScalar(distance);
 
-		this.player.characterController.computeColliderMovement(
-            this.player.characterCollider,           // The collider we would like to move.
-            _vector, // The movement we would like to apply if there wasn’t any obstacle.
-        );
-        // Read the result.
-        let correctedMovement = this.player.characterController.computedMovement();
-
-		this.player.object.position.add( correctedMovement );
-
+		return _vector;
 	}
 
 	moveDown( distance ) {
-		
 		const g = new Vector3(0, distance - TUNABLE_VARIABLES.gravity, 0);
 
-		this.player.characterController.computeColliderMovement(
-            this.player.characterCollider,           // The collider we would like to move.
-            g, // The movement we would like to apply if there wasn’t any obstacle.
-        );
-        // Read the result.
-        let correctedMovement = this.player.characterController.computedMovement();
-
-		this.player.object.position.add( correctedMovement );
-
+		return g;
 	}
 
 	lock() {
@@ -176,16 +151,28 @@ function onMouseMove( event ) {
 
 function onPointerlockChange() {
 
+	const menu = getMenu();
+
+	const player = getPlayer();
+
 	if ( this.domElement.ownerDocument.pointerLockElement === this.domElement ) {
+
+		menu.hide();
 
 		this.dispatchEvent( _lockEvent );
 
 		this.isLocked = true;
 
 	} else {
-
 		this.dispatchEvent( _unlockEvent );
+		
+		menu.show();
 
+		Object.keys(player.playerKeyMap).forEach(key => {
+			player.playerKeyMap[key] = false;
+		})
+
+		player.characterController.input();
 		this.isLocked = false;
 
 	}
