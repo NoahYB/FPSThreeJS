@@ -12,7 +12,7 @@ class Pistol extends Item {
         
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera( new THREE.Vector2(0,0), camera );
-        const intersects = raycaster.intersectObjects( GlobalGame.scene.children );
+        const intersects = raycaster.intersectObjects( GLOBAL_GAME.scene.children );
         let v = new THREE.Vector3();
         camera.getWorldDirection(v);
         for ( let i = 0; i < intersects.length; i ++ ) {
@@ -63,7 +63,7 @@ class Pistol extends Item {
         } );
         const geo = new THREE.SphereGeometry( 1, 32, 16 );
         const explosion = new THREE.Mesh(geo, explosionMaterial);
-        GlobalGame.scene.add(explosion);
+        GLOBAL_GAME.scene.add(explosion);
         this.explosions.push(explosion);
         explosion.position.copy(pos);
     }
@@ -153,8 +153,6 @@ function createRocketLauncher() {
     let baseGeometry = new THREE.BoxGeometry(10, 10, 10);
     let baseMaterial = new THREE.MeshBasicMaterial({
         color: new THREE.Color('Blue'),
-        roughness: 0.5,
-        metalness: 0.0
     });
     let baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
     baseMesh.position.copy(new THREE.Vector3(0,5,0));
@@ -187,7 +185,7 @@ function createRocketLauncher() {
     body.rotateZ(-Math.PI / 2);
     body.scale.set(4,4,4); 
     body.position.y += 8;
-    GlobalGame.scene.add(body);
+    GLOBAL_GAME.scene.add(body);
 
     return body;
 }

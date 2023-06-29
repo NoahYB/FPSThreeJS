@@ -6,7 +6,6 @@ import {
     Object3D
   } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { GlobalGame } from "../Game";
 
 export class ConnectedPlayer {
 
@@ -14,18 +13,21 @@ export class ConnectedPlayer {
 
     head = new Object3D();
 
-    constructor(id, item) {
+    constructor(id, item, menu, scene) {
+        console.log(scene);
+        console.log(scene.scene);
         this.id = id;
         this.inventory = new Inventory();
         if (item) {
             this.itemToAdd = item;
         }
-        this.loadModel();
-        this.animations = {};
         this.velocity = new Vector3(0,0,0);
         this.health = TUNABLE_VARIABLES.health;
         this.spawnedEntities = [];
         this.score = 0;
+        this.menu = (window).menu;
+        this.scene = scene;
+        this.loadModel();
     }
 
     loadModel() {
@@ -48,17 +50,16 @@ export class ConnectedPlayer {
                     }
                     if (child.name === 'RightShoulder') {
 
-                        this.rightArm = child;
-                        if (this.itemToAdd) {
-                            this.inventory.add(this.itemToAdd);
-                            this.itemToAdd.pickedUpByConnectedPlayer(this.id);
-                        }
+                        // this.rightArm = child;
+                        // if (this.itemToAdd) {
+                        //     this.inventory.add(this.itemToAdd);
+                        //     this.itemToAdd.pickedUpByConnectedPlayer(this.id);
+                        // }
                     }
                     if (child.isMesh) child.castShadow = true;
                 }
                 );
-                GlobalGame.scene.add( object );
-                this.setPos(new Vector3(10,10,10));
+                this.scene.add( object );
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -75,7 +76,7 @@ export class ConnectedPlayer {
 
     setTeam(teamNumber) {
         this.team = teamNumber;
-        menu.updateScores(true);
+        this.menu.updateScores(true);
     }
 
     setEquippedWeapon(item) {
@@ -165,7 +166,7 @@ export class ConnectedPlayer {
 
     update(deltaTime) {
         if (!this.object) return;
-        this.move();
+        //this.move();
         this.spawnedEntities.forEach(e => e.update ? e.update(deltaTime) : console.log('no update function'));
     }
 }

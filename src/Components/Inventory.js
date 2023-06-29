@@ -18,9 +18,9 @@ export class Inventory {
         }
     }
 
-    next() {
+    next(scene) {
         this.pointer++;
-        GlobalGame.scene.remove(this.inventory[this.pointer].model);
+        player.scene.remove(this.inventory[this.pointer].model);
         if (this.pointer === this.inventory.length) this.pointer = 0;
         player.gunBarrel = this.inventory[this.pointer].model;
         player.rightArm.add(player.gunBarrel);

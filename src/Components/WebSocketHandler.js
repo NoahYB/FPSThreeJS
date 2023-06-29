@@ -1,9 +1,14 @@
 import { ConnectedPlayer } from "../Entities/ConnectedPlayer";
 import { Vector3 } from 'three';
 import { getTimeStampMili } from "../Utilities";
+import { RocketLauncher } from "../Entities/RocketLauncher";
+
 export class WebSocketHandler {
-    constructor(url, onWebSocketConnected) {
+    constructor(url, onWebSocketConnected, menu, items, scene, gameContext) {
+        console.log(gameContext);
+        this.gameContext = gameContext;
         this.onWebSocketConnected = onWebSocketConnected;
+        this.scene = scene;
         const id = window.localStorage.getItem('playerId');
         if (id) this.id = parseInt(id);
         else this.id = getTimeStampMili();
@@ -21,6 +26,8 @@ export class WebSocketHandler {
         this.pingAverage = 0;
         this.pings = 0;
         this.timer = 0;
+        this.menu = menu;
+        this.items = items;
     }
 
     sendMessage(message) {
@@ -63,44 +70,45 @@ export class WebSocketHandler {
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
             const itemsHeld = {};
             if (gameData.itemData) {
-                // Object.keys(gameData.itemData.items).forEach(itemKey => {
-                //     console.log(itemKey);
-                //     const item = gameData.itemData.items[itemKey];
-                //     if (item.heldBy === 0) {
-                //         if (item.type ==='ROCKET') {
-                //             items[item.id] = new RocketLauncher(
-                //                 'Rocket', 
-                //                 item.id, 
-                //                 new Vector3(item.position[0],item.position[1],item.position[2]),
-                //                 this
-                //             );
-                //         }
-                //         // if (item.type ==='PISTOL') {
-                //         //     items[item.id] = new Pistol(
-                //         //         'Pistol', 
-                //         //         item.id, 
-                //         //         new Vector3(item.position[0],item.position[1],item.position[2])
-                //         //     );
-                //         // }
-                //     } else {
-                //         if (item.type ==='ROCKET') {
-                //             items[item.id] = new RocketLauncher(
-                //                 'Rocket', 
-                //                 item.id, 
-                //                 new Vector3(item.position[0],item.position[1],item.position[2])
-                //             );
-                //         }
-                //         // if (item.type ==='PISTOL') {
-                //         //     items[item.id] = new Pistol(
-                //         //         'Pistol', 
-                //         //         item.id, 
-                //         //         new Vector3(item.position[0],item.position[1],item.position[2])
-                //         //     );
-                //         // }
-                //         itemsHeld[item.heldBy] = items[item.id];
+                Object.keys(gameData.itemData.items).forEach(itemKey => {
+                    const item = gameData.itemData.items[itemKey];
+                    if (item.heldBy === 0) {
+                        // if (item.type ==='ROCKET') {
+                        //     this.items[item.id] = new RocketLauncher(
+                        //         'Rocket', 
+                        //         item.id, 
+                        //         new Vector3(item.position[0],item.position[1],item.position[2]),
+                        //         this,
+                        //         this.player,
+                        //     );
+                        // }
+                        // if (item.type ==='PISTOL') {
+                        //     items[item.id] = new Pistol(
+                        //         'Pistol', 
+                        //         item.id, 
+                        //         new Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
+                    } else {
+                        // if (item.type ==='ROCKET') {
+                        //     console.log(this);
+                        //     this.items[item.id] = new RocketLauncher(
+                        //         'Rocket', 
+                        //         item.id, 
+                        //         new Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
+                        // if (item.type ==='PISTOL') {
+                        //     items[item.id] = new Pistol(
+                        //         'Pistol', 
+                        //         item.id, 
+                        //         new Vector3(item.position[0],item.position[1],item.position[2])
+                        //     );
+                        // }
+                        itemsHeld[item.heldBy] = this.items[item.id];
                         
-                //     }
-                // })
+                    }
+                })
             }
 
             Object.keys(connectedClients).forEach(clientKey => {
@@ -111,7 +119,7 @@ export class WebSocketHandler {
                 }
                 GAMESTATE_VARIABLES.teamScores = gameData.scores;
             })
-            this.onWebSocketConnected();
+            this.onWebSocketConnected(this.gameContext);
         }
 
         if (senderId === this.id) {
@@ -122,12 +130,13 @@ export class WebSocketHandler {
         }
 
         if(!this.connectedPlayers[senderId] && senderId !== 'WEBSOCKET_SERVER_GAME_INIT' && senderId !== undefined) {
-            this.connectedPlayers[senderId] = new ConnectedPlayer(senderId);
+            console.log(this.gameContext);
+            this.connectedPlayers[senderId] = new ConnectedPlayer(senderId, undefined, this.menu, this.gameContext);
         }
 
         
         if (action === 'START_NEW_GAME') {
-            menu.hideGameOver();
+            this.menu.hideGameOver();
             Object.keys(this.connectedPlayers).forEach(key =>this.connectedPlayers[key].score = 0);
             player.score = 0;
             player.respawn();
@@ -135,8 +144,8 @@ export class WebSocketHandler {
 
         if (action === 'GAME_OVER') {
             GAMESTATE_VARIABLES.teamScores = gameData.scores;
-            menu.displayGameOver(winner, specialMessage, timeTillNextMatch, topScorer);
-            menu.updateScores(true);
+            this.menu.displayGameOver(winner, specialMessage, timeTillNextMatch, topScorer);
+            this.menu.updateScores(true);
         }
 
 
@@ -146,13 +155,13 @@ export class WebSocketHandler {
                 player.score += 1;
             }
             else this.connectedPlayers[pointAwardedTo].score += 1;
-            menu.updateScores(true);
+            this.menu.updateScores(true);
         }
 
         if (action === 'TEAM_SELECT') {
             this.connectedPlayers[senderId].setTeam(data.team);
             this.connectedPlayers[senderId].score = (data.score);
-            menu.updateScores(true);
+            this.menu.updateScores(true);
         }
 
         if (action === 'SHOT') {
@@ -189,7 +198,8 @@ export class WebSocketHandler {
     }
 
     createConnectedPlayerFromInit(clientData, senderId, item) {
-        this.connectedPlayers[senderId] = new ConnectedPlayer(senderId, item);
+
+        this.connectedPlayers[senderId] = new ConnectedPlayer(senderId, item, this.menu, this.gameContext);
         if (clientData.inTeamSelect) return;
         this.connectedPlayers[senderId].connectionDisplayName = clientData.connectionDisplayName;
         const vectorPos = new Vector3(clientData.position.x, clientData.position.y, clientData.position.z);

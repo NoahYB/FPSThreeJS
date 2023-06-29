@@ -1,4 +1,4 @@
-// @ts-check
+//@ts-check
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
@@ -11,26 +11,27 @@ import { WebSocketHandler} from './Components/WebSocketHandler';
 import { CameraController } from './Entities/CameraController';
 import { Menu } from './Entities/Menu';
 import { Player } from './Entities/Player';
+
 import RAPIER from '@dimforge/rapier3d-compat';
 
-export class GlobalGame {
+class GlobalGame {
     
-    static webSocketHandler: WebSocketHandler;
-    static renderer: THREE.WebGLRenderer;
-    static menu: Menu;
-    static level: Level;
-    static scene: THREE.Scene;
-    static player: Player;
-    static items = {};
-    static started = false;
-    static camera: THREE.Camera;
-    static loadingManager = new THREE.LoadingManager();
-    static fbxLoader = new FBXLoader(this.loadingManager);  
-    static gltfLoader = new GLTFLoader(this.loadingManager); 
-    static cameraController: CameraController;
-    static teamSelected = false;
-    static physicsWorld: any;
-    static keys = {};
+    webSocketHandler: WebSocketHandler;
+    renderer: THREE.WebGLRenderer;
+    menu: Menu;
+    level: Level;
+    scene: THREE.Scene;
+    player: Player;
+    items = {};
+    started = false;
+    camera: THREE.Camera;
+    loadingManager = new THREE.LoadingManager();
+    fbxLoader: FBXLoader;  
+    gltfLoader: GLTFLoader; 
+    cameraController: CameraController;
+    teamSelected = false;
+    physicsWorld: any;
+    keys = {};
    
     audioManager = new AudioManager();
     
@@ -52,11 +53,11 @@ export class GlobalGame {
     
     constructor() {
 
-        GlobalGame.loadingManager = new THREE.LoadingManager();
+        this.loadingManager = new THREE.LoadingManager();
     
-        GlobalGame.fbxLoader = new FBXLoader(GlobalGame.loadingManager);
+        this.fbxLoader = new FBXLoader(this.loadingManager);
         
-        GlobalGame.gltfLoader = new GLTFLoader(GlobalGame.loadingManager);
+        this.gltfLoader = new GLTFLoader(this.loadingManager);
 
         document.addEventListener('keydown', this.keydown);
         document.addEventListener('keyup', this.keyup);
@@ -71,24 +72,25 @@ export class GlobalGame {
         {
             this.selectTeam("team2");
         });
-        GlobalGame.loadingManager.onLoad = function ( ) {
-            if (GlobalGame.started) return;
+
+        this.loadingManager.onLoad = function ( ) {
+            if (this.started) return;
             let progressElement = document.getElementById('progressbar');
             let bround = document.getElementById('blockout');
             progressElement.style.display = 'none';
             bround.style.display = 'none';
         };
         
-        GlobalGame.loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-            if (GlobalGame.started) return;
+        this.loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+            if (this.started) return;
             let progressElement = document.getElementById('progressbar');
             let bound = document.getElementById('blockout');
             progressElement.style.display = 'flex';
             bound.style.display = 'flex';
         };
         
-        GlobalGame.loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-            if (GlobalGame.started) return;
+        this.loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+            if (this.started) return;
             let progressElement = document.getElementById('progressbar');
             progressElement.style.width = (itemsLoaded / itemsTotal * 40) + '%';
         };
@@ -98,92 +100,114 @@ export class GlobalGame {
         RAPIER.init().then(() => {
             console.log("Rapier Loaded");
             let gravity = { x: 0.0, y: -1.0, z: 0.0 };
-            GlobalGame.physicsWorld = new RAPIER.World(gravity);
+            this.physicsWorld = new RAPIER.World(gravity);
             this.init();
         });
     }
 
     init() {
-        console.log('init called');
-        const serverURL = window.localStorage.getItem('serverURL');
+        let serverURL = window.localStorage.getItem('serverURL');
 
         this.audioManager.music();
         
-        GlobalGame.webSocketHandler = new WebSocketHandler(serverURL, this.onWebSocketConnected);
+        console.log(serverURL);
+        if (!serverURL) serverURL = 'ws\://localhost:56112'
+
+        this.webSocketHandler = new WebSocketHandler(
+            serverURL, 
+            this.onWebSocketConnected, 
+            this.menu,
+            this.items,
+            this.scene,
+            this
+        );
     }
     
-    onWebSocketConnected() {
-        console.log('connected');
+    onWebSocketConnected(context) {
         document.getElementById('teamselector')
             .style
             .display = 'block';
-        GlobalGame.scene = new THREE.Scene();
-        GlobalGame.camera = setUpCamera();
-        GlobalGame.cameraController = new CameraController(GlobalGame.camera);
-        GlobalGame.renderer = setUpRenderer();
-        setUpLights();
-        GlobalGame.level = new Level(RAPIER);
-        GlobalGame.player = new Player(
-            GlobalGame.cameraController,
-            RAPIER
+        context.scene = new THREE.Scene();
+        context.camera = setUpCamera();
+        context.renderer = setUpRenderer();
+        setUpLights(context.scene);
+        context.level = new Level(RAPIER, context.scene, context.physicsWorld, context.gltfLoader);
+        context.player = new Player(
+            RAPIER,
+            context.renderer,
+            context.webSocketHandler,
+            context.level,
+            context.physicsWorld,
+            context.scene,
+            context.keys,
+            context.teamSelected,
+            context.fbxLoader,
+            context.camera,
         );
-        GlobalGame.player.id = GlobalGame.webSocketHandler.id;
+        context.cameraController = new CameraController(context.camera, context.player);
+        context.player.cameraController = context.cameraController;
+        (window as any).player = context.player;
+        context.player.id = context.webSocketHandler.id;
         HUD.hideHUD();
-        GlobalGame.menu = new Menu( GlobalGame.webSocketHandler, GlobalGame.player );
-        Object.keys(GlobalGame.items).forEach(key => GlobalGame.items[key].spawn());
+        context.menu = new Menu( context.webSocketHandler, context.player );
+        context.player.menu = context.menu;
+        Object.keys(context.items).forEach(key => context.items[key].spawn());
     }
 
     selectTeam(teamSelection) {
-        GlobalGame.player.team = teamSelection;
+        this.player.team = teamSelection;
         document.getElementById('teamselector').style.display = 'none';
-        GlobalGame.webSocketHandler.sendMessage({
+        this.webSocketHandler.sendMessage({
             action: 'TEAM_SELECT',
             team: teamSelection,
         });
-        GlobalGame.webSocketHandler.sendMessage({
+        this.webSocketHandler.sendMessage({
             action: 'NAME_CHANGE',
             connectionDisplayName: TUNABLE_VARIABLES.playerName,
         });
-        GlobalGame.menu.opened = false;
-        GlobalGame.player.respawn();
-        GlobalGame.player.setTeam();
-        GlobalGame.menu.updateScores(true);
+        this.menu.opened = false;
+        this.player.respawn();
+        this.player.setTeam();
+        this.menu.updateScores(true);
         HUD.showHUD();
-        GlobalGame.teamSelected = true;
-        if (!GlobalGame.started) this.startUpdate(60);
+        this.teamSelected = true;
+        this.player.teamSelected = true;
+        if (!this.started) this.startUpdate(60);
     }
     
     keydown(e){
+        this.keys = (window as any).keys;
         if (e.key === 'Escape') {
-            GlobalGame.menu.opened = !GlobalGame.menu.opened;
-            if (!GlobalGame.menu.opened) {
-                GlobalGame.menu.hide();
+            this.menu.opened = !this.menu.opened;
+            if (!this.menu.opened) {
+                this.menu.hide();
             }
-            else GlobalGame.menu.show();
+            else this.menu.show();
         }
-        GlobalGame.keys[e.key.toLowerCase()] = true;
+        this.keys[e.key.toLowerCase()] = true;
     }
     
     keyup(e){
-        GlobalGame.keys[e.key.toLowerCase()] = false;
+        this.keys = (window as any).keys;
+        this.keys[e.key.toLowerCase()] = false;
     }
     
     wheel(e) {
-        //GlobalGame.player.inventory.next();
+        //this.player.inventory.next();
     }
 
     
     sendModelData() {
-        GlobalGame.webSocketHandler.sendMessage(
+        this.webSocketHandler.sendMessage(
             {
                 action: 'MOVEMENT',
                 text: 'connected',
                 connectionDisplayName: TUNABLE_VARIABLES.playerName,
-                position: GlobalGame.player.object.position,
-                quaternion: GlobalGame.player.object.quaternion,
-                lookQuaternion: GlobalGame.camera.quaternion,
-                velocity: GlobalGame.player.velocity,
-                cameraDirection: GlobalGame.cameraController.getCameraDirection(),
+                position: this.player.object.position,
+                quaternion: this.player.object.quaternion,
+                lookQuaternion: this.camera.quaternion,
+                velocity: this.player.velocity,
+                cameraDirection: this.cameraController.getCameraDirection(),
             }
         );
     }
@@ -193,7 +217,7 @@ export class GlobalGame {
         this.then = Date.now();
         this.startTime = this.then;
         this.firstCall = true;
-        GlobalGame.renderer.setSize( window.innerWidth, window.innerHeight, false );
+        this.renderer.setSize( window.innerWidth, window.innerHeight, false );
         this.lockedUpdate();
     }
     
@@ -220,43 +244,44 @@ export class GlobalGame {
     }
     
     update() {
-        GlobalGame.started = true;
-        if (GlobalGame.keys['Tab']) GlobalGame.menu.showScore();
-        else GlobalGame.menu.hideScore();
-        if (GlobalGame.keys['2']) GlobalGame.menu.showScore();
-        else GlobalGame.menu.hideScore();
-        if (GlobalGame.player.object && GlobalGame.webSocketHandler.ready) {
+        this.started = true;
+        if (this.keys['Tab']) this.menu.showScore();
+        else this.menu.hideScore();
+        if (this.keys['2']) this.menu.showScore();
+        else this.menu.hideScore();
+        if (this.player.object && this.webSocketHandler.ready) {
             this.sendModelData();
         }
         const delta = this.clock.getDelta();
-        GlobalGame.player.update(delta);
-        GlobalGame.level.update(delta);
-        GlobalGame.physicsWorld.step();
-        GlobalGame.cameraController.update();
-        Object.keys(GlobalGame.webSocketHandler.connectedPlayers).forEach(key => {
-            GlobalGame.webSocketHandler.connectedPlayers[key].update(delta);
+        this.player.update(delta);
+        this.level.update(delta);
+        this.physicsWorld.step();
+        this.cameraController.update();
+        Object.keys(this.webSocketHandler.connectedPlayers).forEach(key => {
+            this.webSocketHandler.connectedPlayers[key].update(delta);
         })
         if (this.i === 2) {
-            //GlobalGame.player.addBBOX();
-            //GlobalGame.player.updateBBOX();
+            //this.player.addBBOX();
+            //this.player.updateBBOX();
         }
         this.i++;
-        Object.keys(GlobalGame.items).map(k => GlobalGame.items[k].update());
-        GlobalGame.renderer.render( GlobalGame.scene, GlobalGame.camera );
+        Object.keys(this.items).map(k => this.items[k].update());
+        this.renderer.render( this.scene, this.camera );
     }   
 }
 
 function onWindowResize(){
     
-    GlobalGame.camera.aspect = window.innerWidth / window.innerHeight;
-    GlobalGame.camera.updateProjectionMatrix();
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
 
-    GlobalGame.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 
+console.log(document.getElementById("Game").getAttribute('src'));
 
-const GAME = new GlobalGame();
-
-//(window as any).GAME = GAME;
-GAME.loadRapier();
+const GLOBAL_GAME = new GlobalGame();
+(window as any).keys = GLOBAL_GAME.keys;
+(window as any).menu = GLOBAL_GAME.menu;
+GLOBAL_GAME.loadRapier();

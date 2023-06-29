@@ -2,7 +2,7 @@ class PostProcessingSetup {
     constructor() {
         this.width = window.innerHeight;
         this.height = window.innerHeight;
-        this.renderPass = new THREE.RenderPass(GlobalGame.scene, camera);
+        this.renderPass = new THREE.RenderPass(GLOBAL_GAME.scene, camera);
 
         // this.afterImagePass = new THREE.AfterimagePass();
         // this.afterImagePass.uniforms["damp"].value = 0.78;
@@ -45,7 +45,7 @@ class PostProcessingSetup {
     selectivelyBloom() {
         const darkMaterial = new THREE.MeshBasicMaterial( { color: 'black' } );
         
-        GlobalGame.scene.traverse((obj) => {
+        GLOBAL_GAME.scene.traverse((obj) => {
             if (obj.isMesh && !obj.bloomEffectEnabled) {
                 obj.restoreMaterialTo = obj.material.clone();
                 obj.material = darkMaterial;
@@ -54,7 +54,7 @@ class PostProcessingSetup {
 
         this.bloomComposer.render();
 
-        GlobalGame.scene.traverse((obj) => {
+        GLOBAL_GAME.scene.traverse((obj) => {
             if (obj.isMesh && !obj.bloomEffectEnabled) {
                 obj.material = obj.restoreMaterialTo;
             }

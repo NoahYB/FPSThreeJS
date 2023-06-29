@@ -120,10 +120,10 @@ class Variables {
     setPlayerName(newPlayerName) {
         if (newPlayerName === '') return false;
         const sanitizedName = sanitize(newPlayerName);
-        webSocketHandler.sendMessage({
-            action: 'NAME_CHANGE',
-            connectionDisplayName: sanitizedName,
-        })
+        // webSocketHandler.sendMessage({
+        //     action: 'NAME_CHANGE',
+        //     connectionDisplayName: sanitizedName,
+        // })
         TUNABLE_VARIABLES.playerName = sanitize(sanitizedName);
     }
 
@@ -156,7 +156,7 @@ class Variables {
 const HTML_INPUT_FIELDS = [];
 const TUNABLE_VARIABLES = new Variables(
     {
-        movementSpeed: 20,
+        movementSpeed: 40,
         playerName: 'Donut',
         jumpHeight: 20,
         FOV: 120,

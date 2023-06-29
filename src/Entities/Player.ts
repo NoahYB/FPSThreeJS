@@ -6,22 +6,24 @@ import { PointerLockControls } from '../Components/PointerLockControlsCustom';
 import { HUD } from './HUD';
 import { CameraController } from './CameraController';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import * as THREE from 'three';
-import { GlobalGame } from '../Game';
+import {Scene, Object3D, Vector3, Box3, Renderer, MeshToonMaterial, Camera} from 'three';
 import { showRapierCollider } from '../Utilities';
+import { WebSocketHandler } from '../Components/WebSocketHandler';
+import { Level } from './Level';
+import { Menu } from './Menu';
 
 interface KeyDictionary {
     [index: string]: boolean;
 }
 
 interface CollisionData {
-    point: THREE.Vector3;
-    mesh: THREE.Object3D;
+    point: Vector3;
+    mesh: Object3D;
 }
 
 export class Player {
     cameraController: CameraController;
-    spawnLocations: THREE.Vector3[];
+    spawnLocations: Vector3[];
 
     totalTime: number = 0;
     score: number = 0;
@@ -35,9 +37,9 @@ export class Player {
 
     killBoundary: number = -30;
 
-    object: THREE.Object3D;
+    object: Object3D;
 
-    velocity: THREE.Vector3;
+    velocity: Vector3;
 
     respawning: boolean = false;
     respawnTimer: number = 0;
@@ -49,15 +51,15 @@ export class Player {
     team: string;
 
     // Collision information
-    legL: THREE.Object3D;
-    legR: THREE.Object3D;
-    body: THREE.Object3D;;
-    boxLegL: THREE.Box3;
-    boxLegR: THREE.Box3;
-    collisionObject: THREE.Object3D
-    collisionBox: THREE.Box3;
+    legL: Object3D;
+    legR: Object3D;
+    body: Object3D;;
+    boxLegL: Box3;
+    boxLegR: Box3;
+    collisionObject: Object3D
+    collisionBox: Box3;
 
-    rightArm: THREE.Object3D;
+    rightArm: Object3D;
 
     id: number;
     jumping: boolean;
@@ -79,25 +81,65 @@ export class Player {
 
     characterController: any;
 
+    renderer: Renderer;
+
+    webSocketHandler: WebSocketHandler;
+
+    level: Level;
+
+    physicsWorld: any;
+
+    menu: Menu;
+
+    scene: Scene
+
+    keys: {};
+
+    teamSelected: boolean;
+
+    camera: Camera;
     constructor(
-        cameraController: CameraController, 
         RAPIER: any,
+        renderer: Renderer,
+        webSocketHandler: WebSocketHandler,
+        level: Level,
+        physicsWorld: any,
+        scene: Scene,
+        keys: {},
+        teamSelected: boolean,
+        fbxLoader: FBXLoader,
+        camera: Camera
     ) {
+        this.camera = camera;
+
+        console.log(teamSelected);
+        this.teamSelected = teamSelected;
+
+        this.keys = keys;
+
+        this.scene = scene;
+
+        this.renderer = renderer;
+        
+        this.webSocketHandler = webSocketHandler;
+        
+        this.level = level;
+
+        this.physicsWorld = physicsWorld;
+
         this.RAPIER = RAPIER;
 
-        this.fbxLoader = GlobalGame.fbxLoader;
+        this.fbxLoader = this.fbxLoader;
 
-        this.cameraController = cameraController;
+        this.spawnLocations = this.level.spawnLocations;
 
-        this.spawnLocations = GlobalGame.level.spawnLocations;
-
+        this.fbxLoader = fbxLoader;
+        
         this.loadModel(); 
 
-        this.velocity = new THREE.Vector3(0,0,0);
+        this.velocity = new Vector3(0,0,0);
 
         document.addEventListener('mousedown',this.mousedown);
-
-        console.log('spawning player');
     }
 
     onLoadFinish() {
@@ -127,7 +169,7 @@ export class Player {
             this.object.position.y += 11;
         } else 
             this.object.position.set(20,20,0);
-        this.cameraController.setFollowedObject(this);
+        //this.cameraController.setFollowedObject(this);
         TUNABLE_VARIABLES.thirdPerson = false;
         this.health = TUNABLE_VARIABLES.health;
         this.hud.updateHealthBar(this.health);
@@ -135,7 +177,6 @@ export class Player {
     }
 
     addBBOX() {
-        console.log("ADDING BBOX");
         this.legL = this.object.getObjectByName("LegL");
         this.legR = this.object.getObjectByName("LegR");
         this.body = this.object.getObjectByName("Body");
@@ -156,13 +197,13 @@ export class Player {
 
         let colliderDesc = this.RAPIER.ColliderDesc.cuboid(this.collisionBox.halfSize.x, this.collisionBox.halfSize.y, this.collisionBox.halfSize.z);
 
-        this.characterCollider = GlobalGame.physicsWorld.createCollider(colliderDesc);
+        this.characterCollider = this.physicsWorld.createCollider(colliderDesc);
 
-        showRapierCollider(this.collisionBox.halfSize, this.collisionObject.position, this.collisionObject.rotation);
+        showRapierCollider(this.collisionBox.halfSize, this.collisionObject.position, this.collisionObject.rotation, this.scene);
         // The gap the controller will leave between the character and its environment.
         let offset = 0.2;
         // Create the controller.
-        this.characterController = GlobalGame.physicsWorld.createCharacterController(offset);
+        this.characterController = this.physicsWorld.createCharacterController(offset);
         this.characterController.enableAutostep(3.0, 0.0, true);
     }
 
@@ -173,16 +214,16 @@ export class Player {
     }
 
     loadModel() {
-        const materialToon = new THREE.MeshToonMaterial({
+        const materialToon = new MeshToonMaterial({
             color: 'red',
         });
-        const invisible = new THREE.MeshToonMaterial({
+        const invisible = new MeshToonMaterial({
             visible: false,
         });
         this.fbxLoader.load(
             'Models/PossibleCharacter2.fbx',
             (object) => {
-                this.cameraController.camera.add(object);
+                this.camera.add(object);
                 this.object = object;
 
                 object.scale.setScalar(.007);
@@ -204,7 +245,7 @@ export class Player {
                 }
                 );
                 this.onLoadFinish();
-                GlobalGame.scene.add( object );
+                this.scene.add( object );
             }, e => 1 + 1, e => console.log(e),
         )
     }
@@ -217,11 +258,11 @@ export class Player {
     }
 
     mousedown(e) {
-        console.log("Click");
-        if (GlobalGame.menu.opened || !GlobalGame.teamSelected) return;
-        GlobalGame.player.controls.lock();
-        if (GlobalGame.player.inventory.equippedItem){
-            GlobalGame.player.inventory.equippedItem.fire();
+        const player = (window as any).player;
+        if (player?.menu?.opened || !player.teamSelected) return;
+        player.controls.lock();
+        if (player.inventory.equippedItem){
+            player.inventory.equippedItem.fire();
         }
     }
 
@@ -232,7 +273,7 @@ export class Player {
     death(whoKilledPlayer) {
         if (this.respawning) return;
         this.object.position.set(0,-10000,0);
-        GlobalGame.webSocketHandler.sendMessage({
+        this.webSocketHandler.sendMessage({
             pointAwardedTo : whoKilledPlayer.id,
             team : whoKilledPlayer.team,
             action: 'CONFIRM_KILL'
@@ -253,11 +294,11 @@ export class Player {
     }
 
     move() {
-        //if (this.characterController.computedGrounded()) this.velocity.y = 0;
-        this.velocity.y = TUNABLE_VARIABLES.gravity;
-        this.controls.moveForward(this.velocity.z);
-        this.controls.moveRight(this.velocity.x);
-        this.controls.moveDown(this.velocity.y);
+        if (this.characterController.computedGrounded()) this.velocity.y = Math.max(this.velocity.y,0);
+        else this.velocity.y -= TUNABLE_VARIABLES.gravity;
+        if (this.velocity.z !== 0) this.controls.moveForward(this.velocity.z);
+        if (this.velocity.x !== 0) this.controls.moveRight(this.velocity.x);
+        if (this.velocity.y !== 0) this.controls.moveDown(this.velocity.y);
     }
 
     onHit(headshot, enemy) {
@@ -292,106 +333,47 @@ export class Player {
     input() {
         if (!this.object) return;
         
-        if (GlobalGame.keys[' ']) {
+        if (this.keys[' ']) {
             this.jumping = true;
             this.jump();
         }
         
-        this.sprinting = GlobalGame.keys['shift'] ? true : false;
+        this.sprinting = this.keys['shift'] ? true : false;
         this.walking = false;
 
-        if(GlobalGame.keys['w']){
+        if(this.keys['w']){
             //this.rigidBody.addForce({ x: 0.0, y: 0.0, z: this.movementSpeed * (this.sprinting ? 2 : 1) }, true);
             this.velocity.z = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
-        if(GlobalGame.keys['s']){
+        if(this.keys['s']){
             //this.rigidBody.addForce({ x: 0.0, y: 0.0, z: -this.movementSpeed * (this.sprinting ? 2 : 1) }, true);
             this.velocity.z = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
-        if(GlobalGame.keys['a']){
+        if(this.keys['a']){
             //.rigidBody.addForce({ x: this.movementSpeed * (this.sprinting ? 2 : 1), y: 0.0, z: 0.0 }, true);
             this.velocity.x = this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
-        if(GlobalGame.keys['d']){
+        if(this.keys['d']){
             //this.rigidBody.addForce({ x: -this.movementSpeed * (this.sprinting ? 2 : 1), y: 0.0, z: 0.0 }, true);
             this.velocity.x = -this.movementSpeed * (this.sprinting ? 2 : 1);
             this.walking = true;
         }
 
-        if (!GlobalGame.keys['w'] && !GlobalGame.keys['s']
+        if (!this.keys['w'] && !this.keys['s']
         ) this.velocity.z = 0;
 
-        if (!GlobalGame.keys['a'] && !GlobalGame.keys['d'] 
+        if (!this.keys['a'] && !this.keys['d'] 
         ) this.velocity.x = 0;
         
-    }
-
-    handleCollisions() {
-        if (!this.boxLegL || this.respawning) return;
-        if (!this.horizontalCollision) {
-            // this.updateBBOX();
-            
-        }
-        this.updateBBOX();
-        let verticalCollisionsL = this.collisions.checkBBOXvArray(this.boxLegL, GlobalGame.level.levelBBOX, true) as CollisionData;
-        let verticalCollisionsR = this.collisions.checkBBOXvArray(this.boxLegR, GlobalGame.level.levelBBOX, true) as CollisionData;
-        let horizontalCollisions = this.collisions.checkBBOXvArray(this.collisionBox, GlobalGame.level.levelBBOX, false);
-
-        let vertical = verticalCollisionsL || verticalCollisionsR;
-
-        const oldPosition = this.object.position.clone();
-        this.move();
-
-        // pos - wall
-        if (vertical && 
-            this.velocity.y <= 0
-        ) {
-            this.velocity.y = 0;
-            const ground = this.collisions.getGroundHeight(vertical.mesh, this.boxLegL.center);
-            if (ground)
-                this.object.position.y = ground.y + this.boxLegL.halfSize.z;
-            this.grounded = true;
-            this.jumping = false;
-        } else {
-            this.grounded = false;
-        }
-
-        // if (horizontalCollisions) {
-        //     horizontalCollisions.forEach(horizontalCollision => {
-        //         console.log(horizontalCollision);
-        //         const playerPos = this.collisionBox.center.clone();
-        //         const f = horizontalCollision.object.position.clone();
-        //         const dir = f.sub(playerPos.clone()).normalize();
-        //         // showVector(dir, playerPos);
-
-        //         const face = this.collisions.getFace(
-        //             dir, 
-        //             playerPos,
-        //             horizontalCollision.object
-        //         )
-        //         // console.log(face);
-        //         if (face) {
-        //             const collisionDepth = oldPosition.distanceTo(this.object.position);
-        //             this.push(face.normal.multiplyScalar(collisionDepth));
-        //         }
-        //     }) 
-        // } else {
-
-        // }
-        
-        if (!this.grounded){
-            
-            this.velocity.y -= TUNABLE_VARIABLES.gravity;
-        }
     }
 
     moveRightArm() {
         if (!this.rightArm) return;
 
-        let dir = new THREE.Vector3(0,0,0);
+        let dir = new Vector3(0,0,0);
 
         this.cameraController.camera.getWorldDirection(dir);
 
@@ -416,31 +398,31 @@ export class Player {
         this.characterCollider.setRotation(this.collisionObject.quaternion);
         this.characterCollider.setTranslation(this.object.position);
 
-        showRapierCollider(this.collisionBox.halfSize, this.collisionObject.position, this.collisionObject.quaternion);
+        showRapierCollider(this.collisionBox.halfSize, this.collisionObject.position, this.collisionObject.quaternion, this.scene);
 
         this.moveRightArm();
-        let worldDirection = new THREE.Vector3();
+        let worldDirection = new Vector3();
         this.object.getWorldDirection(worldDirection);
         this.checkY();
         this.input();
     }
 
     onPlayerLoad() {
-        this.controls = new PointerLockControls( this.object, GlobalGame.renderer.domElement );
-        this.controls.addEventListener( 'lock', function () {
-            if (GlobalGame.menu.opened) {
-                GlobalGame.player.controls.unlock();
+        this.controls = new PointerLockControls( this, this.renderer.domElement);
+        this.renderer.domElement.addEventListener( 'lock', function () {
+            console.log("LOCKING");
+            if (this.menu.opened) {
+                this.player.controls.unlock();
             }
-            GlobalGame.menu.hide();
+            this.menu.hide();
         } );
-        this.controls.addEventListener( 'unlock', function () {
-            console.log("unlock");
-            GlobalGame.menu.show();
-            Object.keys(GlobalGame.keys).forEach(key => {
-                GlobalGame.keys[key] = false;
+        this.renderer.domElement.addEventListener( 'unlock', function () {
+            this.menu.show();
+            Object.keys(this.keys).forEach(key => {
+                this.keys[key] = false;
             })
         } );
-        this.cameraController.camera.rotateY(180 * Math.PI / 180);
-        this.cameraController.camera.position.y -= 1;
+        this.camera.rotateY(180 * Math.PI / 180);
+        this.camera.position.y -= 1;
     }
 }

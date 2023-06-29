@@ -1,8 +1,10 @@
 import { Vector3 } from 'three';
-import { GlobalGame } from '../Game';
-
-class Item {
-    constructor(type, id, position) {
+//@ts-check
+export class Item {
+    constructor(type, id, position, webSocketHandler, player, camera, scene) {
+        this.scene = scene;
+        this.player = player;
+        this.webSocketHandler = webSocketHandler;
         this.type = type;
         this.parent = undefined;
         this.model = undefined;
@@ -10,17 +12,19 @@ class Item {
         this.pickedUp = false;
         this.id = id;
         this.position = position;
+        this.camera = camera;
     }
     
     pickedUpByConnectedPlayer(id) {
         this.pickedup = true;
         let armPos = new Vector3();
-        this.heldBy = GlobalGame.webSocketHandler.connectedPlayers[id];
+        this.heldBy = this.webSocketHandler.connectedPlayers[id];
         this.heldBy.rightArm.getWorldPosition(armPos);
         this.model.position.copy(armPos);
     }
     // Update the weapon pickup object.
     update() {
+        if (!this.model) return;
         if (this.pickedUp) {
             let armPos = new Vector3();
             this.heldBy.rightArm.getWorldPosition(armPos);
@@ -34,12 +38,12 @@ class Item {
             document.getElementById("equipedItem").append(
                 this.iconElement
             )
-            GlobalGame.webSocketHandler.sendMessage({
+            this.webSocketHandler.sendMessage({
                 action: "ITEM_PICKUP",
                 itemId: this.id,
             })
-            this.heldBy = player;
-            player.inventory.add(this);
+            this.heldBy = this.player;
+            this.player.inventory.add(this);
         }
         else {
             this.model.rotation.y += .01;
@@ -63,21 +67,21 @@ class Item {
 
         let dir = new Vector3(0,0,0);
 
-        camera.getWorldDirection(dir);
+        this.camera.getWorldDirection(dir);
 
         return dir;
 
     }
 
     intersectsPlayer() {
-        return player.object.position.distanceTo(this.model.position) < this.pickupRadius;
+        return this.player.object.position.distanceTo(this.model.position) < this.pickupRadius;
     }
 
     allignItem() {
 
         let dir = new Vector3(0,0,0);
 
-        camera.getWorldDirection(dir);
+        this.camera.getWorldDirection(dir);
 
         this.model.lookAt(dir.multiplyScalar(10000000000));
 

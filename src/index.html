@@ -5,31 +5,87 @@
     <meta http-equiv="Content-Language" content="en">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="Styles/startscreen.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <script src="Navigator/Navigator.js"></script>
-    <div class="header">
-        <span class="startscreen-menu-header-text"> 
-            Browser Shooter
+    <div id="teamselector" class="teamSelector"  style="display:none"> 
+        <div class="teamSelectionHeader"> 
+            <span> 
+                Select Team
+            </span>
+        </div>
+        <div class="teamselection">
+            <div class="teamSelectButton teamselectionOne" id="team1">
+                <span> Team One </span>
+            </div>
+            <div class="teamSelectButton teamselectionTwo"  id="team2">
+                <span> Team Two </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="blockout">
+        <span class="loading-text"> Loading... </span>
+        <div class="progressbar" id="progressbar">
+
+        </div>
+        <div class="progressbar-outline">
+            
+        </div>
+    </div>
+    <script src="DataModels/TunableVariables.js"></script>
+    <script src="DataModels/GameStateVariables.js"></script>
+    <script src="libs/shader.noise.js"></script>
+
+    <script id="Game" type="module" src="Game.ts"></script>
+    
+    <div id="headshot" class="headshot">
+        <span>
+            HEADSHOT!
         </span>
     </div>
-    <div class="startscreen-menu-list">
-        <div class="startscreen-menu-item" 
-             onclick="goToServerSelection()"> 
-            <span>Server List</span> 
+    <div id="HUD" class="HUDParent">
+        <div id="healthBarContainer" class="healthBarContainer">
+            <div id="healthBar" class="healthBar">
+
+            </div>
         </div>
-        <div class="startscreen-menu-item"
-             onclick="window.location.href='https://github.com/NoahYB/FPSThreeJS'"> 
-            <span>About</span> 
+
+        <div id="inventoryContainer" class="inventoryContainer">
+            <div id="equipedItem" class="equipedItem">
+
+            </div>
         </div>
-        <div class="startscreen-menu-item"
-            onclick="goToDonationInformation()"> 
-            <span>Donate</span> 
+
+
+        <div id="ammo" class="ammo">
+
         </div>
-        <div class="startscreen-menu-item"
-            onclick="goToContact()"> 
-            <span>Contact</span> 
+        <div id="respawnScreen" class="respawnScreen">
+            Respawning...
         </div>
+    </div>
+    <div id="scoreboardParent" class="scoreboardParent">
+        <div id="scoreboardFFA" class="scoreboard scoreboardFFA">
+        </div>
+        <div id="scoreboardRed" class="scoreboard scoreboardRed">
+            <span id="teamScoreRed" class="teamScore">0</span>
+        </div>
+        <div id="scoreboardBlue" class="scoreboard scoreboardBlue">
+            <span id="teamScoreBlue" class="teamScore">0</span>
+        </div>
+    </div>
+    <div class="reticle">
+
+    </div>
+    <div id="hitmarker" class="hitmarker">
+
+    </div>
+    <div id="gameOverScreen" class="overlay gameOverScreen">
+        <span id='winnerText' style="font-size: 40px;
+        "> team1 wins</span>
+        <span id='mvp' style="font-size: 40px;"> mvp: Donut 
+        </span>
+        <span id='matchTimer' style="font-size: 40px;">New Match in 10 seconds</span></div>
     </div>
 </body>

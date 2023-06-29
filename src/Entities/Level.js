@@ -1,7 +1,5 @@
 import { OBB } from 'three/addons/math/OBB.js';
 import { getAABBHalfSize, randomSpherePoint, showOBB, showRapierCollider, threeVectorToRapier } from '../Utilities';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { GlobalGame } from '../Game';
 import {
     Vector3,
     Group,
@@ -21,26 +19,32 @@ import {
 } from 'three';
 export class Level {
     
-    constructor(RAPIER) {
-        this.gltfLoader = GlobalGame.gltfLoader;
+    constructor(RAPIER, scene, physicsWorld, gltfLoader) {
+
+        this.scene = scene;
+        this.gltfLoader = gltfLoader;
+        console.log(gltfLoader);
+        this.RAPIER = RAPIER;
+        this.physicsWorld = physicsWorld;
         this.spawnLocations = [];
         this.levelObjects = [];
         this.levelBBOX = [];
         this.center = new Group();
+
+
         this.loadBackgroundColor();
         this.loadStars(100);
         this.loadLevelObj();
-        this.RAPIER = RAPIER;
     }
     
     loadCameraTexture() {
         const loader = new TextureLoader();
-        GlobalGame.scene.background = loader.load( 'Textures/original.png' );
+        this.scene.background = loader.load( 'Textures/original.png' );
     }
 
     loadBackgroundColor() {
         const loader = new TextureLoader();
-        GlobalGame.scene.background = new Color('rgba(55,10,120)');
+        this.scene.background = new Color('rgba(55,10,120)');
     }
 
     loadStars(n) {
@@ -56,7 +60,7 @@ export class Level {
             sphere.scale.setScalar(Math.random());
             this.center.add(sphere);
         }
-        GlobalGame.scene.add(this.center);
+        this.scene.add(this.center);
     }
 
     loadSkySphere() {
@@ -69,11 +73,11 @@ export class Level {
         });
         const sphere = new Mesh( geometry, material );
         sphere.rotateZ(Math.PI / 2)
-        GlobalGame.scene.add(sphere);
+        this.scene.add(sphere);
     }
 
     loadSkyBox() {
-        GlobalGame.scene.background = new CubeTextureLoader()
+        this.scene.background = new CubeTextureLoader()
         .setPath( 'Textures/interstellar_skybox/' )
         .load( [
             'xpos.png',
@@ -86,7 +90,7 @@ export class Level {
     }
 
     loadSkyBox2() {
-        GlobalGame.scene.background = new CubeTextureLoader()
+        this.scene.background = new CubeTextureLoader()
         .setPath( 'Textures/SkyboxTextures/' )
         .load( [
             'lf.png',
@@ -104,13 +108,13 @@ export class Level {
         const ground = new Mesh( groundGeometry, groundMaterial );
         this.object = ground;
         ground.rotateX(Math.PI / 2);
-        GlobalGame.scene.add(ground);
+        this.scene.add(ground);
         this.levelObjects.push(ground);
         const geometry = new BoxGeometry( 5, 5, 5 );
         const material = new MeshPhongMaterial( {color: '#904E55'} );
         const cube = new Mesh( geometry, material );
         this.levelObjects.push(cube);
-        GlobalGame.scene.add( cube );
+        this.scene.add( cube );
     }
 
     loadSimpleLevel() {
@@ -120,13 +124,10 @@ export class Level {
         this.object = ground;
         this.levelObjects.push(ground);
         ground.rotateX(Math.PI / 2);
-        GlobalGame.scene.add(ground);
+        this.scene.add(ground);
     }
     
     loadLevelObj() {
-        const materialToon = new MeshToonMaterial({
-            color: 'grey',
-        });
         this.gltfLoader.load(
             // resource URL
             'Models/Map3.gltf',
@@ -160,11 +161,11 @@ export class Level {
                                 .setRotation(child.quaternion)
                                 .setFriction(0.1);
 
-                            let collider = GlobalGame.physicsWorld.createCollider(colliderDesc);
+                            let collider = this.physicsWorld.createCollider(colliderDesc);
                         }
                     }
                 });
-                GlobalGame.scene.add(this.object);
+                this.scene.add(this.object);
             },
             function ( xhr ) {
 

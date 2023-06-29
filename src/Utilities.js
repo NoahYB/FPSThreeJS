@@ -7,7 +7,6 @@ import {
     Matrix4,
     Euler
   } from "three";
-import { GlobalGame } from "./Game";
 
 export function getTimeStampMili() {
     const d = new Date();
@@ -28,7 +27,7 @@ export function sanitize(string) {
     return string.replace(reg, (match)=>(map[match]));
 }
 
-export function showVector(v, o, c) {
+export function showVector(v, o, c, scene) {
     const dir = v;
     //normalize the direction vector (convert to vector of length 1)
     dir.normalize();
@@ -36,7 +35,7 @@ export function showVector(v, o, c) {
     const length = 100;
     const hex = c ? c: 0xffff00;
     const arrowHelper = new ArrowHelper( dir, origin, length, hex );
-    GlobalGame.scene.add( arrowHelper );
+    scene.add( arrowHelper );
 }
 
 export function threeVectorToRapier(vec3) {
@@ -53,23 +52,23 @@ export function randomSpherePoint(x0,y0,z0,radius){
     return new Vector3(x,y,z);
  }
 
-export function showOBB(obb, child) {
+export function showOBB(obb, child, scene) {
     const geometry = new BoxGeometry( obb.halfSize.x * 2, obb.halfSize.y * 2, obb.halfSize.z * 2);
     const material = new MeshBasicMaterial( {color: 'green', wireframe: true} );
     const cube = new Mesh( geometry, material );
     cube.position.copy(obb.center);
     const euler = new Euler().setFromRotationMatrix(new Matrix4().setFromMatrix3(obb.rotation));
     cube.quaternion.setFromEuler(euler);
-    GlobalGame.scene.add(cube);
+    scene.add(cube);
 }
 
-export function showRapierCollider(halfSize, position, rotation) {
+export function showRapierCollider(halfSize, position, rotation, scene) {
     const geometry = new BoxGeometry( halfSize.x * 2, halfSize.y * 2, halfSize.z * 2);
     const material = new MeshBasicMaterial( {color: 'green', wireframe: true} );
     const cube = new Mesh( geometry, material );
     cube.position.copy(position);
     cube.quaternion.copy(rotation);
-    GlobalGame.scene.add(cube);
+    scene.add(cube);
 }
 export function getAABBHalfSize(aabb) {
     const vector = new Vector3(0,0,0);
@@ -82,7 +81,7 @@ export function getAABBHalfSize(aabb) {
     }
 }
 
-export function showAABB(aabb, child) {
+export function showAABB(aabb, child, scene) {
     const geometry = new BoxGeometry(
         (aabb.max.x-aabb.min.x) / 2, 
         (aabb.max.y-aabb.min.y) / 2, 
@@ -93,5 +92,5 @@ export function showAABB(aabb, child) {
     const center = new Vector3();
     aabb.getCenter(center);
     cube.position.copy(center);
-    GlobalGame.scene.add(cube);
+    scene.add(cube);
 }

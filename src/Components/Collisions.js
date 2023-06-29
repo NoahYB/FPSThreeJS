@@ -146,13 +146,13 @@ export class Collisions {
         return false;
     }
 
-    show(pos) {
+    show(pos, scene) {
         const geometry = new BoxGeometry( .1, .1, .1 );
         const material = new MeshBasicMaterial( {color: 'green'} );
         const cube = new Mesh( geometry, material );
         cube.position.copy(
             pos.clone());
-        GlobalGame.scene.add(cube);
+        scene.add(cube);
         
     }
 

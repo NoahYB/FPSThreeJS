@@ -3,9 +3,6 @@ import {
 	EventDispatcher,
 	Vector3
 } from 'three';
-import {
-	GlobalGame
-} from '../Game'
 
 const _euler = new Euler( 0, 0, 0, 'YXZ' );
 const _vector = new Vector3();
@@ -18,14 +15,13 @@ const _PI_2 = Math.PI / 2;
 
 class PointerLockControls extends EventDispatcher {
 
-	constructor( camera, domElement ) {
+	constructor( player, domElement) {
 
 		super();
 
-
-		this.camera = camera;
+		this.camera = player.camera;
 		this.domElement = domElement;
-
+		this.player = player;
 		this.isLocked = false;
 
 		// Set to constrain the pitch of the camera
@@ -81,51 +77,52 @@ class PointerLockControls extends EventDispatcher {
 
 	// move forward parallel to the xz-plane
 		// assumes player.up is y-
-		_vector.setFromMatrixColumn(  GlobalGame.player.object.matrix, 0 );
+		_vector.setFromMatrixColumn(  this.player.object.matrix, 0 );
 
-		_vector.crossVectors(  GlobalGame.player.object.up, _vector );
+		_vector.crossVectors(  this.player.object.up, _vector );
 
 		_vector.multiplyScalar(distance);
 
-		GlobalGame.player.characterController.computeColliderMovement(
-            GlobalGame.player.characterCollider,           // The collider we would like to move.
+		this.player.characterController.computeColliderMovement(
+            this.player.characterCollider,           // The collider we would like to move.
             _vector,                                       // The movement we would like to apply if there wasn’t any obstacle.
         );
         // Read the result.
-        let correctedMovement = GlobalGame.player.characterController.computedMovement();
+        let correctedMovement = this.player.characterController.computedMovement();
 
-		GlobalGame.player.object.position.add(correctedMovement);
+		this.player.object.position.add(correctedMovement);
 
 	}
 
 	moveRight( distance ) {
 
-		_vector.setFromMatrixColumn( GlobalGame.player.object.matrix, 0 );
+		_vector.setFromMatrixColumn( this.player.object.matrix, 0 );
 
 		_vector.multiplyScalar(distance);
 
-		GlobalGame.player.characterController.computeColliderMovement(
-            GlobalGame.player.characterCollider,           // The collider we would like to move.
+		this.player.characterController.computeColliderMovement(
+            this.player.characterCollider,           // The collider we would like to move.
             _vector, // The movement we would like to apply if there wasn’t any obstacle.
         );
         // Read the result.
-        let correctedMovement = GlobalGame.player.characterController.computedMovement();
+        let correctedMovement = this.player.characterController.computedMovement();
 
-		GlobalGame.player.object.position.add( correctedMovement );
+		this.player.object.position.add( correctedMovement );
 
 	}
 
 	moveDown( distance ) {
+		
 		const g = new Vector3(0, distance - TUNABLE_VARIABLES.gravity, 0);
 
-		GlobalGame.player.characterController.computeColliderMovement(
-            GlobalGame.player.characterCollider,           // The collider we would like to move.
+		this.player.characterController.computeColliderMovement(
+            this.player.characterCollider,           // The collider we would like to move.
             g, // The movement we would like to apply if there wasn’t any obstacle.
         );
         // Read the result.
-        let correctedMovement = GlobalGame.player.characterController.computedMovement();
+        let correctedMovement = this.player.characterController.computedMovement();
 
-		GlobalGame.player.object.position.add( correctedMovement );
+		this.player.object.position.add( correctedMovement );
 
 	}
 
@@ -149,8 +146,8 @@ function onMouseMove( event ) {
     
     const _eulerBody = new Euler( 0, 0, 0, 'YXZ' );
     
-	const player = GlobalGame.player.object;
-	const camera = GlobalGame.camera;
+	const player = this.player.object;
+	const camera = this.camera;
 	this.pointerSpeed = TUNABLE_VARIABLES.sensitivity;
 
 	if ( this.isLocked === false ) return;

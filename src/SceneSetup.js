@@ -1,4 +1,3 @@
-import { GlobalGame } from './Game';
 import { 
     PointLight,
     AmbientLight,
@@ -14,7 +13,6 @@ export function setUpCamera() {
         .1,
         10000
     );
-    GlobalGame.scene.add(camera);
     camera.position.z = 5;
     camera.position.y += .7;
     camera.fov = 120;
@@ -31,7 +29,7 @@ export function setUpRenderer() {
     return renderer;
 }
 
-export function setUpLights() {
+export function setUpLights(scene) {
 
     const spotLight = new PointLight( 'white', .4 );
     spotLight.position.set( 30, 100, 0 );
@@ -39,9 +37,9 @@ export function setUpLights() {
     spotLight.shadowMapWidth = 4096;
     spotLight.shadowMapHeight = 4096;
     spotLight.castShadow = true;
-    GlobalGame.scene.add(spotLight);
+    scene.add(spotLight);
     
     const ambientLight = new AmbientLight("white", .5);
     
-    GlobalGame.scene.add(ambientLight);
+    scene.add(ambientLight);
 }
