@@ -12,6 +12,7 @@ import { Level } from './Level';
 import { Menu } from './Menu';
 import { CharacterController } from '../Components/CharacterController';
 import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getlevel, getMenu } from '../Game';
+import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
 
 interface KeyDictionary {
     [index: string]: boolean;
@@ -220,8 +221,6 @@ export class Player {
         const renderer = getRenderer();
 
         const menu = getMenu();
-
-        console.log(renderer);
 
         renderer.domElement.addEventListener( 'lock', function () {
             if (menu.opened) {

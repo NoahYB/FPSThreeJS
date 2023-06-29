@@ -7,23 +7,23 @@ if(baseURL === 'https://noahyb.github.io') {
     baseURL = 'https://noahyb.github.io/FPSThreeJS'
 }
 
-function goToGame() {
+window.goToGame =  () => {
     window.location = (baseURL + '/src/index.html');
 }
 
-function goToServerSelection() {
+window.goToServerSelection =  () => {
     window.location = (baseURL + '/src/Pages/serverselection.html');
 }
 
-function goToDonationInformation() {
+window.goToDonationInformation = () => {
     window.location = (baseURL + '/src/Pages/donationinfo.html');
 }
 
-function goToContact() {
+window.goToContact = () => {
     window.location = (baseURL + '/src/Pages/contact.html');
 }
 
-function connectToServer(serverURL) {
+window.connectToServer = (serverURL) => {
     window.localStorage.setItem('serverURL', serverURL);
     window.location = (baseURL + '/src/index.html');
 }

@@ -4,6 +4,7 @@ import {
 	Vector3
 } from 'three';
 import { getCamera, getMenu, getPlayer } from '../Game';
+import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
 const _euler = new Euler( 0, 0, 0, 'YXZ' );
 const _vector = new Vector3();
 

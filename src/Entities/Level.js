@@ -23,7 +23,6 @@ export class Level {
 
         this.scene = scene;
         this.gltfLoader = gltfLoader;
-        console.log(gltfLoader);
         this.RAPIER = RAPIER;
         this.physicsWorld = physicsWorld;
         this.spawnLocations = [];

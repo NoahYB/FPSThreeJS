@@ -5,6 +5,7 @@ import {
     PerspectiveCamera,
     PCFSoftShadowMap
  } from 'three';
+ import { TUNABLE_VARIABLES } from './DataModels/TunableVariables';
 
 export function setUpCamera() {
     const camera = new PerspectiveCamera(

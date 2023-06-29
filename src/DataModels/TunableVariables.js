@@ -154,7 +154,7 @@ class Variables {
     }
 }
 const HTML_INPUT_FIELDS = [];
-const TUNABLE_VARIABLES = new Variables(
+export const {TUNABLE_VARIABLES} = new Variables(
     {
         movementSpeed: 40,
         playerName: 'Donut',

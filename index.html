@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="src/Styles/startscreen.css">
 </head>
 <body>
-    <script src="src/Navigator/Navigator.js"></script>
+    <script type="module" src="src/Navigator/Navigator.js"></script>
     <div class="header">
         <span class="startscreen-menu-header-text"> 
             Browser Shooter
@@ -16,7 +16,7 @@
     </div>
     <div class="startscreen-menu-list">
         <div class="startscreen-menu-item" 
-             onclick="goToServerSelection()"> 
+             onclick="window.goToServerSelection()"> 
             <span>Server List</span> 
         </div>
         <div class="startscreen-menu-item"
@@ -24,11 +24,11 @@
             <span>About</span> 
         </div>
         <div class="startscreen-menu-item"
-            onclick="goToDonationInformation()"> 
+            onclick="window.goToDonationInformation()"> 
             <span>Donate</span> 
         </div>
         <div class="startscreen-menu-item"
-            onclick="goToContact()"> 
+            onclick="window.goToContact()"> 
             <span>Contact</span> 
         </div>
     </div>

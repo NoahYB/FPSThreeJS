@@ -1,3 +1,4 @@
+import { TUNABLE_VARIABLES } from "../DataModels/TunableVariables";
 export class HUD {
     html: HTMLElement;
     healthBar: HTMLElement;

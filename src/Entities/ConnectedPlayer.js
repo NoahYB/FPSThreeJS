@@ -7,7 +7,7 @@ import {
   } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { getMenu, getScene } from "../Game";
-
+import { TUNABLE_VARIABLES } from "../DataModels/TunableVariables";
 export class ConnectedPlayer {
 
     gunBarrel = new Object3D();

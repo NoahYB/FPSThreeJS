@@ -116,6 +116,5 @@ export function createCollisionMask(membershipGroups, filterGroups) {
     const filterMask = filter & 0xFFFF;
     const mask = membershipMask | filterMask;
   
-    console.log(mask);
     return `0x${mask.toString(16).toUpperCase().padStart(8, '0')}`;
   }

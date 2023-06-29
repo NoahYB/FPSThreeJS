@@ -10,6 +10,7 @@ import { WebSocketHandler} from './Components/WebSocketHandler';
 import { CameraController } from './Entities/CameraController';
 import { Menu } from './Entities/Menu';
 import { Player } from './Entities/Player';
+import { TUNABLE_VARIABLES } from './DataModels/TunableVariables';
 import RAPIER from '@dimforge/rapier3d-compat';
 
 class GlobalGame {
@@ -111,8 +112,7 @@ class GlobalGame {
         let serverURL = window.localStorage.getItem('serverURL');
 
         this.audioManager.music();
-        
-        console.log(serverURL);
+
         if (!serverURL) serverURL = 'ws\://localhost:56112'
 
         this.webSocketHandler = new WebSocketHandler(
@@ -251,7 +251,6 @@ function onWindowResize(){
 
 function keydown(e){
     const menu = getMenu();
-    console.log('ESCAPE');
     if (e.key === 'Escape') {
         menu.opened = !menu.opened;
         if (!menu.opened) {
@@ -261,7 +260,6 @@ function keydown(e){
     }
 }
 
-console.log(document.getElementById("Game").getAttribute('src'));
 
 export const GLOBAL_GAME = new GlobalGame();
 

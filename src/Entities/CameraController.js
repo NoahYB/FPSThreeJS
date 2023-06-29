@@ -1,5 +1,7 @@
 import { Vector3 } from 'three';
+import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
 export class CameraController {
+
     constructor(camera, player) {
         this.camera = camera;
         this.followedObject = player;

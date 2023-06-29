@@ -3,6 +3,7 @@ import { getRenderer, getRapier, getPhysicsWorld, getPlayer, getTeamSelected } f
 import { Player } from "../Entities/Player";
 import { Vector3 } from 'three';
 import { showRapierCollider, getAABBHalfSize, createCollisionMask } from "../Utilities";
+import { TUNABLE_VARIABLES } from "../DataModels/TunableVariables";
 
 export class CharacterController {
     RAPIER: any;
@@ -22,8 +23,6 @@ export class CharacterController {
         this.player = getPlayer();
 
         this.addCharacterController();
-
-        console.log(this.rapierController);
 
         this.pointerLockControls = new PointerLockControls(
             this.player, 
