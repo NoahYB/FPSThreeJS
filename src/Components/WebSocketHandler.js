@@ -2,6 +2,7 @@ import { ConnectedPlayer } from "../Entities/ConnectedPlayer";
 import { Vector3 } from 'three';
 import { getTimeStampMili } from "../Utilities";
 import { RocketLauncher } from "../Entities/RocketLauncher";
+import { Rifle } from "../Entities/Rifle";
 import { GLOBAL_GAME, getScene } from "../Game";
 import { GAMESTATE_VARIABLES } from "../DataModels/GameStateVariables";
 
@@ -74,8 +75,8 @@ export class WebSocketHandler {
                     const item = gameData.itemData.items[itemKey];
                     if (item.heldBy === 0) {
                         if (item.type ==='ROCKET') {
-                            this.items[item.id] = new RocketLauncher(
-                                'Rocket', 
+                            this.items[item.id] = new Rifle(
+                                'Rifle', 
                                 item.id, 
                                 new Vector3(item.position[0],item.position[1],item.position[2]),
                                 this,
@@ -83,8 +84,8 @@ export class WebSocketHandler {
                         }
                     } else {
                         if (item.type ==='ROCKET') {
-                            this.items[item.id] = new RocketLauncher(
-                                'Rocket', 
+                            this.items[item.id] = new Rifle(
+                                'Rifle', 
                                 item.id, 
                                 new Vector3(item.position[0],item.position[1],item.position[2]),
                                 this

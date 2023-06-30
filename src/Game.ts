@@ -321,6 +321,12 @@ export const getFBXLoader = () => GLOBAL_GAME.fbxLoader;
 
 /**
  * 
+ * @returns GLTFLoader
+ */
+export const getGLTFLoader = () => GLOBAL_GAME.gltfLoader;
+
+/**
+ * 
  * @returns FBXLoader
  */
 export const getTeamSelected = () => GLOBAL_GAME.teamSelected;
