@@ -12,7 +12,7 @@ import {
     Vector3
 } from 'three';
 import { getPlayer, getScene, getRapier, getPhysicsWorld } from '../Game';
-import { createCollisionMask } from '../Utilities';
+import { classic3D } from '../libs/shader.noise';
 
 export class RocketLauncher extends Item {
     constructor(type="Rocket", id, position, webSocketHandler){

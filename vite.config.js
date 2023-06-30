@@ -9,7 +9,6 @@ export default defineConfig({
         nested: resolve(__dirname, 'src/index.html'),
       },
     },
-    outDir: './docs'
   },
 })
   

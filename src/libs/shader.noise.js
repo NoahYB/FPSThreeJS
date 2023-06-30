@@ -1,4 +1,4 @@
-function classic3D() {
+export function classic3D() {
     return `//
     // GLSL textureless classic 3D noise "cnoise",
     // with an RSL-style periodic variant "pnoise".
