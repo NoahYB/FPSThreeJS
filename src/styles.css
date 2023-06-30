@@ -3,13 +3,11 @@ html {
     overflow: hidden;
     margin: 0;
 }
-
-canvas {
-    background-color: black;
-}
-
 body {
     margin: 0;
+}
+canvas {
+    background-color: black;
 }
 
 .centered_div {

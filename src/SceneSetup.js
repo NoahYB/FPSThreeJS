@@ -3,7 +3,12 @@ import {
     AmbientLight,
     WebGLRenderer,
     PerspectiveCamera,
-    PCFSoftShadowMap
+    PCFSoftShadowMap,
+    DirectionalLight,
+    OrthographicCamera,
+    NearestFilter,
+    RGBAFormat,
+    WebGLRenderTarget
  } from 'three';
  import { TUNABLE_VARIABLES } from './DataModels/TunableVariables';
 
@@ -25,8 +30,7 @@ export function setUpCamera() {
 
 export function setUpRenderer() {
     const renderer = new WebGLRenderer();
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFSoftShadowMap;
+
     renderer.setSize( window.innerWidth , window.innerHeight );
     document.body.appendChild( renderer.domElement );
     return renderer;
@@ -34,13 +38,14 @@ export function setUpRenderer() {
 
 export function setUpLights(scene) {
 
-    const spotLight = new PointLight( 'white', .4 );
-    spotLight.position.set( 30, 100, 0 );
-    spotLight.rotateZ(3.14 / 4)
-    spotLight.shadowMapWidth = 4096;
-    spotLight.shadowMapHeight = 4096;
-    spotLight.castShadow = true;
-    scene.add(spotLight);
+    const directionalLight = new DirectionalLight('white', 1 );
+
+    directionalLight.position.set( 0, 10, 0 );
+
+    directionalLight.target.position.set( 0, 0, 0 );
+
+
+    scene.add(directionalLight);
     
     const ambientLight = new AmbientLight("white", .5);
     

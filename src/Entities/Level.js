@@ -133,16 +133,15 @@ export class Level {
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;
+                this.object.castShadow = true;
                 level.scene.updateMatrixWorld( true );
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
-                        if (child.name === 'Ground') {
-                            child.receiveShadow = true;
-                            child.castShadow = false;
-                        }
                         if (child.name.startsWith('Spawn')) {
                             this.spawnLocations.push(child.position);
                         } else {
+                            child.castShadow = true;
+
                             child.geometry.computeBoundingBox();
                             
                             child.updateMatrixWorld( true );
@@ -162,6 +161,11 @@ export class Level {
                                 .setCollisionGroups(0x00010007);
 
                             let collider = this.physicsWorld.createCollider(colliderDesc);
+                        }
+                        if (child.name === 'Ground') {
+                            child.receiveShadow = true;
+                            
+                            child.castShadow = false;
                         }
                     }
                 });
