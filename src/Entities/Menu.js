@@ -1,4 +1,6 @@
-import { TUNABLE_VARIABLES } from "../DataModels/TunableVariables";
+import { TUNABLE_VARIABLES, HTML_INPUT_FIELDS } from "../DataModels/TunableVariables";
+import { GAMESTATE_VARIABLES } from "../DataModels/GameStateVariables";
+
 export class Menu {
     constructor(webSocketHandler, player) {
         this.player = player;

@@ -129,7 +129,7 @@ export class Level {
     loadLevelObj() {
         this.gltfLoader.load(
             // resource URL
-            'Models/Map3.gltf',
+            '../Models/Map3.gltf',
             // called when resource is loaded
             ( level )  => {
                 this.object = level.scene;

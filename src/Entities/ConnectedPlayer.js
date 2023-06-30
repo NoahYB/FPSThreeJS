@@ -8,6 +8,7 @@ import {
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { getMenu, getScene } from "../Game";
 import { TUNABLE_VARIABLES } from "../DataModels/TunableVariables";
+
 export class ConnectedPlayer {
 
     gunBarrel = new Object3D();
@@ -32,7 +33,7 @@ export class ConnectedPlayer {
             color: 'purple',
         });
         new FBXLoader().load(
-            'Models/PossibleCharacter2.fbx',
+            '../Models/PossibleCharacter2.fbx',
             (object) => {
                 this.object = object;
                 object.scale.setScalar(.007);

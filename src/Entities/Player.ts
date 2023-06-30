@@ -119,7 +119,7 @@ export class Player {
             visible: false,
         });
         getFBXLoader().load(
-            'Models/PossibleCharacter2.fbx',
+            '../Models/PossibleCharacter2.fbx',
             (object) => {
                 getCamera().add(object);
                 this.object = object;

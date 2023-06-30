@@ -7,7 +7,7 @@ export class Item {
         this.type = type;
         this.parent = undefined;
         this.model = undefined;
-        this.iconSrc = `Icons/${type}.png`
+        this.iconSrc = `../Icons/${type}.png`
         this.pickedUp = false;
         this.id = id;
         this.position = position;

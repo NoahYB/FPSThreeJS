@@ -3,6 +3,7 @@ import { Vector3 } from 'three';
 import { getTimeStampMili } from "../Utilities";
 import { RocketLauncher } from "../Entities/RocketLauncher";
 import { GLOBAL_GAME, getScene } from "../Game";
+import { GAMESTATE_VARIABLES } from "../DataModels/GameStateVariables";
 
 export class WebSocketHandler {
     constructor(url, onWebSocketConnected, menu, items, gameContext) {

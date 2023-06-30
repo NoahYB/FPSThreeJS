@@ -18,4 +18,4 @@ class GameStateVariables {
     }
 }
 
-const GAMESTATE_VARIABLES = new GameStateVariables();
+export const GAMESTATE_VARIABLES = new GameStateVariables();

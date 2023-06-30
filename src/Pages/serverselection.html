@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../Styles/serverselection.css">
 </head>
 <body>
-    <script src="../Navigator/Navigator.js"></script>
+    <script type="module" src="../Navigator/Navigator.js"></script>
     <div class="header"> 
         <span class="serverselection-menu-header-text">
             Available Servers
@@ -16,15 +16,15 @@
     </div>
     <div class="serverselection-menu-list">
         <div class="serverselection-menu-item" 
-            onclick="connectToServer('ws\://localhost:56112')"> 
+            onclick="window.connectToServer('ws\://localhost:56112')"> 
             <span>Local Host</span> 
         </div>
         <div class="serverselection-menu-item" 
-            onclick="connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
+            onclick="window.connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
             <span>brintonliteraryagency</span> 
         </div>
         <div class="serverselection-menu-item" 
-            onclick="connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
+            onclick="window.connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
             <span>brintonliteraryagency</span> 
         </div>
     </div>
