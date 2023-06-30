@@ -2,10 +2,17 @@ html {
     background-color: #000000;
     font-family: courier;
 }
+
+body {
+    margin: 0;
+    border: #28ebdb;
+    border-style: dashed;
+}
+
 .header {
-    color: #28ebdb;
+    color: #ffffff;
     display: flex;
-    margin: 10px;
+    margin: 60px;
 }
 .header span {
     font-size: 50px;
@@ -17,13 +24,14 @@ html {
 }
 
 .startscreen-menu-header-text {
+    color: #ffffff;
     font-weight: bold;
 }
 
 .startscreen-menu-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
     margin: auto;
 }
 
@@ -32,6 +40,7 @@ html {
     background-color: #FFFCF2;
     margin: auto;
     width: 40%;
+    border-radius: 10px;
 }
 .startscreen-menu-item span {
     font-size: 25px;
@@ -40,4 +49,11 @@ html {
 .startscreen-menu-item:hover {
     background-color: #CCC5B9;
     cursor: pointer;
+}
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    width: 100%;
+    height: 2.5rem;            /* Footer height */
 }
