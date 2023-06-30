@@ -1,0 +1,91 @@
+<head>
+    <html lang="en" xml:lang="en" xmlns= "http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="Content-Language" content="en">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    
+  <script type="module" crossorigin src="/FPSThreeJS/assets/nested-3c5751d2.js"></script>
+  <link rel="modulepreload" crossorigin href="/FPSThreeJS/assets/modulepreload-polyfill-3cfb730f.js">
+  <link rel="stylesheet" href="/FPSThreeJS/assets/index-0b917f6b.css">
+</head>
+<body>
+    <div id="teamselector" class="teamSelector"  style="display:none"> 
+        <div class="teamSelectionHeader"> 
+            <span> 
+                Select Team
+            </span>
+        </div>
+        <div class="teamselection">
+            <div class="teamSelectButton teamselectionOne" id="team1">
+                <span> Team One </span>
+            </div>
+            <div class="teamSelectButton teamselectionTwo"  id="team2">
+                <span> Team Two </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="blockout">
+        <span class="loading-text"> Loading... </span>
+        <div class="progressbar" id="progressbar">
+
+        </div>
+        <div class="progressbar-outline">
+            
+        </div>
+    </div>
+    
+    
+    
+    <div id="headshot" class="headshot">
+        <span>
+            HEADSHOT!
+        </span>
+    </div>
+    <div id="HUD" class="HUDParent">
+        <div id="healthBarContainer" class="healthBarContainer">
+            <div id="healthBar" class="healthBar">
+
+            </div>
+        </div>
+
+        <div id="inventoryContainer" class="inventoryContainer">
+            <div id="equipedItem" class="equipedItem">
+
+            </div>
+        </div>
+
+
+        <div id="ammo" class="ammo">
+
+        </div>
+        <div id="respawnScreen" class="respawnScreen">
+            Respawning...
+        </div>
+    </div>
+    <div id="scoreboardParent" class="scoreboardParent">
+        <div id="scoreboardFFA" class="scoreboard scoreboardFFA">
+        </div>
+        <div id="scoreboardRed" class="scoreboard scoreboardRed">
+            <span id="teamScoreRed" class="teamScore">0</span>
+        </div>
+        <div id="scoreboardBlue" class="scoreboard scoreboardBlue">
+            <span id="teamScoreBlue" class="teamScore">0</span>
+        </div>
+    </div>
+    <div class="reticle">
+
+    </div>
+    <div id="hitmarker" class="hitmarker">
+
+    </div>
+    <div id="gameOverScreen" class="overlay gameOverScreen">
+        <span id='winnerText' style="font-size: 40px;
+        "> team1 wins</span>
+        <span id='mvp' style="font-size: 40px;"> mvp: Donut 
+        </span>
+        <span id='matchTimer' style="font-size: 40px;">New Match in 10 seconds</span></div>
+    </div>
+</body>
