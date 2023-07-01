@@ -1,6 +1,7 @@
-export class AudioManager {
+import { TUNABLE_VARIABLES } from "./DataModels/TunableVariables";
+class AudioManager {
     constructor() {
-        this.walking = new Audio('Audio/walkingsoft.mp3');
+        this.walking = new Audio('../Audio/walkingsoft.mp3');
         this.walking.loop = true;
     }
 
@@ -13,15 +14,23 @@ export class AudioManager {
 
     hit() {
         this.play(
-            'Audio/shoot.mp3',
+            '../Audio/shoot.mp3',
             false,
-            .8 * TUNABLE_.volume
+            .8 * TUNABLE_VARIABLES.volume
+        )
+    }
+
+    charge() {
+        this.play(
+            '../Audio/charge.mp3',
+            false,
+            .8 * TUNABLE_VARIABLES.volume
         )
     }
 
     shoot() {
         this.play(
-            'Audio/hit.mp3',
+            '../Audio/hit.mp3',
             false,
             .1 * TUNABLE_VARIABLES.volume
         )
@@ -41,3 +50,5 @@ export class AudioManager {
         audio.play();
     }
 }
+
+export const AUDIO_MANAGER = new AudioManager();

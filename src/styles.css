@@ -129,13 +129,13 @@ h1 {
     top:  calc(50% - 1.5px);;
 }
 .hitmarker {
-    background-image:url('Textures/hitmarker.png');
+    background-image:url('../hitmarker.png');
     position: fixed;
-    background-size: 20px;
-    height: 10px;
-    width: 20px;
-    left: calc(50% - 10px);
-    top:  calc(50% - 5.6px);
+    background-size: 40px;
+    height: 20px;
+    width: 40px;
+    left: calc(50% - 20px);
+    top:  calc(50% - 11.2px);
     opacity: 0;
 }
 

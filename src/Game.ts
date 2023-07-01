@@ -2,7 +2,6 @@
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { AudioManager } from './AudioManager';
 import { setUpCamera, setUpLights, setUpRenderer } from './SceneSetup';
 import { Level } from './Entities/Level';
 import { HUD } from './Entities/HUD';
@@ -33,9 +32,6 @@ class GlobalGame {
     RAPIER: any;
 
     keys = {};
-
-   
-    audioManager = new AudioManager();
     
 
     spawnLocations = [];
@@ -111,8 +107,6 @@ class GlobalGame {
     init() {
         let serverURL = window.localStorage.getItem('serverURL');
 
-        this.audioManager.music();
-
         if (!serverURL) serverURL = 'ws\://localhost:56112'
 
         this.webSocketHandler = new WebSocketHandler(
@@ -134,7 +128,7 @@ class GlobalGame {
         setUpLights(context.scene);
         context.level = new Level(RAPIER, context.scene, context.physicsWorld, context.gltfLoader);
         context.player = new Player(
-            context.webSocketHandler,
+            context.webSocketHandler
         );
         context.cameraController = new CameraController(context.camera, context.player);
         context.player.cameraController = context.cameraController;
@@ -304,7 +298,7 @@ export const getPhysicsWorld = () => GLOBAL_GAME.physicsWorld;
  * 
  * @returns Level
  */
-export const getlevel = () => GLOBAL_GAME.level;
+export const getLevel = () => GLOBAL_GAME.level;
 
 /**
  * 
@@ -330,4 +324,10 @@ export const getGLTFLoader = () => GLOBAL_GAME.gltfLoader;
  * @returns FBXLoader
  */
 export const getTeamSelected = () => GLOBAL_GAME.teamSelected;
+
+/**
+ * 
+ * @returns WebSocketHandler
+ */
+export const getWebSocketHandler = () => GLOBAL_GAME.webSocketHandler;
 

@@ -11,8 +11,9 @@ import { WebSocketHandler } from '../Components/WebSocketHandler';
 import { Level } from './Level';
 import { Menu } from './Menu';
 import { CharacterController } from '../Components/CharacterController';
-import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getlevel, getMenu } from '../Game';
+import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu } from '../Game';
 import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
+import { Item } from '../Components/Item';
 
 interface KeyDictionary {
     [index: string]: boolean;
@@ -65,13 +66,15 @@ export class Player {
 
     menu: Menu;
 
+    itemToAdd: Item;
+
     constructor(
-        webSocketHandler: WebSocketHandler,
+        webSocketHandler: WebSocketHandler
     ) {
 
         this.webSocketHandler = webSocketHandler;
         
-        this.level = getlevel();
+        this.level = getLevel();
 
         this.spawnLocations = this.level.spawnLocations;
 
@@ -123,7 +126,7 @@ export class Player {
             (object) => {
                 getCamera().add(object);
                 this.object = object;
-                object.scale.setScalar(.007);
+                object.scale.setScalar(.0099);
                 object.traverse(( child ) => {
                     if ( child.isMesh ) child.material = invisible;
                     if (child.name === 'RightShoulder') this.rightArm = child;
@@ -217,6 +220,12 @@ export class Player {
         this.checkY();
     }
 
+    gunRecoil(dir) {
+        if (!this.characterController.rapierController.computedGrounded()) {
+            this.characterController.velocity.add(dir);
+        }
+    }
+
     onPlayerLoad() {
         const renderer = getRenderer();
 
@@ -245,18 +254,21 @@ document.addEventListener('mousedown', mousedown);
 
 function keydown(e){
     const player = getPlayer();
+    if (!player || !player.object) return;
     player.playerKeyMap[e.key.toLowerCase()] = true;
     player.characterController.input();
 }
 
 function keyup(e){
     const player = getPlayer();
+    if (!player || !player.object) return;
     player.playerKeyMap[e.key.toLowerCase()] = false;
     player.characterController.input();
 }
 
 function mousedown(e) {
     const player = getPlayer();
+    if (!player || !player.object) return;
     if (player.inventory.equippedItem){
         player.inventory.equippedItem.fire();
     }

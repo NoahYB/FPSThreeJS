@@ -137,9 +137,13 @@ export class Level {
                 level.scene.updateMatrixWorld( true );
                 this.object.traverse(( child ) => {
                     if ( child.isMesh) {
+
+                        if (child.children.length === 0) this.levelObjects.push(child);
+
                         if (child.name.startsWith('Spawn')) {
                             this.spawnLocations.push(child.position);
                         } else {
+
                             child.castShadow = true;
 
                             child.geometry.computeBoundingBox();

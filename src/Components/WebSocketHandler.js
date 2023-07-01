@@ -3,8 +3,8 @@ import { Vector3 } from 'three';
 import { getTimeStampMili } from "../Utilities";
 import { RocketLauncher } from "../Entities/RocketLauncher";
 import { Rifle } from "../Entities/Rifle";
-import { GLOBAL_GAME, getScene } from "../Game";
 import { GAMESTATE_VARIABLES } from "../DataModels/GameStateVariables";
+import { getPlayer } from "../Game";
 
 export class WebSocketHandler {
     constructor(url, onWebSocketConnected, menu, items, gameContext) {
@@ -75,6 +75,14 @@ export class WebSocketHandler {
                     const item = gameData.itemData.items[itemKey];
                     if (item.heldBy === 0) {
                         if (item.type ==='ROCKET') {
+                            this.items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                this,
+                            );
+                        }
+                        if (item.type ==='RIFLE') {
                             this.items[item.id] = new Rifle(
                                 'Rifle', 
                                 item.id, 
@@ -84,6 +92,14 @@ export class WebSocketHandler {
                         }
                     } else {
                         if (item.type ==='ROCKET') {
+                            this.items[item.id] = new RocketLauncher(
+                                'Rocket', 
+                                item.id, 
+                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                this
+                            );
+                        }
+                        if (item.type ==='RIFLE') {
                             this.items[item.id] = new Rifle(
                                 'Rifle', 
                                 item.id, 
@@ -91,8 +107,8 @@ export class WebSocketHandler {
                                 this
                             );
                         }
+
                         itemsHeld[item.heldBy] = this.items[item.id];
-                        
                     }
                 })
             }
@@ -105,7 +121,7 @@ export class WebSocketHandler {
                 }
                 GAMESTATE_VARIABLES.teamScores = gameData.scores;
             })
-            this.onWebSocketConnected(this.gameContext);
+            this.onWebSocketConnected(this.gameContext, this.playerItem);
         }
 
         if (senderId === this.id) {
@@ -115,7 +131,7 @@ export class WebSocketHandler {
             return;
         }
 
-        if(!this.connectedPlayers[senderId] && senderId !== 'WEBSOCKET_SERVER_GAME_INIT' && senderId !== undefined) {
+        if(!this.connectedPlayers[senderId] && senderId !== 'WEBSOCKET_SERVER_GAME_INIT' && senderId !== undefined && senderId !== this.id) {
             this.connectedPlayers[senderId] = new ConnectedPlayer(senderId, undefined, this.menu, this.gameContext);
         }
 

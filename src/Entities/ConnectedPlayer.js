@@ -36,7 +36,8 @@ export class ConnectedPlayer {
             '../Models/PossibleCharacter2.fbx',
             (object) => {
                 this.object = object;
-                object.scale.setScalar(.007);
+                this.object.userData.id = this.id;
+                object.scale.setScalar(.0099);
                 object.c = this;
                 object.isEnemy = true;
                 object.traverse(( child ) => {
