@@ -1,4 +1,4 @@
-# In Browser FPS
+# In Browser Multiplayer FPS
 
 ## Link to game hosted on github pages
 
