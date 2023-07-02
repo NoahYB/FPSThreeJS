@@ -6,7 +6,7 @@ import {
     Object3D
   } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { getMenu, getScene } from "../Game";
+import { getMenu, getScene, getWebSocketHandler } from "../Game";
 import { TUNABLE_VARIABLES } from "../DataModels/TunableVariables";
 
 export class ConnectedPlayer {
@@ -26,6 +26,7 @@ export class ConnectedPlayer {
         this.spawnedEntities = [];
         this.score = 0;
         this.loadModel();
+        this.firstPositionMessage = true;
     }
 
     loadModel() {
@@ -57,11 +58,20 @@ export class ConnectedPlayer {
                         }
                     }
                     if (child.isMesh) child.castShadow = true;
+                    this.addToScene(new Vector3(10000,100000,100000));
                 }
                 );
-                getScene().add( object );
             }, e => 1 + 1, e => console.log(e),
         )
+    }
+
+    unLoad() {
+        getScene().remove(this.object);
+    }
+
+    addToScene(pos) {
+        getScene().add(this.object);
+        this.object.position.copy(pos);
     }
 
     setPos(pos) {

@@ -11,7 +11,7 @@ import { WebSocketHandler } from '../Components/WebSocketHandler';
 import { Level } from './Level';
 import { Menu } from './Menu';
 import { CharacterController } from '../Components/CharacterController';
-import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu } from '../Game';
+import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu, getItems } from '../Game';
 import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
 import { Item } from '../Components/Item';
 
@@ -41,7 +41,7 @@ export class Player {
 
     respawnTimer: number = 0;
     
-    inventory: Inventory = new Inventory()
+    inventory: Inventory = new Inventory(this, true)
 
     horizontalCollision: boolean = false;
     team: string;

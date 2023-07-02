@@ -331,3 +331,10 @@ export const getTeamSelected = () => GLOBAL_GAME.teamSelected;
  */
 export const getWebSocketHandler = () => GLOBAL_GAME.webSocketHandler;
 
+/**
+ * 
+ * @returns {}
+ */
+export const getItems = () => GLOBAL_GAME.items;
+
+

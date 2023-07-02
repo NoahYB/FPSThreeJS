@@ -4,7 +4,7 @@ import { getTimeStampMili } from "../Utilities";
 import { RocketLauncher } from "../Entities/RocketLauncher";
 import { Rifle } from "../Entities/Rifle";
 import { GAMESTATE_VARIABLES } from "../DataModels/GameStateVariables";
-import { getPlayer } from "../Game";
+import { getPlayer, getScene, getWebSocketHandler } from "../Game";
 
 export class WebSocketHandler {
     constructor(url, onWebSocketConnected, menu, items, gameContext) {
@@ -29,6 +29,16 @@ export class WebSocketHandler {
         this.timer = 0;
         this.menu = menu;
         this.items = items;
+        this.webSocket.onclose = this.hijackClose;
+        window.addEventListener("beforeunload", this.hijackClose);
+    }
+
+    hijackClose(e) {
+        console.log('closing');
+        getWebSocketHandler().sendMessage({
+            action: 'CLOSING',
+            position: getPlayer().object.position,
+        })
     }
 
     sendMessage(message) {
@@ -65,7 +75,8 @@ export class WebSocketHandler {
             timeTillNextMatch,
             projectileVelocity,
             topScorer,
-            itemId
+            itemId,
+            itemsDropped
 	    } = data;
         
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
@@ -73,12 +84,13 @@ export class WebSocketHandler {
             if (gameData.itemData) {
                 Object.keys(gameData.itemData.items).forEach(itemKey => {
                     const item = gameData.itemData.items[itemKey];
+                    console.log(item.heldBy);
                     if (item.heldBy === 0) {
                         if (item.type ==='ROCKET') {
                             this.items[item.id] = new RocketLauncher(
                                 'Rocket', 
                                 item.id, 
-                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                item.position,
                                 this,
                             );
                         }
@@ -86,7 +98,7 @@ export class WebSocketHandler {
                             this.items[item.id] = new Rifle(
                                 'Rifle', 
                                 item.id, 
-                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                item.position,
                                 this,
                             );
                         }
@@ -95,7 +107,7 @@ export class WebSocketHandler {
                             this.items[item.id] = new RocketLauncher(
                                 'Rocket', 
                                 item.id, 
-                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                item.position,
                                 this
                             );
                         }
@@ -103,11 +115,10 @@ export class WebSocketHandler {
                             this.items[item.id] = new Rifle(
                                 'Rifle', 
                                 item.id, 
-                                new Vector3(item.position[0],item.position[1],item.position[2]),
+                                item.position,
                                 this
                             );
                         }
-
                         itemsHeld[item.heldBy] = this.items[item.id];
                     }
                 })
@@ -137,7 +148,7 @@ export class WebSocketHandler {
 
         
         if (action === 'START_NEW_GAME') {
-            this.menu.hideGameOver();
+            getMenu().hideGameOver();
             Object.keys(this.connectedPlayers).forEach(key =>this.connectedPlayers[key].score = 0);
             player.score = 0;
             player.respawn();
@@ -145,8 +156,8 @@ export class WebSocketHandler {
 
         if (action === 'GAME_OVER') {
             GAMESTATE_VARIABLES.teamScores = gameData.scores;
-            this.menu.displayGameOver(winner, specialMessage, timeTillNextMatch, topScorer);
-            this.menu.updateScores(true);
+            getMenu().displayGameOver(winner, specialMessage, timeTillNextMatch, topScorer);
+            getMenu().updateScores(true);
         }
 
 
@@ -156,13 +167,13 @@ export class WebSocketHandler {
                 player.score += 1;
             }
             else this.connectedPlayers[pointAwardedTo].score += 1;
-            this.menu.updateScores(true);
+            // getMenu().updateScores(true);
         }
 
         if (action === 'TEAM_SELECT') {
             this.connectedPlayers[senderId].setTeam(data.team);
             this.connectedPlayers[senderId].score = (data.score);
-            this.menu.updateScores(true);
+            // getMenu().updateScores(true);
         }
 
         if (action === 'SHOT') {
@@ -194,6 +205,19 @@ export class WebSocketHandler {
         if (action === 'ITEM_PICKUP') {
             this.connectedPlayers[senderId].inventory.add(this.items[itemId]);
             this.items[itemId].pickedUpByConnectedPlayer(senderId);
+        }
+
+        if (action === 'ITEM_DROP') {
+            itemsDropped.forEach(item => {
+                this.items[item.id].drop(item.position);
+            })
+        }
+
+        if (action === 'CLOSING') {
+            const object = this.connectedPlayers[senderId].object;
+            this.connectedPlayers[senderId].unLoad();
+            getScene().remove(object);
+            delete this.connectedPlayers[senderId];
         }
 
     }

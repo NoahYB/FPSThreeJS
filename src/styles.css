@@ -169,9 +169,6 @@ h1 {
 .inventoryContainer {
     position: fixed;
     background-size: 20px;
-    background-color: #ffffff63;
-    border: black;
-    border-radius: 10px;
     left: 1%;
     top: 11.5%;
     border-style: dotted;
@@ -179,6 +176,7 @@ h1 {
 }
 
 .icon {
+    border-color: red;
     height: 55px;
 }
 .respawnScreen {

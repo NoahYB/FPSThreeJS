@@ -118,7 +118,12 @@ export class Rifle extends Item {
             AUDIO_MANAGER.charge();
 
         if (this.coolDownTimer > 0 && this.model) {
-            this.coolDownPart.material.color = new Color('Blue').multiplyScalar((this.coolDown - this.coolDownTimer) / this.coolDown);
+            this.coolDownPart.material.color = 
+                new Color('Red')
+                    .lerp(
+                        new Color("Blue"), 
+                        (this.coolDown - this.coolDownTimer) / this.coolDown
+                    )
         } else if (this.model) {
             this.coolDownPart.material.color = new Color('Blue');
         }

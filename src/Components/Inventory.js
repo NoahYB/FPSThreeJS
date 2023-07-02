@@ -1,29 +1,53 @@
+import { getPlayer, getScene } from "../Game";
 export class Inventory {
-    constructor(player) {
+    constructor(player, isUser) {
         this.player = player;
-        this.inventory = [];
+        this.heldItems = [];
         this.pointer = 0;
+        if (isUser)
+            document.addEventListener("wheel", this.scroll);
+    }
+
+    hasType(type) {
+        return this.heldItems.reduce((prev, curr) => {
+            if (curr.type === type) return true;
+            return prev
+        }, false)
     }
 
     add(item) {
-        if (this.inventory.length === 0) {
-            item.pickedUp = true;
-            // let armPos = new THREE.Vector3();
-            // player.rightArm.getWorldPosition(armPos);
-            // item.model.position.copy(armPos);
-            // this.allignItem(item);
-            //player.rightArm.add(item.model);
-            this.inventory.push(item);
+        item.pickedUp = true;
+        if (this.heldItems.length === 0) 
             this.equippedItem = item;
+        else {
+            getScene().remove(item.model);
         }
+        this.heldItems.push(item);
+        this.equippedItem.iconElement.style.borderStyle = 'dashed';
     }
 
-    next(scene) {
+    next() {
+        const scene = getScene();
+        scene.remove(this.heldItems[this.pointer].model);
+        this.equippedItem.iconElement.style.borderStyle = 'none';
         this.pointer++;
-        player.scene.remove(this.inventory[this.pointer].model);
-        if (this.pointer === this.inventory.length) this.pointer = 0;
-        player.gunBarrel = this.inventory[this.pointer].model;
-        player.rightArm.add(player.gunBarrel);
+        if (this.pointer === this.heldItems.length) this.pointer = 0;
+        scene.add(this.heldItems[this.pointer].model);
+        this.equippedItem = this.heldItems[this.pointer];
+        this.equippedItem.iconElement.style.borderStyle = 'dashed';
+    }
+
+    scroll(e) {
+        const player = getPlayer();
+
+        if (player.inventory.heldItems.length <= 1) return;
+        player.inventory.next();
+
+        // if (player.inventory.pointer >= player.inventory.heldItems.length) player.inventory.pointer = 0;
+
+        // player.inventory.equippedItem = player.inventory.heldItems[player.inventory.pointer];
+
+        // console.log(player.inventory.equippedItem);
     }
 
 }

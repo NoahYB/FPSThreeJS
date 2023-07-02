@@ -20,6 +20,7 @@ export class Item {
     iconElement: HTMLImageElement;
     coolDownTimer = 0;
     addToPlayerWhenModelLoaded: string;
+    freezeIntersect: boolean = false;
     constructor(
         type: 'Rifle'|'Rocket'|'Pistol', 
         id: number, 
@@ -51,6 +52,7 @@ export class Item {
     update() {
         if (!this.model) return;
         this.coolDownTimer -= .05;
+        
         if (this.pickedUp) {
             let armPos = new Vector3();
             this.heldBy.rightArm.getWorldPosition(armPos);
@@ -61,7 +63,8 @@ export class Item {
 
         const player = getPlayer();
         // Check if the player is within range of the weapon pickup.
-        if (this.intersectsPlayer(player)) {
+        if (this.intersectsPlayer(player)
+            && !this.freezeIntersect) {
             this.playerPickUp();
         }
         else {
@@ -71,7 +74,7 @@ export class Item {
 
     playerPickUp() {
         const player = getPlayer();
-        console.log(player);
+        if (player.inventory.hasType(this.type)) return;
         document.getElementById("equipedItem").append(
             this.iconElement
         )
@@ -80,7 +83,15 @@ export class Item {
             itemId: this.id,
         })
         this.heldBy = player;
+        this.pickedUp = true;
         player.inventory.add(this);
+    }
+
+    drop(position: Vector3) {
+        if (this.heldBy.id === getPlayer().id) this.freezeIntersect = true;
+        this.heldBy = undefined;
+        this.pickedUp = false;
+        this.model.position.copy(position);
     }
 
     fire() {
@@ -121,8 +132,6 @@ export class Item {
     }
 
     allignItem() {
-
-        console.log('super');
         let dir = new Vector3(0,0,0);
 
         getCamera().getWorldDirection(dir);

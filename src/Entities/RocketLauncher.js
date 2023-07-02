@@ -11,7 +11,7 @@ import {
     CylinderGeometry,
     Vector3
 } from 'three';
-import { getPlayer, getScene, getRapier, getPhysicsWorld } from '../Game';
+import { getPlayer, getScene, getRapier, getPhysicsWorld, getCamera } from '../Game';
 import { classic3D } from '../libs/shader.noise';
 
 export class RocketLauncher extends Item {
@@ -145,6 +145,23 @@ export class RocketLauncher extends Item {
         this.model.position.y += 5;
         this.bbox = new Box3();
         this.bbox.setFromObject(this.model);
+    }
+
+    allignItem() {
+
+        let dir = new Vector3(0,0,0);
+
+        getCamera().getWorldDirection(dir);
+
+        this.model.lookAt(dir.clone().multiplyScalar(10000000000));
+
+        this.model.position.add(dir.multiplyScalar(1))
+
+        //this.model.rotateZ(Math.PI / 180 * 180);
+
+        this.model.position.y -= 1;
+
+        this.model.rotateX(90 * (Math.PI / 180));
     }
 
     createRocketLauncher() {
