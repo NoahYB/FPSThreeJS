@@ -1,5 +1,10 @@
 # In Browser FPS
+
+## Link to game hosted on github pages
+
 https://noahyb.github.io/FPSThreeJS/
+
+## Video of gameplay
 
 https://www.youtube.com/watch?v=NLeuB7pLq9I
 
