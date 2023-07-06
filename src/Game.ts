@@ -59,6 +59,8 @@ class GlobalGame {
 
         document.addEventListener('keydown', keydown);
 
+        document.addEventListener('keyup', keyup);
+
         document.addEventListener('wheel', this.wheel);
 
         window.addEventListener( 'resize', onWindowResize, false );
@@ -215,8 +217,8 @@ class GlobalGame {
         this.started = true;
         if (this.keys['Tab']) this.menu.showScore();
         else this.menu.hideScore();
-        if (this.keys['2']) this.menu.showScore();
-        else this.menu.hideScore();
+        if (this.keys['2']) this.menu.show();
+        else this.menu.hide()
         if (this.player.object && this.webSocketHandler.ready) {
             this.sendModelData();
         }
@@ -244,18 +246,29 @@ function onWindowResize(){
 }
 
 function keydown(e){
-    const menu = getMenu();
-    if (e.key === 'Escape') {
-        menu.opened = !menu.opened;
-        if (!menu.opened) {
-            menu.hide();
-        }
-        else menu.show();
+    if (e.keyCode === 9) {
+        e.preventDefault();
+        //console.log('Tab key pressed');
     }
+    getKeys()[e.key] = true;
+}
+
+
+function keyup(e){
+    console.log(e.key);
+    getKeys()[e.key] = false;
 }
 
 
 export const GLOBAL_GAME = new GlobalGame();
+
+/**
+ * 
+ * @returns {} // key map
+ */
+export const getKeys = () => {
+    return GLOBAL_GAME.keys;
+}
 
 /**
  * 

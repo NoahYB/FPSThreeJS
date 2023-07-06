@@ -94,6 +94,8 @@ export class Rifle extends Item {
 
         this.bulletOrigin.getWorldPosition(worldPos);
 
+        this.muzzleFlash(2, worldPos, new Color('red'));
+
         this.raycast();
 
     }
@@ -152,6 +154,10 @@ export class Rifle extends Item {
     }
 
     override allignItem(): void {
+
+        if (!this.heldByUser) {
+            return;
+        }
 
         let dir = new Vector3(0,0,0);
 
@@ -213,6 +219,7 @@ export class Rifle extends Item {
     sendHitData(hitData: {}) {
         Object.keys(hitData).forEach(key => {
             const data = hitData[key];
+            console.log(data);
             getWebSocketHandler().sendMessage({
                 action: 'HIT',
                 headshot: data.headShot,

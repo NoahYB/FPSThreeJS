@@ -34,7 +34,6 @@ export class WebSocketHandler {
     }
 
     hijackClose(e) {
-        console.log('closing');
         getWebSocketHandler().sendMessage({
             action: 'CLOSING',
             position: getPlayer().object.position,
@@ -203,13 +202,16 @@ export class WebSocketHandler {
 
         
         if (action === 'ITEM_PICKUP') {
-            this.connectedPlayers[senderId].inventory.add(this.items[itemId]);
+            // this.connectedPlayers[senderId].inventory.add(this.items[itemId]);
+            this.items[itemId].heldBy = senderId;
             this.items[itemId].pickedUpByConnectedPlayer(senderId);
         }
 
         if (action === 'ITEM_DROP') {
+            console.log(data);
             itemsDropped.forEach(item => {
-                this.items[item.id].drop(item.position);
+                console.log(this.items[item.id]);
+                this.items[item.id].drop(this.items[item.id].position);
             })
         }
 

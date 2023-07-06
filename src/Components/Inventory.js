@@ -1,4 +1,4 @@
-import { getPlayer, getScene } from "../Game";
+import { getPlayer, getScene, getWebSocketHandler } from "../Game";
 export class Inventory {
     constructor(player, isUser) {
         this.player = player;
@@ -8,6 +8,29 @@ export class Inventory {
             document.addEventListener("wheel", this.scroll);
     }
 
+    onDeath() {
+        const itemArray = this.heldItems.map(item => {
+            return {
+                id: item.id,
+            }
+        })
+        getWebSocketHandler().sendMessage(
+            {
+                action: "ITEM_DROP",
+                itemsDropped: itemArray,
+                position: this.player.object.position,
+            }       
+        )
+        this.heldItems = this.heldItems.filter(
+            item => {
+                item.drop(item.model.position);
+                return false;
+            }
+        )
+        this.equippedItem = undefined;
+        const webSocketHandler = getWebSocketHandler();
+    }
+    
     hasType(type) {
         return this.heldItems.reduce((prev, curr) => {
             if (curr.type === type) return true;

@@ -158,16 +158,12 @@ function onPointerlockChange() {
 
 	if ( this.domElement.ownerDocument.pointerLockElement === this.domElement ) {
 
-		menu.hide();
-
 		this.dispatchEvent( _lockEvent );
 
 		this.isLocked = true;
 
 	} else {
 		this.dispatchEvent( _unlockEvent );
-		
-		menu.show();
 
 		Object.keys(player.playerKeyMap).forEach(key => {
 			player.playerKeyMap[key] = false;

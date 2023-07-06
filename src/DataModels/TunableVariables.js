@@ -167,7 +167,7 @@ export const TUNABLE_VARIABLES = new Variables(
         teamKillEnabled: false,
         thirdPerson: false,
         health: 100,
-        headShotDamage: 40,
+        headShotDamage: 50,
         shotDamage: 30,
         respawnTime: 3,
     }

@@ -1,5 +1,5 @@
-import { Vector3, Box3, Object3D } from 'three';
-import { getPlayer, getCamera } from '../Game';
+import { Vector3, Box3, Object3D, SphereGeometry, MeshBasicMaterial, Mesh, Color } from 'three';
+import { getPlayer, getCamera, getScene } from '../Game';
 import { WebSocketHandler } from './WebSocketHandler';
 import { ConnectedPlayer } from '../Entities/ConnectedPlayer';
 import { Player } from '../Entities/Player';
@@ -21,6 +21,7 @@ export class Item {
     coolDownTimer = 0;
     addToPlayerWhenModelLoaded: string;
     freezeIntersect: boolean = false;
+    heldByUser: boolean = false;
     constructor(
         type: 'Rifle'|'Rocket'|'Pistol', 
         id: number, 
@@ -39,8 +40,23 @@ export class Item {
 
     }
     
+    muzzleFlash(intensity: number, position: Vector3, color: Color) {
+        const geometry = new SphereGeometry(1, 10, 10); 
+        const material = new MeshBasicMaterial({ 
+            color: color
+        });
+        const sphere = new Mesh( geometry, material );
+
+        sphere.position.copy(position);
+
+        console.log(sphere);
+
+        getScene().add(sphere);
+
+    }
     pickedUpByConnectedPlayer(id) {
         this.pickedUp = true;
+        this.heldByUser = false;
         let armPos = new Vector3();
         this.heldBy = this.webSocketHandler.connectedPlayers[id];
         this.heldBy.rightArm.getWorldPosition(armPos);
@@ -64,7 +80,7 @@ export class Item {
         const player = getPlayer();
         // Check if the player is within range of the weapon pickup.
         if (this.intersectsPlayer(player)
-            && !this.freezeIntersect) {
+            && !player.respawning) {
             this.playerPickUp();
         }
         else {
@@ -75,6 +91,7 @@ export class Item {
     playerPickUp() {
         const player = getPlayer();
         if (player.inventory.hasType(this.type)) return;
+        this.heldByUser = true;
         document.getElementById("equipedItem").append(
             this.iconElement
         )
@@ -88,7 +105,6 @@ export class Item {
     }
 
     drop(position: Vector3) {
-        if (this.heldBy.id === getPlayer().id) this.freezeIntersect = true;
         this.heldBy = undefined;
         this.pickedUp = false;
         this.model.position.copy(position);

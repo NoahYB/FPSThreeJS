@@ -151,6 +151,8 @@ export class Player {
 
     death(whoKilledPlayer) {
         if (this.respawning) return;
+        this.respawning = true;
+        this.inventory.onDeath();
         this.object.position.set(0,-10000,0);
         this.webSocketHandler.sendMessage({
             pointAwardedTo : whoKilledPlayer.id,
@@ -168,6 +170,8 @@ export class Player {
     }
 
     onHit(headshot, enemy) {
+        console.log(TUNABLE_VARIABLES.headShotDamage);
+        console.log(TUNABLE_VARIABLES.shotDamage);
         if (headshot) this.health -= TUNABLE_VARIABLES.headShotDamage;
         else this.health -= TUNABLE_VARIABLES.shotDamage;
         this.hud.updateHealthBar(this.health);

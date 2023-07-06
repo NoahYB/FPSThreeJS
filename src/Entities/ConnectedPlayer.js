@@ -33,6 +33,9 @@ export class ConnectedPlayer {
         const materialToon = new MeshLambertMaterial({
             color: 'purple',
         });
+        const headMaterial = new MeshLambertMaterial({
+            color: 'gold',
+        });
         new FBXLoader().load(
             '../Models/PossibleCharacter2.fbx',
             (object) => {
@@ -48,7 +51,11 @@ export class ConnectedPlayer {
                         child.material = materialToon;
                         child.castShadow = true;
                     }
-                    if (child.name === 'Cube.001') this.head = child;
+                    if (child.name === 'Cube001') {
+                        child.scale.multiplyScalar(1.3);
+                        this.head = child;
+                        this.head.material = headMaterial;
+                    }
                     if (child.name === 'RightShoulder') {
 
                         this.rightArm = child;
@@ -106,9 +113,13 @@ export class ConnectedPlayer {
 
         const cameraDirVector = new Vector3(cameraDir.x, cameraDir.y, cameraDir.z);
 
+        this.cameraDir = cameraDirVector;
+        
         this.rightArm.lookAt(cameraDirVector.multiplyScalar(300));
 
         this.rightArm.rotateX(-Math.PI / 180 * 90);
+
+        this.head.quaternion.copy(this.rightArm.quaternion);
     }
 
     shoot(dir) {
@@ -155,7 +166,8 @@ export class ConnectedPlayer {
 
     setLookQuaternion(euler) {
         if (!this.head) return;
-        this.head.rotation.copy(euler);
+
+        //this.head.rotation.copy(euler);
     }
 
     setHealth(newHealth) {

@@ -3,13 +3,14 @@ class AudioManager {
     constructor() {
         this.walking = new Audio('../Audio/walkingsoft.mp3');
         this.walking.loop = true;
+        this.music();
     }
 
     music() {
-        // const audio = new Audio('Audio/background.mp3');
+        // const audio = new Audio('../Audio/background.mp3');
         // audio.loop = true;
         // audio.volume = .3;
-        // audio.play();
+        //audio.play();
     }
 
     hit() {
