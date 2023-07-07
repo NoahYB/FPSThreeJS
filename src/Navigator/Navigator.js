@@ -48,7 +48,6 @@ const coolbackgroundeffect = () => {
     }
 };
 window.addEventListener('resize', () => {
-    console.log('resize');
     ps.forEach(p => p.remove());
     ps = [];
     coolbackgroundeffect();

@@ -1,5 +1,5 @@
 //@ts-check
-import * as THREE from 'three';
+import {WebGLRenderer, Scene, Camera, LoadingManager, Color, Clock } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { setUpCamera, setUpLights, setUpRenderer } from './SceneSetup';
@@ -14,16 +14,24 @@ import RAPIER from '@dimforge/rapier3d-compat';
 
 class GlobalGame {
     
+    preGameStartData: {
+        team: 'unset' | 'team1' | 'team2';
+        characterColor: {
+            head: Color,
+            body: Color
+        };
+        characterName: string;
+    };
     webSocketHandler: WebSocketHandler;
-    renderer: THREE.WebGLRenderer;
+    renderer: WebGLRenderer;
     menu: Menu;
     level: Level;
-    scene: THREE.Scene;
+    scene: Scene;
     player: Player;
     items = {};
     started = false;
-    camera: THREE.Camera;
-    loadingManager = new THREE.LoadingManager();
+    camera: Camera;
+    loadingManager = new LoadingManager();
     fbxLoader: FBXLoader;  
     gltfLoader: GLTFLoader; 
     cameraController: CameraController;
@@ -47,11 +55,29 @@ class GlobalGame {
     elapsed: number; 
     firstCall: boolean;
     
-    clock = new THREE.Clock();
+    clock = new Clock();
     
     constructor() {
+        const characterData = JSON.parse(window.localStorage.getItem('characterData'));
 
-        this.loadingManager = new THREE.LoadingManager();
+        const name = characterData ? characterData.characterName: 'Donut';
+
+        const headColor = characterData ? characterData.characterColor.head : '#FFFFFF';
+
+        const bodyColor = characterData ? characterData.characterColor.body : '#FF0000';
+
+        const team = characterData ? characterData.team : 'unset';
+
+        this.preGameStartData = {
+            team: team,
+            characterColor: {
+                head: headColor ? headColor : '#FFFFFF',
+                body: bodyColor ? bodyColor : '#FF0000'
+            },
+            characterName:  name,
+        }
+        
+        this.loadingManager = new LoadingManager();
     
         this.fbxLoader = new FBXLoader(this.loadingManager);
         
@@ -67,12 +93,43 @@ class GlobalGame {
 
         document.getElementById("team1").addEventListener('click', (e) =>
             {
-                this.selectTeam("team1");
+                this.selectTeam("team1", e.target);
             });
         document.getElementById("team2").addEventListener('click', (e) =>
         {
-            this.selectTeam("team2");
+            this.selectTeam("team2", e.target);
         });
+
+        document.getElementById("colorpicker-head").addEventListener("input", (e: InputEvent) =>
+        {
+            const { target } = e;
+            if (target)
+                this.headColorUpdate((e.target as HTMLInputElement).value);
+        })
+        document.getElementById("colorpicker-body").addEventListener("input", (e: InputEvent) =>
+        {
+            const { target } = e;
+            if (target)
+                this.bodyColorUpdate((e.target as HTMLInputElement).value);
+        })
+        document.getElementById("userName").addEventListener("input", (e: InputEvent) =>
+        {
+            const { target } = e;
+            if (target)
+                this.userName((e.target as HTMLInputElement).value);
+        })
+
+        document.getElementById("startGame").addEventListener("click", (e: Event) =>
+        {
+            this.enterGame();
+        });
+
+        (document.getElementById("userName") as HTMLInputElement).value = this.preGameStartData.characterName;
+        console.log(this.preGameStartData);
+        (document.getElementById("colorpicker-head") as HTMLInputElement).value = this.preGameStartData.characterColor.head;
+        (document.getElementById("colorpicker-body") as HTMLInputElement).value = this.preGameStartData.characterColor.body;
+        this.headColorUpdate(this.preGameStartData.characterColor.head);
+        this.bodyColorUpdate(this.preGameStartData.characterColor.body);
 
         this.loadingManager.onLoad = function ( ) {
             if (this.started) return;
@@ -124,7 +181,7 @@ class GlobalGame {
         document.getElementById('teamselector')
             .style
             .display = 'block';
-        context.scene = new THREE.Scene();
+        context.scene = new Scene();
         context.camera = setUpCamera();
         context.renderer = setUpRenderer();
         setUpLights(context.scene);
@@ -142,17 +199,27 @@ class GlobalGame {
         Object.keys(context.items).forEach(key => context.items[key].spawn());
     }
 
-    selectTeam(teamSelection) {
-        this.player.team = teamSelection;
+    selectTeam(teamSelection, element) {
+        if (this.preGameStartData.team === 'team1') document.getElementById('team1').classList.remove("selected");
+        if (this.preGameStartData.team === 'team2') document.getElementById('team2').classList.remove("selected");
+        element.classList.add("selected");
+        this.preGameStartData.team = teamSelection;
+    }
+
+    enterGame() {
+        this.player.team = this.preGameStartData.team === 'unset' ? 'team1' : this.preGameStartData.team;
+        this.player.setCharacterColor();
         document.getElementById('teamselector').style.display = 'none';
         this.webSocketHandler.sendMessage({
             action: 'TEAM_SELECT',
-            team: teamSelection,
+            team: this.player.team,
         });
         this.webSocketHandler.sendMessage({
             action: 'NAME_CHANGE',
-            connectionDisplayName: TUNABLE_VARIABLES.playerName,
+            connectionDisplayName: this.preGameStartData.characterName,
         });
+        window.localStorage.setItem('characterData',JSON.stringify(this.preGameStartData));
+        TUNABLE_VARIABLES.setPlayerName(this.preGameStartData.characterName);
         this.menu.opened = false;
         this.player.respawn();
         this.menu.updateScores(true);
@@ -161,7 +228,22 @@ class GlobalGame {
         if (!this.started) this.startUpdate(60);
     }
 
-    
+    headColorUpdate(color) {
+        const matches = document.querySelectorAll<HTMLElement>("div.headColor");
+        matches.forEach(element => element.style.backgroundColor = color);
+        this.preGameStartData.characterColor.head = color;
+    }
+
+    bodyColorUpdate(color) {
+        const matches = document.querySelectorAll<HTMLElement>("div.bodyColor");
+        matches.forEach(element => element.style.backgroundColor = color);
+        this.preGameStartData.characterColor.body = color;
+    }
+
+    userName(name: string) {
+        this.preGameStartData.characterName = name;
+    }
+
     wheel(e) {
         //this.player.inventory.next();
     }
@@ -219,6 +301,16 @@ class GlobalGame {
         else this.menu.hideScore();
         if (this.keys['2']) this.menu.show();
         else this.menu.hide()
+        if (this.keys['3']) {
+            if (!TUNABLE_VARIABLES.thirdPerson) {
+                TUNABLE_VARIABLES.setThirdPerson('true');
+                this.player.showCharacter();
+            }
+        }
+        else {
+            TUNABLE_VARIABLES.setThirdPerson('false');
+            this.player.hideCharacter();
+        }
         if (this.player.object && this.webSocketHandler.ready) {
             this.sendModelData();
         }
@@ -261,6 +353,14 @@ function keyup(e){
 
 
 export const GLOBAL_GAME = new GlobalGame();
+
+/**
+ * 
+ * @returns {} // preGameData
+ */
+export const getPreGameStartData = () => {
+    return GLOBAL_GAME.preGameStartData;
+}
 
 /**
  * 
@@ -351,3 +451,29 @@ export const getWebSocketHandler = () => GLOBAL_GAME.webSocketHandler;
 export const getItems = () => GLOBAL_GAME.items;
 
 
+let ps = [];
+const coolbackgroundeffect = () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    for (let i = 0; i < 300; i ++) {
+        const p = document.createElement('div');
+        p.style.position = 'fixed';
+        p.style.bottom = `${Math.random() * h}px`;
+        p.style.left = `${Math.random() * w}px`;
+        p.style.background = '#28ebdb';
+        const s = `${Math.random() * 10}px`;
+        p.style.height = s;
+        p.style.width = s;
+        p.style.borderRadius = '10px';
+        p.style.zIndex = '0';
+        ps.push(p);
+        document.getElementById('teamselector').append(p);
+    }
+};
+// window.addEventListener('resize', () => {
+//     ps.forEach(p => p.remove());
+//     ps = [];
+//     coolbackgroundeffect();
+// });
+
+// coolbackgroundeffect();

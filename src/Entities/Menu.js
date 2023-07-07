@@ -10,7 +10,7 @@ export class Menu {
         this.createScoreBoard();
         this.updateScores();
         document.body.append(this.parent);
-        document.body.append(this.scoreBoard);
+        // document.body.append(this.scoreBoard);
         this.loadHUD();
         this.parent.style.display = 'none';
         this.opened = false;
@@ -73,16 +73,16 @@ export class Menu {
                 display = document.createElement("div");
                 display.id = obj.id;
                 display.classList.add('scoreText');
-                if (obj.team === 'team1') {
+                if (obj.team === 'team2') {
                     this.scoreBoardRed.append(display);
-                } else if (obj.team === 'team2') {
+                } else if (obj.team === 'team1') {
                     this.scoreBoardBlue.append(display);
                 }
             }
             if (updateTeams) {
-                if (obj.team === 'team1') {
+                if (obj.team === 'team2') {
                     this.scoreBoardRed.append(display);
-                } else if (obj.team === 'team2') {
+                } else if (obj.team === 'team1') {
                     this.scoreBoardBlue.append(display);
                 }
             }

@@ -42,6 +42,7 @@ export class Item {
     
     muzzleFlash(intensity: number, position: Vector3, color: Color) {
         const geometry = new SphereGeometry(1, 10, 10); 
+
         const material = new MeshBasicMaterial({ 
             color: color
         });
@@ -49,11 +50,12 @@ export class Item {
 
         sphere.position.copy(position);
 
-        console.log(sphere);
+        //console.log(sphere);
 
-        getScene().add(sphere);
+        //getScene().add(sphere);
 
     }
+
     pickedUpByConnectedPlayer(id) {
         this.pickedUp = true;
         this.heldByUser = false;

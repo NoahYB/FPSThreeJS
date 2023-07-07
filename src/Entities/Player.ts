@@ -1,17 +1,14 @@
 // @ts-check
-import { OBB } from 'three/examples/jsm/math/OBB';
 import { Inventory } from '../Components/Inventory'
-import { Collisions } from '../Components/Collisions'
 import { PointerLockControls } from '../Components/PointerLockControlsCustom';
 import { HUD } from './HUD';
 import { CameraController } from './CameraController';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import {Object3D, Vector3, Box3, Renderer, MeshToonMaterial, Camera} from 'three';
+import {Object3D, Vector3, MeshToonMaterial, Color} from 'three';
 import { WebSocketHandler } from '../Components/WebSocketHandler';
 import { Level } from './Level';
 import { Menu } from './Menu';
 import { CharacterController } from '../Components/CharacterController';
-import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu, getItems } from '../Game';
+import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu, getItems, getPreGameStartData } from '../Game';
 import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
 import { Item } from '../Components/Item';
 
@@ -115,10 +112,10 @@ export class Player {
     }
 
     loadModel() {
-        const materialToon = new MeshToonMaterial({
-            color: 'red',
+        const materialHead = new MeshToonMaterial({
+            visible: false,
         });
-        const invisible = new MeshToonMaterial({
+        const materialBody = new MeshToonMaterial({
             visible: false,
         });
         getFBXLoader().load(
@@ -128,10 +125,12 @@ export class Player {
                 this.object = object;
                 object.scale.setScalar(.0099);
                 object.traverse(( child ) => {
-                    if ( child.isMesh ) child.material = invisible;
+                    if ( child.isMesh ) {
+                        if (child.name==='Cube001') child.material = materialHead;
+                        else child.material = materialBody;
+                    }
                     if (child.name === 'RightShoulder') this.rightArm = child;
                     if (child.name === 'CollisionBox') {
-                        child.material = invisible;
                         this.collisionObject = child;
                     }
                 }
@@ -140,6 +139,31 @@ export class Player {
                 getScene().add(object);
             }, e => 1 + 1, e => console.log(e),
         )
+    }
+
+    setCharacterColor() {
+        this.object.traverse((child) => {
+            console.log(child);
+            if (child.name === 'Cube001') {
+                child.material.color = new Color(getPreGameStartData().characterColor.head);
+            }
+            else if (child.isMesh) {
+                child.material.color =  new Color(getPreGameStartData().characterColor.body);
+            }
+        })
+    }
+
+    showCharacter() {
+        this.object.traverse((child) => {
+            if (child.name === 'Cube001') console.log(child.material);
+            if (child.isMesh) child.material.visible = true;
+        })
+    }
+
+    hideCharacter() {
+        this.object.traverse((child) => {
+            if (child.isMesh) child.material.visible = false;
+        })
     }
 
     hitMarker() {

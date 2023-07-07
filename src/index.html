@@ -9,19 +9,50 @@
 </head>
 <body>
     <div id="teamselector" class="teamSelector"  style="display:none"> 
-        <div class="teamSelectionHeader"> 
-            <span> 
-                Select Team
-            </span>
-        </div>
-        <div class="teamselection">
-            <div class="teamSelectButton teamselectionOne" id="team1">
-                <span> Team One </span>
+        <div class="preGameScreen">
+            <div class="characterInput">
+                <div class="teamSelectionHeader"> 
+                    <span> 
+                        Customize Character
+                    </span>
+                </div>
+                <div> UserName </div>
+                    <input class="userNameInput" id="userName"></input>
+                <div> UserColor </div>
+                    <div class="characterModel"> 
+                        <div class="headColor head">
+                            <input type="color" class="colorpickerHead" id="colorpicker-head" value="#FFFFFF">
+                        </div>
+                        <div class="bodyColor body">
+                            <input type="color" class="colorpicker" id="colorpicker-body" value="#FF0000">
+                            <div class = "bodyColor arms a_l"> 
+
+                            </div>
+                            <div class = "bodyColor legs l_l">
+                                
+                            </div>
+                            <div class = "bodyColor arms a_r"> 
+
+                            </div>
+                            <div class = "bodyColor legs l_r">
+                                
+                            </div>
+                        </div>
+                    </div>
+                <div class="teamSelect"> Team Select 
+                    <div class="teamSelectOptionTwo" id="team2"> Team One </div>
+                    <div class="teamSelectOptionOne" id="team1"> Team Two </div>
+                </div>
+                <div class="enterButton" id="startGame"> Enter Game </div>
             </div>
-            <div class="teamSelectButton teamselectionTwo"  id="team2">
-                <span> Team Two </span>
-            </div>
+            <!-- <div class="line"></div> -->
+            <!-- <div class="controls"> Special Controls 
+                <p> Tab shows score </p>
+                <p> 2 opens variable menu </p>
+                <p> 3 switches to third person while held</p>
+            </div> -->
         </div>
+
     </div>
     
     <div class="overlay" id="blockout">
