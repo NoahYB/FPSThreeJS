@@ -75,7 +75,8 @@ export class WebSocketHandler {
             projectileVelocity,
             topScorer,
             itemId,
-            itemsDropped
+            itemsDropped,
+            characterColor
 	    } = data;
         
         if (senderId === 'WEBSOCKET_SERVER_GAME_INIT') {
@@ -83,7 +84,6 @@ export class WebSocketHandler {
             if (gameData.itemData) {
                 Object.keys(gameData.itemData.items).forEach(itemKey => {
                     const item = gameData.itemData.items[itemKey];
-                    console.log(item.heldBy);
                     if (item.heldBy === 0) {
                         if (item.type ==='ROCKET') {
                             this.items[item.id] = new RocketLauncher(
@@ -193,7 +193,9 @@ export class WebSocketHandler {
         }
 
         if (action === 'NAME_CHANGE') {
+            console.log(data);
             this.connectedPlayers[senderId].connectionDisplayName = connectionDisplayName;
+            this.connectedPlayers[senderId].setCharacterColor(characterColor)
         }
 
         if (action === 'PROJECTILE_DATA') {
@@ -208,10 +210,8 @@ export class WebSocketHandler {
         }
 
         if (action === 'ITEM_DROP') {
-            console.log(data);
             itemsDropped.forEach(item => {
-                console.log(this.items[item.id]);
-                this.items[item.id].drop(this.items[item.id].position);
+                this.items[item.id].drop(this.items[item.id].model.position);
             })
         }
 

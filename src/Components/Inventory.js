@@ -66,11 +66,6 @@ export class Inventory {
         if (player.inventory.heldItems.length <= 1) return;
         player.inventory.next();
 
-        // if (player.inventory.pointer >= player.inventory.heldItems.length) player.inventory.pointer = 0;
-
-        // player.inventory.equippedItem = player.inventory.heldItems[player.inventory.pointer];
-
-        // console.log(player.inventory.equippedItem);
     }
 
 }

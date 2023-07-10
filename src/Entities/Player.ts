@@ -8,9 +8,10 @@ import { WebSocketHandler } from '../Components/WebSocketHandler';
 import { Level } from './Level';
 import { Menu } from './Menu';
 import { CharacterController } from '../Components/CharacterController';
-import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu, getItems, getPreGameStartData } from '../Game';
+import { getCamera, getFBXLoader, getPlayer, getRenderer, getScene, getLevel, getMenu, getPreGameStartData, getCameraController, getVignette } from '../Game';
 import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
 import { Item } from '../Components/Item';
+import { AUDIO_MANAGER } from '../AudioManager';
 
 interface KeyDictionary {
     [index: string]: boolean;
@@ -130,6 +131,7 @@ export class Player {
                         else child.material = materialBody;
                     }
                     if (child.name === 'RightShoulder') this.rightArm = child;
+                    
                     if (child.name === 'CollisionBox') {
                         this.collisionObject = child;
                     }
@@ -143,7 +145,6 @@ export class Player {
 
     setCharacterColor() {
         this.object.traverse((child) => {
-            console.log(child);
             if (child.name === 'Cube001') {
                 child.material.color = new Color(getPreGameStartData().characterColor.head);
             }
@@ -155,8 +156,10 @@ export class Player {
 
     showCharacter() {
         this.object.traverse((child) => {
-            if (child.name === 'Cube001') console.log(child.material);
             if (child.isMesh) child.material.visible = true;
+            if (child.name === 'CollisionBox') {
+                child.material.visible = false;
+            }
         })
     }
 
@@ -194,8 +197,8 @@ export class Player {
     }
 
     onHit(headshot, enemy) {
-        console.log(TUNABLE_VARIABLES.headShotDamage);
-        console.log(TUNABLE_VARIABLES.shotDamage);
+        AUDIO_MANAGER.damageTaken();
+        getCameraController().onHit();
         if (headshot) this.health -= TUNABLE_VARIABLES.headShotDamage;
         else this.health -= TUNABLE_VARIABLES.shotDamage;
         this.hud.updateHealthBar(this.health);

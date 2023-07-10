@@ -2,8 +2,9 @@ import { Inventory } from "../Components/Inventory";
 import {
     MeshLambertMaterial,
     Vector3,
-    Matrix4,
-    Object3D
+    Color,
+    Object3D,
+    MeshBasicMaterial
   } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { getMenu, getScene, getWebSocketHandler } from "../Game";
@@ -36,6 +37,9 @@ export class ConnectedPlayer {
         const headMaterial = new MeshLambertMaterial({
             color: 'gold',
         });
+        const invisMat = new MeshBasicMaterial({
+            visible: false,
+        });
         new FBXLoader().load(
             '../Models/PossibleCharacter2.fbx',
             (object) => {
@@ -65,6 +69,11 @@ export class ConnectedPlayer {
                         }
                     }
                     if (child.isMesh) child.castShadow = true;
+                    
+                    if (child.name === 'CollisionBox') {
+                        child.material = invisMat;
+                    }
+
                     this.addToScene(new Vector3(10000,100000,100000));
                 }
                 );
@@ -172,6 +181,17 @@ export class ConnectedPlayer {
 
     setHealth(newHealth) {
         this.health = newHealth;
+    }
+
+    setCharacterColor(characterColor) {
+        this.object.traverse((child) => {
+            if (child.name === 'Cube001') {
+                child.material.color = new Color(characterColor.head);
+            }
+            else if (child.isMesh) {
+                child.material.color =  new Color(characterColor.body);
+            }
+        })
     }
 
     move() {

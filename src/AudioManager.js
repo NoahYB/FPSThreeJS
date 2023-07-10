@@ -13,6 +13,14 @@ class AudioManager {
         //audio.play();
     }
 
+    damageTaken() {
+        this.play(
+            '../Audio/hurt.wav',
+            false,
+            .8 * TUNABLE_VARIABLES.volume
+        )
+    }
+
     hit() {
         this.play(
             '../Audio/shoot.mp3',

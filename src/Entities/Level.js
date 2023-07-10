@@ -52,7 +52,7 @@ export class Level {
             const randomPoint = randomSpherePoint(0,0,0,d);
             const geometry = new SphereGeometry(1, 10, 10); 
             const material = new MeshBasicMaterial({ 
-                color: '#28ebdb'
+                color: "#" + Math.floor(Math.random()*16777215).toString(16)
             });
             const sphere = new Mesh( geometry, material );
             sphere.position.copy(randomPoint);

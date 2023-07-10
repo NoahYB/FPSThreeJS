@@ -8,24 +8,38 @@
     <link rel="stylesheet" href="../Styles/startscreen.css">
 </head>
 <body>
+    <div id="stars"> </div>
     <script type="module" src="../Navigator/Navigator.js"></script>
     <div class="header"> 
         <span class="startscreen-menu-header-text">
-            Available Servers
+            Server Selection
         </span>
     </div>
     <div class="startscreen-menu-list">
-        <div class="startscreen-menu-item" 
-            onclick="window.connectToServer('ws\://localhost:56112')"> 
+
+        <div class="startscreen-menu-item-input-parent">
+                <span> Enter Server Name </span>
+                <input id="server-name" class="startscreen-menu-item-input"> 
+                    <button onclick="window.connectToCustomServer()"> GO </button>
+                </input>
+        </div>
+    
+        <div class="startscreen-menu-item-input-parent">
+            <span> Or Use Mine </span>
+            <div class="startscreen-menu-item" 
+                onclick="window.connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
+                <span>brintonliteraryagency</span> 
+            </div>
+        </div>
+    
+    
+        <div class="startscreen-menu-item-input-parent">
+            <span> if you have a localhost server running on port 56112 click here: </span>
+            <div class="startscreen-menu-item" 
+                onclick="window.connectToServer('ws\://localhost:56112')"> 
             <span>Local Host</span> 
         </div>
-        <div class="startscreen-menu-item" 
-            onclick="window.connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
-            <span>brintonliteraryagency</span> 
-        </div>
-        <div class="startscreen-menu-item" 
-            onclick="window.connectToServer('wss\://brintonliteraryagency.org/wss/')"> 
-            <span>brintonliteraryagency</span> 
-        </div>
+        
     </div>
+</div>
 </body>

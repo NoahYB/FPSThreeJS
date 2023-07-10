@@ -2,7 +2,7 @@
 import {WebGLRenderer, Scene, Camera, LoadingManager, Color, Clock } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { setUpCamera, setUpLights, setUpRenderer } from './SceneSetup';
+import { setUpCamera, setUpLights, setUpRenderer, setUpPostProcessing, setUpVignette } from './SceneSetup';
 import { Level } from './Entities/Level';
 import { HUD } from './Entities/HUD';
 import { WebSocketHandler} from './Components/WebSocketHandler';
@@ -10,6 +10,8 @@ import { CameraController } from './Entities/CameraController';
 import { Menu } from './Entities/Menu';
 import { Player } from './Entities/Player';
 import { TUNABLE_VARIABLES } from './DataModels/TunableVariables';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import RAPIER from '@dimforge/rapier3d-compat';
 
 class GlobalGame {
@@ -24,6 +26,7 @@ class GlobalGame {
     };
     webSocketHandler: WebSocketHandler;
     renderer: WebGLRenderer;
+    composer: EffectComposer;
     menu: Menu;
     level: Level;
     scene: Scene;
@@ -56,6 +59,7 @@ class GlobalGame {
     firstCall: boolean;
     
     clock = new Clock();
+    vignette: ShaderPass;
     
     constructor() {
         const characterData = JSON.parse(window.localStorage.getItem('characterData'));
@@ -125,7 +129,6 @@ class GlobalGame {
         });
 
         (document.getElementById("userName") as HTMLInputElement).value = this.preGameStartData.characterName;
-        console.log(this.preGameStartData);
         (document.getElementById("colorpicker-head") as HTMLInputElement).value = this.preGameStartData.characterColor.head;
         (document.getElementById("colorpicker-body") as HTMLInputElement).value = this.preGameStartData.characterColor.body;
         this.headColorUpdate(this.preGameStartData.characterColor.head);
@@ -184,6 +187,7 @@ class GlobalGame {
         context.scene = new Scene();
         context.camera = setUpCamera();
         context.renderer = setUpRenderer();
+        context.composer = setUpPostProcessing(context);
         setUpLights(context.scene);
         context.level = new Level(RAPIER, context.scene, context.physicsWorld, context.gltfLoader);
         context.player = new Player(
@@ -217,6 +221,7 @@ class GlobalGame {
         this.webSocketHandler.sendMessage({
             action: 'NAME_CHANGE',
             connectionDisplayName: this.preGameStartData.characterName,
+            characterColor: this.preGameStartData.characterColor
         });
         window.localStorage.setItem('characterData',JSON.stringify(this.preGameStartData));
         TUNABLE_VARIABLES.setPlayerName(this.preGameStartData.characterName);
@@ -324,7 +329,7 @@ class GlobalGame {
         })
         this.i++;
         Object.keys(this.items).map(k => this.items[k].update());
-        this.renderer.render( this.scene, this.camera );
+        this.composer.render();
     }   
 }
 
@@ -332,22 +337,20 @@ function onWindowResize(){
     
     getCamera().aspect = window.innerWidth / window.innerHeight;
     getCamera().updateProjectionMatrix();
-
     getRenderer().setSize( window.innerWidth, window.innerHeight );
+    getComposer().setSize( window.innerWidth, window.innerHeight );
 
 }
 
 function keydown(e){
     if (e.keyCode === 9) {
         e.preventDefault();
-        //console.log('Tab key pressed');
     }
     getKeys()[e.key] = true;
 }
 
 
 function keyup(e){
-    console.log(e.key);
     getKeys()[e.key] = false;
 }
 
@@ -450,6 +453,23 @@ export const getWebSocketHandler = () => GLOBAL_GAME.webSocketHandler;
  */
 export const getItems = () => GLOBAL_GAME.items;
 
+/**
+ * 
+ * @returns CameraController
+ */
+export const getCameraController = () => GLOBAL_GAME.cameraController;
+
+/**
+ * 
+ * @returns CameraController
+ */
+export const getVignette = () => GLOBAL_GAME.vignette;
+
+/**
+ * 
+ * @returns CameraController
+ */
+export const getComposer = () => GLOBAL_GAME.composer;
 
 let ps = [];
 const coolbackgroundeffect = () => {

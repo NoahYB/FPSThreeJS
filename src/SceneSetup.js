@@ -1,16 +1,17 @@
 import { 
-    PointLight,
     AmbientLight,
     WebGLRenderer,
     PerspectiveCamera,
-    PCFSoftShadowMap,
     DirectionalLight,
-    OrthographicCamera,
-    NearestFilter,
-    RGBAFormat,
-    WebGLRenderTarget
+    SRGBColorSpace
  } from 'three';
- import { TUNABLE_VARIABLES } from './DataModels/TunableVariables';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { VignetteShader } from './CustomPPEffect/Vignette';
+import { LuminosityShader } from 'three/examples/jsm/shaders/LuminosityShader.js';
+import { TUNABLE_VARIABLES } from './DataModels/TunableVariables';
+import { GammaCorrectionShader } from './CustomPPEffect/GammaCorrection';
 
 export function setUpCamera() {
     const camera = new PerspectiveCamera(
@@ -30,10 +31,32 @@ export function setUpCamera() {
 
 export function setUpRenderer() {
     const renderer = new WebGLRenderer();
-
     renderer.setSize( window.innerWidth , window.innerHeight );
+    renderer.outputColorSpace = SRGBColorSpace;
     document.body.appendChild( renderer.domElement );
     return renderer;
+}
+
+export function setUpPostProcessing(context) {
+    const composer = new EffectComposer( context.renderer );
+    const renderPass = new RenderPass( context.scene, context.camera );
+    context.vignette = setUpVignette();
+
+    composer.addPass( renderPass );
+    composer.addPass( context.vignette );
+
+    const gammeCorrection = new ShaderPass( GammaCorrectionShader );
+
+    composer.addPass( gammeCorrection );
+    return composer;
+}
+
+export function setUpVignette() {
+    const effectVignette = new ShaderPass( VignetteShader );
+
+	effectVignette.renderToScreen = true;
+
+    return effectVignette;
 }
 
 export function setUpLights(scene) {

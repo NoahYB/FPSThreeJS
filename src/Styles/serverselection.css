@@ -29,6 +29,7 @@ html {
     display: flex;
     background-color: #FFFCF2;
 }
+
 .serverselection-menu-item span {
     font-size: 25px;
     margin: 20px;
@@ -36,4 +37,18 @@ html {
 .serverselection-menu-item:hover {
     background-color: #CCC5B9;
     cursor: pointer;
+}
+
+.serverselection-menu-item-input {
+    margin: auto;
+    width: 40%;
+    display: flex;
+    background-color: #FFFCF2;
+}
+
+.serverselection-menu-item-input-parent {
+    margin: auto;
+    width: 40%;
+    display: flex;
+    background-color: #FFFCF2;
 }

@@ -33,18 +33,21 @@ body {
     flex-direction: column;
     gap: 20px;
     margin: auto;
+    background-color: #d4d1d13f;
+    height: 70%;
 }
 
 .startscreen-menu-item {
     display: flex;
     background-color: #FFFCF2;
     margin: auto;
-    width: 40%;
+    width: 500px;
     border-radius: 10px;
 }
 .startscreen-menu-item span {
     font-size: 25px;
-    margin: 20px;
+    margin: 20px auto;
+    color: black !important;
 }
 .startscreen-menu-item:hover {
     background-color: #CCC5B9;
@@ -56,4 +59,21 @@ footer {
     left: 20px;
     width: 100%;
     height: 2.5rem;            /* Footer height */
+}
+
+.startscreen-menu-item-input {
+    margin: 10px 0;
+    width:  300px;
+}
+
+.startscreen-menu-item-input-parent {
+    /* width: 100%; */
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.startscreen-menu-item-input-parent span{
+    color: white;
+    
 }

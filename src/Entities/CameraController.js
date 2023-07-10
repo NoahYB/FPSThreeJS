@@ -1,11 +1,13 @@
 import { Vector3 } from 'three';
 import { TUNABLE_VARIABLES } from '../DataModels/TunableVariables';
+import { getComposer, getVignette } from '../Game';
 export class CameraController {
 
     constructor(camera, player) {
         this.camera = camera;
         this.followedObject = player;
         this.thirdPerson = TUNABLE_VARIABLES.thirdPerson;
+        this.shakeFrame = 0;
     }
 
     
@@ -48,6 +50,11 @@ export class CameraController {
         camera.position.add(headPosition.sub(camera.position).multiplyScalar(this.speed));
     }
 
+    onHit() {
+        this.hitScreenEffect = true;
+        this.framesSinceHit = 0;
+    }
+
     update() {
         if (!   this.followedObject.object || !this.camera) return;
         if (this.pan) {
@@ -79,6 +86,25 @@ export class CameraController {
 
         if (this.thirdPerson) {
             this.thirdPersonCamera();
+        }
+
+        if (this.hitScreenEffect) {
+            getVignette().uniforms[ "darkness" ].value = 1;
+            this.framesSinceHit += 1;
+
+            if (this.framesSinceHit < 10) {
+                getVignette().uniforms[ "offset" ].value += .085;
+            }
+
+            if (this.framesSinceHit >= 20) {
+                getVignette().uniforms[ "offset" ].value -= .085;
+            }
+
+            if (this.framesSinceHit === 31) {
+                getVignette().uniforms[ "darkness" ].value = 0;
+                getVignette().uniforms[ "offset" ].value = 0;
+                this.hitScreenEffect = false;
+            }
         }
     }
 }
